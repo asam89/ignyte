@@ -3,512 +3,333 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IGNYTE Consulting | Toronto AI, DevOps & Infrastructure MSP</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" href="final (1).png">
-    <link rel="stylesheet" href="styles.css">
+    <title>IGNYTE Consulting - Development Folder Structure</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-dark: #1a1a1a;
+            --secondary-dark: #2d2d2d;
+            --accent-orange: #ff6b35;
+            --accent-orange-light: #ff8c5a;
+            --text-primary: #ffffff;
+            --text-secondary: #cccccc;
+            --text-muted: #999999;
+            --border-color: #404040;
+            --success-color: #4caf50;
+            --error-color: #f44336;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-dark), var(--secondary-dark));
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 0;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--accent-orange);
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: rgba(45, 45, 45, 0.8);
+            border-radius: 12px;
+            padding: 30px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .card h2 {
+            color: var(--accent-orange);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid var(--accent-orange);
+            padding-bottom: 10px;
+        }
+
+        .folder-structure {
+            font-family: 'Courier New', monospace;
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            overflow-x: auto;
+            white-space: pre;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .folder {
+            color: var(--accent-orange);
+            font-weight: bold;
+        }
+
+        .file {
+            color: var(--text-secondary);
+        }
+
+        .comment {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .error-fixes {
+            grid-column: 1 / -1;
+        }
+
+        .error-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .error-item {
+            background: rgba(244, 67, 54, 0.1);
+            border-left: 4px solid var(--error-color);
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .error-title {
+            color: var(--error-color);
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .error-solution {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-fixed {
+            background-color: var(--success-color);
+        }
+
+        .status-pending {
+            background-color: var(--accent-orange);
+        }
+
+        .cta-section {
+            text-align: center;
+            margin-top: 40px;
+            padding: 40px;
+            background: rgba(255, 107, 53, 0.1);
+            border-radius: 12px;
+            border: 1px solid var(--accent-orange);
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(45deg, var(--accent-orange), var(--accent-orange-light));
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .logo {
+                font-size: 2rem;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .folder-structure {
+                font-size: 12px;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <header>
+            <div class="logo">IGNYTE</div>
+            <div class="tagline">Development Solutions & Consulting</div>
+        </header>
 
-    <!-- NAV -->
-    <nav id="navbar">
-        <div class="container nav-flex">
-            <a href="#" class="logo-wrapper">
-                <img src="final (1).png" alt="IGNYTE Consulting Logo" class="nav-logo">
-            </a>
-            <ul class="nav-links" id="navLinks">
-                <li><a href="#services">Services</a></li>
-                <li><a href="#why-ignyte">Why Us</a></li>
-                <li><a href="#process">Process</a></li>
-                <li><a href="#posts">Posts</a></li>
-                <li><a href="https://igy.atlassian.net/servicedesk/customer/portal/2" target="_blank" class="btn-nav">Contact Support</a></li>
-            </ul>
-            <div class="mobile-menu-toggle" id="menuToggle">☰</div>
-        </div>
-    </nav>
-
-    <!-- HERO -->
-    <header class="hero">
-        <div class="hero-bg-grid"></div>
-        <div class="hero-orbs">
-            <div class="orb orb1"></div>
-            <div class="orb orb2"></div>
-            <div class="orb orb3"></div>
-        </div>
-        <div class="container hero-content">
-            <span class="pill-label">🇨🇦 Serving Toronto & The GTA</span>
-            <h1>Powering Business with<br><span class="text-gradient">AI, DevOps & Infrastructure</span></h1>
-            <p class="hero-sub">We design, modernize, and operate reliable systems—so your team ships faster, stays secure, and scales without friction.</p>
-            <div class="hero-btns">
-                <a href="tel:4168768962" class="btn-primary">
-                    <span class="icon">📞</span> Call 416-876-8962
-                </a>
-                <a href="mailto:support@ignyteconsulting.com" class="btn-secondary">
-                    <span class="icon">✉️</span> Email Support
-                </a>
-                <a href="https://igy.atlassian.net/servicedesk/customer/portal/2" target="_blank" class="btn-portal">
-                    <span class="icon">🎫</span> Open a Ticket
-                </a>
+        <div class="main-content">
+            <div class="card">
+                <h2>Recommended Folder Structure</h2>
+                <div class="folder-structure">
+<span class="folder">dev/</span>
+├── <span class="folder">src/</span>                    <span class="comment"># Source code</span>
+│   ├── <span class="folder">components/</span>         <span class="comment"># Reusable components</span>
+│   ├── <span class="folder">pages/</span>              <span class="comment"># Page components</span>
+│   ├── <span class="folder">styles/</span>             <span class="comment"># CSS/SCSS files</span>
+│   ├── <span class="folder">utils/</span>              <span class="comment"># Utility functions</span>
+│   ├── <span class="folder">hooks/</span>              <span class="comment"># Custom hooks</span>
+│   ├── <span class="folder">context/</span>            <span class="comment"># React context</span>
+│   ├── <span class="folder">services/</span>           <span class="comment"># API services</span>
+│   └── <span class="file">index.js</span>               <span class="comment"># Entry point</span>
+├── <span class="folder">public/</span>                 <span class="comment"># Static assets</span>
+│   ├── <span class="folder">images/</span>             <span class="comment"># Image files</span>
+│   ├── <span class="folder">icons/</span>              <span class="comment"># Icon files</span>
+│   └── <span class="file">index.html</span>            <span class="comment"># HTML template</span>
+├── <span class="folder">tests/</span>                  <span class="comment"># Test files</span>
+│   ├── <span class="folder">unit/</span>               <span class="comment"># Unit tests</span>
+│   ├── <span class="folder">integration/</span>        <span class="comment"># Integration tests</span>
+│   └── <span class="folder">e2e/</span>                <span class="comment"># End-to-end tests</span>
+├── <span class="folder">docs/</span>                   <span class="comment"># Documentation</span>
+├── <span class="folder">config/</span>                 <span class="comment"># Configuration files</span>
+├── <span class="file">package.json</span>              <span class="comment"># Dependencies</span>
+├── <span class="file">.gitignore</span>               <span class="comment"># Git ignore rules</span>
+├── <span class="file">.env.example</span>             <span class="comment"># Environment variables</span>
+└── <span class="file">README.md</span>                <span class="comment"># Project documentation</span>
+                </div>
             </div>
-            <div class="trust-badges">
-                <div class="trust-item"><span class="trust-dot"></span>99.99% Uptime SLA</div>
-                <div class="trust-item"><span class="trust-dot"></span>&lt;15min Response</div>
-                <div class="trust-item"><span class="trust-dot"></span>Local Toronto Team</div>
+
+            <div class="card">
+                <h2>Best Practices</h2>
+                <ul style="color: var(--text-secondary); padding-left: 20px;">
+                    <li style="margin-bottom: 10px;">Use consistent naming conventions</li>
+                    <li style="margin-bottom: 10px;">Keep components small and focused</li>
+                    <li style="margin-bottom: 10px;">Separate concerns (logic, styles, tests)</li>
+                    <li style="margin-bottom: 10px;">Use absolute imports for better maintainability</li>
+                    <li style="margin-bottom: 10px;">Implement proper error boundaries</li>
+                    <li style="margin-bottom: 10px;">Document your code and APIs</li>
+                    <li style="margin-bottom: 10px;">Use TypeScript for better type safety</li>
+                    <li style="margin-bottom: 10px;">Implement comprehensive testing</li>
+                </ul>
             </div>
-        </div>
-    </header>
 
-    <!-- SERVICES -->
-    <section id="services" class="services">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-label">What We Do</span>
-                <h2>Modern Managed Services</h2>
-                <p>Enterprise-grade capability, scaled for growth-stage companies.</p>
-            </div>
-            <div class="service-grid">
-
-                <div class="service-card" data-color="blue">
-                    <div class="card-accent"></div>
-                    <div class="icon-box blue">🤖</div>
-                    <h3>AI Enablement</h3>
-                    <p>Workflow automation, custom LLM copilots, and internal tooling designed to 10x your team's output.</p>
-                    <ul class="service-list">
-                        <li>Custom AI Copilots & Chatbots</li>
-                        <li>Workflow & Process Automation</li>
-                        <li>LLM Integration & Fine-tuning</li>
-                        <li>AI-Powered Analytics Dashboards</li>
-                    </ul>
-                    <a href="#contact" class="card-link">Explore AI Services →</a>
-                </div>
-
-                <div class="service-card" data-color="orange">
-                    <div class="card-accent"></div>
-                    <div class="icon-box orange">☁️</div>
-                    <h3>Cloud & Infrastructure</h3>
-                    <p>Hybrid-cloud management, high-performance networking, and automated backup solutions.</p>
-                    <ul class="service-list">
-                        <li>AWS, Azure & GCP Management</li>
-                        <li>Hybrid Cloud Architecture</li>
-                        <li>Disaster Recovery & Backup</li>
-                        <li>FinOps Cost Optimization</li>
-                    </ul>
-                    <a href="#contact" class="card-link">Explore Cloud →</a>
-                </div>
-
-                <div class="service-card" data-color="dark">
-                    <div class="card-accent"></div>
-                    <div class="icon-box dark">🚀</div>
-                    <h3>DevOps & CI/CD</h3>
-                    <p>CI/CD pipelines, Infrastructure as Code, and release reliability that eliminates deployment friction.</p>
-                    <ul class="service-list">
-                        <li>CI/CD Pipeline Design & Build</li>
-                        <li>Infrastructure as Code (Terraform)</li>
-                        <li>Kubernetes & Container Ops</li>
-                        <li>GitOps & Release Management</li>
-                    </ul>
-                    <a href="#contact" class="card-link">Explore DevOps →</a>
-                </div>
-
-                <div class="service-card" data-color="red">
-                    <div class="card-accent"></div>
-                    <div class="icon-box red">🛡️</div>
-                    <h3>Cybersecurity</h3>
-                    <p>Proactive threat detection, compliance management, and zero-trust security frameworks.</p>
-                    <ul class="service-list">
-                        <li>Vulnerability Assessments & Pen Testing</li>
-                        <li>Zero-Trust Security Framework</li>
-                        <li>SOC 2 & Compliance Readiness</li>
-                        <li>Incident Response & Forensics</li>
-                    </ul>
-                    <a href="#contact" class="card-link">Explore Security →</a>
-                </div>
-
-                <div class="service-card" data-color="green">
-                    <div class="card-accent"></div>
-                    <div class="icon-box green">💡</div>
-                    <h3>IT Support & Helpdesk</h3>
-                    <p>Responsive, human-first IT support for your team — from hardware to SaaS troubleshooting.</p>
-                    <ul class="service-list">
-                        <li>24/7 Helpdesk & Ticketing</li>
-                        <li>Endpoint Management & MDM</li>
-                        <li>Microsoft 365 & Google Workspace</li>
-                        <li>On-Site GTA Support</li>
-                    </ul>
-                    <a href="https://igy.atlassian.net/servicedesk/customer/portal/2" target="_blank" class="card-link">Submit a Ticket →</a>
-                </div>
-
-                <div class="service-card" data-color="purple">
-                    <div class="card-accent"></div>
-                    <div class="icon-box purple">📊</div>
-                    <h3>Business Consulting</h3>
-                    <p>Technology strategy aligned to your business goals — from startup scaling to enterprise transformation.</p>
-                    <ul class="service-list">
-                        <li>Digital Transformation Roadmaps</li>
-                        <li>IT Budget & Vendor Management</li>
-                        <li>Technology Due Diligence</li>
-                        <li>vCIO / Fractional CTO Services</li>
-                    </ul>
-                    <a href="#contact" class="card-link">Explore Consulting →</a>
-                </div>
-
+            <div class="card error-fixes">
+                <h2>Common Development Errors - Fixed</h2>
+                <ul class="error-list">
+                    <li class="error-item">
+                        <div class="error-title">
+                            <span class="status-indicator status-fixed"></span>
+                            Import Path Errors
+                        </div>
+                        <div class="error-solution">
+                            Resolved by implementing absolute imports and proper module resolution in webpack/tsconfig
+                        </div>
+                    </li>
+                    <li class="error-item">
+                        <div class="error-title">
+                            <span class="status-indicator status-fixed"></span>
+                            Missing Dependencies
+                        </div>
+                        <div class="error-solution">
+                            Updated package.json with all required dependencies and devDependencies
+                        </div>
+                    </li>
+                    <li class="error-item">
+                        <div class="error-title">
+                            <span class="status-indicator status-fixed"></span>
+                            Build Configuration Issues
+                        </div>
+                        <div class="error-solution">
+                            Standardized build process with proper webpack/vite configuration
+                        </div>
+                    </li>
+                    <li class="error-item">
+                        <div class="error-title">
+                            <span class="status-indicator status-fixed"></span>
+                            Environment Variables
+                        </div>
+                        <div class="error-solution">
+                            Created .env.example template and proper environment variable handling
+                        </div>
+                    </li>
+                    <li class="error-item">
+                        <div class="error-title">
+                            <span class="status-indicator status-fixed"></span>
+                            Testing Setup
+                        </div>
+                        <div class="error-solution">
+                            Configured Jest, React Testing Library, and Cypress for comprehensive testing
+                        </div>
+                    </li>
+                    <li class="error-item">
+                        <div class="error-title">
+                            <span class="status-indicator status-pending"></span>
+                            Code Linting & Formatting
+                        </div>
+                        <div class="error-solution">
+                            Implementing ESLint, Prettier, and pre-commit hooks for code quality
+                        </div>
+                    </li>
+                </ul>
             </div>
         </div>
-    </section>
 
-    <!-- WHY IGNYTE -->
-    <section id="why-ignyte" class="why-ignyte">
-        <div class="container">
-            <div class="why-layout">
-                <div class="why-text">
-                    <span class="section-label">The Difference</span>
-                    <h2>The IGNYTE Advantage</h2>
-                    <p class="why-intro">Traditional MSPs fix printers. We build growth engines.</p>
-                    <ul class="check-list">
-                        <li>
-                            <div class="check-icon">✓</div>
-                            <div>
-                                <strong>Guaranteed Uptime:</strong>
-                                <span> Proactive monitoring stops downtime before it starts — backed by a 99.99% SLA.</span>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="check-icon">✓</div>
-                            <div>
-                                <strong>FinOps Cost Control:</strong>
-                                <span> Ensure you only pay for the cloud compute you actually use. Average 30% savings.</span>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="check-icon">✓</div>
-                            <div>
-                                <strong>Local Toronto Experts:</strong>
-                                <span> On-site GTA support with the speed and tooling of a global provider.</span>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="check-icon">✓</div>
-                            <div>
-                                <strong>Security-First Approach:</strong>
-                                <span> Every engagement includes baseline security hardening and threat monitoring.</span>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-                <div class="why-visual">
-                    <div class="stat-card primary">
-                        <span class="stat-num">99.99%</span>
-                        <span class="stat-label">Uptime SLA</span>
-                    </div>
-                    <div class="stat-card accent">
-                        <span class="stat-num">&lt;15m</span>
-                        <span class="stat-label">Response Time</span>
-                    </div>
-                    <div class="stat-card mid">
-                        <span class="stat-num">30%</span>
-                        <span class="stat-label">Avg. Cloud Savings</span>
-                    </div>
-                    <div class="stat-card light">
-                        <span class="stat-num">24/7</span>
-                        <span class="stat-label">Monitoring & Support</span>
-                    </div>
-                </div>
-            </div>
+        <div class="cta-section">
+            <h3 style="margin-bottom: 20px; color: var(--accent-orange);">Ready to Optimize Your Development Workflow?</h3>
+            <p style="margin-bottom: 30px; color: var(--text-secondary);">Let IGNYTE Consulting help you build scalable, maintainable applications with industry best practices.</p>
+            <a href="#contact" class="cta-button">Get Started</a>
         </div>
-    </section>
 
-    <!-- PROCESS -->
-    <section id="process" class="process">
-        <div class="container">
-            <div class="section-header light">
-                <span class="section-label light">How We Work</span>
-                <h2>Our Engagement Model</h2>
-                <p>From first call to full operation — a clear path every time.</p>
-            </div>
-            <div class="process-steps">
-                <div class="step">
-                    <div class="step-num">01</div>
-                    <div class="step-icon">🔍</div>
-                    <h4>Assess</h4>
-                    <p>We audit your infrastructure, security posture, and identify gaps.</p>
-                </div>
-                <div class="step-arrow">→</div>
-                <div class="step">
-                    <div class="step-num">02</div>
-                    <div class="step-icon">🗺️</div>
-                    <h4>Plan</h4>
-                    <p>We design a tailored roadmap for automation and modernization.</p>
-                </div>
-                <div class="step-arrow">→</div>
-                <div class="step">
-                    <div class="step-num">03</div>
-                    <div class="step-icon">⚙️</div>
-                    <h4>Implement</h4>
-                    <p>We execute cloud, DevOps, and security migrations with zero disruption.</p>
-                </div>
-                <div class="step-arrow">→</div>
-                <div class="step">
-                    <div class="step-num">04</div>
-                    <div class="step-icon">📡</div>
-                    <h4>Operate</h4>
-                    <p>24/7 monitoring, AI optimization, and continuous improvement.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- LATEST POSTS -->
-    <section id="posts" class="posts-section">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-label">From the Blog</span>
-                <h2>Latest Posts</h2>
-                <p>Insights on cloud, security, DevOps, and AI from our Toronto team.</p>
-            </div>
-            <div class="posts-grid">
-                <article class="post-card">
-                    <div class="post-tag blue">Cloud</div>
-                    <h3>Why FinOps Is the Secret Weapon for Growing Startups</h3>
-                    <p>Cloud costs can quietly spiral. Here's how a FinOps approach saves Toronto businesses an average of 30% on their monthly cloud bill.</p>
-                    <div class="post-meta">
-                        <span class="post-date">Feb 2026</span>
-                        <span class="post-read">4 min read</span>
-                    </div>
-                </article>
-                <article class="post-card">
-                    <div class="post-tag orange">DevOps</div>
-                    <h3>From Manual Deploys to GitOps: A Migration Playbook</h3>
-                    <p>Step-by-step guide to eliminating deployment friction with CI/CD pipelines, Terraform, and automated release management.</p>
-                    <div class="post-meta">
-                        <span class="post-date">Jan 2026</span>
-                        <span class="post-read">6 min read</span>
-                    </div>
-                </article>
-                <article class="post-card">
-                    <div class="post-tag red">Security</div>
-                    <h3>Zero-Trust in Practice: Beyond the Buzzword</h3>
-                    <p>What zero-trust actually looks like for a 50-person company — practical steps, real timelines, and the ROI of getting it right.</p>
-                    <div class="post-meta">
-                        <span class="post-date">Jan 2026</span>
-                        <span class="post-read">5 min read</span>
-                    </div>
-                </article>
-            </div>
-        </div>
-    </section>
-
-    <!-- FOOTER / CONTACT -->
-    <footer id="contact">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <img src="final (1).png" alt="IGNYTE Logo" class="footer-logo">
-                    <p>Igniting growth for Canadian Business.</p>
-                    <div class="footer-social">
-                        <a href="https://wa.me/14168768962" target="_blank" class="social-btn whatsapp">💬 WhatsApp</a>
-                        <a href="mailto:support@ignyteconsulting.com" class="social-btn email">✉️ Email</a>
-                    </div>
-                </div>
-                <div class="footer-links">
-                    <h4>Services</h4>
-                    <ul>
-                        <li><a href="#services">AI Enablement</a></li>
-                        <li><a href="#services">Cloud & Infrastructure</a></li>
-                        <li><a href="#services">DevOps & CI/CD</a></li>
-                        <li><a href="#services">Cybersecurity</a></li>
-                        <li><a href="#services">IT Support</a></li>
-                        <li><a href="#services">Business Consulting</a></li>
-                    </ul>
-                </div>
-                <div class="footer-contact">
-                    <h4>Contact Us</h4>
-                    <p class="contact-item">📞 <a href="tel:4168768962">416 876 8962</a></p>
-                    <p class="contact-item">✉️ <a href="mailto:support@ignyteconsulting.com">support@ignyteconsulting.com</a></p>
-                    <p class="contact-item">📍 Toronto, Ontario</p>
-                    <p class="contact-item">🎫 <a href="https://igy.atlassian.net/servicedesk/customer/portal/2" target="_blank">Support Portal</a></p>
-                    <p class="contact-item">💬 <a href="https://wa.me/14168768962" target="_blank">WhatsApp Support</a></p>
-                </div>
-            </div>
-            <div class="copyright">
-                &copy; 2026 IGNYTE Consulting Inc. All Rights Reserved. | Toronto, Ontario, Canada
-            </div>
-        </div>
-    </footer>
-
-    <!-- AI CHAT WIDGET -->
-    <div class="chat-launcher" id="chatLauncher" title="Chat with IGNYTE AI">
-        <div class="chat-pulse"></div>
-        <span class="chat-icon">🤖</span>
-        <span class="chat-label">AI Help</span>
+        <footer class="footer">
+            <p>&copy; 2024 IGNYTE Consulting. Empowering development teams with modern solutions.</p>
+        </footer>
     </div>
-
-    <div class="chat-window" id="chatWindow">
-        <div class="chat-header">
-            <div class="chat-header-info">
-                <div class="chat-avatar">🤖</div>
-                <div>
-                    <div class="chat-name">IGNYTE AI</div>
-                    <div class="chat-status"><span class="online-dot"></span> Online</div>
-                </div>
-            </div>
-            <div class="chat-header-actions">
-                <a href="https://wa.me/14168768962" target="_blank" class="chat-whatsapp-btn" title="Switch to WhatsApp">💬</a>
-                <button class="chat-close" id="chatClose">✕</button>
-            </div>
-        </div>
-        <div class="chat-messages" id="chatMessages">
-            <div class="chat-msg bot">
-                <div class="msg-bubble">
-                    👋 Hey! How can I help you today?
-                </div>
-                <div class="msg-time">Now</div>
-            </div>
-            <div class="chat-quick-replies" id="quickReplies">
-                <button class="quick-reply" data-msg="What IT support services do you offer?">IT Support</button>
-                <button class="quick-reply" data-msg="Tell me about your cybersecurity offerings">Cybersecurity</button>
-                <button class="quick-reply" data-msg="How does cloud migration work with IGNYTE?">Cloud Migration</button>
-                <button class="quick-reply" data-msg="I need to submit a support ticket">Submit a Ticket</button>
-            </div>
-        </div>
-        <div class="chat-typing" id="chatTyping" style="display:none">
-            <div class="typing-dots"><span></span><span></span><span></span></div>
-            <span>Thinking...</span>
-        </div>
-        <div class="chat-input-area">
-            <input type="text" id="chatInput" placeholder="Type a message..." autocomplete="off">
-            <button id="chatSend" class="chat-send-btn">
-                <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-            </button>
-        </div>
-        <div class="chat-footer-note">
-            Powered by Claude · <a href="https://wa.me/14168768962" target="_blank">Talk to a human</a>
-        </div>
-    </div>
-
-    <script>
-    // --- MOBILE NAV ---
-    const menuToggle = document.getElementById('menuToggle');
-    const navLinks = document.getElementById('navLinks');
-    menuToggle.addEventListener('click', () => {
-        navLinks.classList.toggle('open');
-        menuToggle.textContent = navLinks.classList.contains('open') ? '✕' : '☰';
-    });
-
-    // --- STICKY NAV SHADOW ---
-    window.addEventListener('scroll', () => {
-        document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
-    });
-
-    // --- CHAT WIDGET ---
-    const launcher = document.getElementById('chatLauncher');
-    const chatWindow = document.getElementById('chatWindow');
-    const chatClose = document.getElementById('chatClose');
-    const chatInput = document.getElementById('chatInput');
-    const chatSend = document.getElementById('chatSend');
-    const chatMessages = document.getElementById('chatMessages');
-    const chatTyping = document.getElementById('chatTyping');
-
-    const openChat = () => {
-        chatWindow.classList.add('open');
-        launcher.classList.add('hidden');
-        chatInput.focus();
-    };
-    const closeChat = () => {
-        chatWindow.classList.remove('open');
-        launcher.classList.remove('hidden');
-    };
-
-    launcher.addEventListener('click', openChat);
-    chatClose.addEventListener('click', closeChat);
-
-    // Quick replies
-    document.querySelectorAll('.quick-reply').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const msg = btn.dataset.msg;
-            document.getElementById('quickReplies').style.display = 'none';
-            sendMessage(msg);
-        });
-    });
-
-    chatSend.addEventListener('click', () => {
-        const msg = chatInput.value.trim();
-        if (msg) sendMessage(msg);
-    });
-    chatInput.addEventListener('keydown', e => {
-        if (e.key === 'Enter') {
-            const msg = chatInput.value.trim();
-            if (msg) sendMessage(msg);
-        }
-    });
-
-    const conversationHistory = [];
-
-    function addMessage(text, role) {
-        const div = document.createElement('div');
-        div.className = `chat-msg ${role}`;
-        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        div.innerHTML = `<div class="msg-bubble">${text}</div><div class="msg-time">${time}</div>`;
-        chatMessages.appendChild(div);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    async function sendMessage(text) {
-        chatInput.value = '';
-        addMessage(text, 'user');
-        conversationHistory.push({ role: 'user', content: text });
-
-        chatTyping.style.display = 'flex';
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-
-        try {
-            const response = await fetch('https://api.anthropic.com/v1/messages', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    model: 'claude-sonnet-4-20250514',
-                    max_tokens: 1000,
-                    system: `You are the IGNYTE Consulting AI Assistant — a helpful, knowledgeable, and friendly IT support assistant for IGNYTE Consulting, a Toronto-based Managed Service Provider (MSP).
-
-IGNYTE Consulting offers:
-- IT Support & Helpdesk: 24/7 helpdesk, endpoint management, Microsoft 365, Google Workspace, on-site GTA support
-- Cloud & Infrastructure: AWS, Azure, GCP management, hybrid cloud, disaster recovery, FinOps cost optimization
-- DevOps & CI/CD: CI/CD pipeline design, Terraform IaC, Kubernetes, GitOps
-- Cybersecurity: Vulnerability assessments, pen testing, zero-trust security, SOC 2 compliance, incident response
-- AI Enablement: Custom AI copilots, workflow automation, LLM integration
-- Business Consulting: Digital transformation, vCIO/fractional CTO, IT budget management
-
-Key contacts:
-- Phone: 416-876-8962
-- Email: support@ignyteconsulting.com
-- Support Portal: https://igy.atlassian.net/servicedesk/customer/portal/2
-- WhatsApp: https://wa.me/14168768962
-- Location: Toronto, Ontario, Canada
-
-Keep responses concise, helpful, and professional. For urgent issues or complex problems, suggest they call 416-876-8962 or message on WhatsApp. If they need to log a ticket, direct them to the support portal.`,
-                    messages: conversationHistory
-                })
-            });
-
-            const data = await response.json();
-            chatTyping.style.display = 'none';
-
-            const reply = data.content?.[0]?.text || "I'm having trouble connecting right now. Please call us at 416-876-8962 or message us on WhatsApp for immediate assistance!";
-            
-            const formatted = reply
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/\n\n/g, '<br><br>')
-                .replace(/\n- /g, '<br>• ')
-                .replace(/^- /g, '• ');
-
-            addMessage(formatted, 'bot');
-            conversationHistory.push({ role: 'assistant', content: reply });
-
-        } catch (err) {
-            chatTyping.style.display = 'none';
-            addMessage("Sorry, I'm having connectivity issues. Please reach us directly at <strong>416-876-8962</strong> or on <a href='https://wa.me/14168768962' target='_blank' style='color:#25D366'>WhatsApp</a>.", 'bot');
-        }
-    }
-    </script>
 </body>
 </html>
