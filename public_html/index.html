@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Git Sync Status - IGNYTE Consulting</title>
+    <title>IGNYTE Consulting - Strategic Business Solutions</title>
     <style>
         * {
             margin: 0;
@@ -11,335 +11,479 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --dark-bg: #1a1a1a;
+            --darker-bg: #0f0f0f;
+            --orange-accent: #ff6b35;
+            --orange-hover: #e55a2b;
+            --text-light: #f5f5f5;
+            --text-gray: #b0b0b0;
+            --card-bg: #2a2a2a;
+            --border-color: #404040;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-            color: #e0e0e0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            font-family: 'Arial', sans-serif;
+            background-color: var(--darker-bg);
+            color: var(--text-light);
+            line-height: 1.6;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
-            width: 100%;
         }
 
         header {
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            border-bottom: 2px solid #ff6b35;
+            background-color: var(--dark-bg);
             padding: 1rem 0;
-            position: sticky;
+            position: fixed;
+            width: 100%;
             top: 0;
-            z-index: 100;
+            z-index: 1000;
+            border-bottom: 2px solid var(--orange-accent);
         }
 
-        .header-content {
+        nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .logo {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #ff6b35;
-            text-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--orange-accent);
+            text-decoration: none;
         }
 
-        .tagline {
-            font-size: 0.9rem;
-            color: #b0b0b0;
-            font-style: italic;
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--orange-accent);
+        }
+
+        .mobile-menu {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .mobile-menu span {
+            width: 25px;
+            height: 3px;
+            background-color: var(--orange-accent);
+            margin: 3px 0;
+            transition: 0.3s;
         }
 
         main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 4rem 0;
+            margin-top: 80px;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, var(--dark-bg) 0%, var(--darker-bg) 100%);
+            padding: 100px 0;
             text-align: center;
         }
 
-        .sync-status-card {
-            background: rgba(40, 40, 40, 0.8);
-            border-radius: 20px;
-            padding: 3rem;
-            margin: 2rem 0;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            border: 1px solid #444;
-            backdrop-filter: blur(10px);
-            max-width: 600px;
-            width: 100%;
-        }
-
-        .sync-icon {
-            font-size: 4rem;
-            margin-bottom: 1.5rem;
-            animation: pulse 2s infinite;
-        }
-
-        .sync-question {
-            font-size: 2.5rem;
-            font-weight: 600;
+        .hero h1 {
+            font-size: 3.5rem;
             margin-bottom: 1rem;
-            color: #ff6b35;
-            text-shadow: 0 0 10px rgba(255, 107, 53, 0.2);
+            background: linear-gradient(45deg, var(--text-light), var(--orange-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        .sync-subtitle {
+        .hero p {
             font-size: 1.2rem;
-            color: #b0b0b0;
+            color: var(--text-gray);
             margin-bottom: 2rem;
-            line-height: 1.6;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
-        .status-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin: 2rem 0;
-        }
-
-        .status-item {
-            background: rgba(60, 60, 60, 0.5);
-            padding: 1.5rem;
-            border-radius: 10px;
-            border-left: 4px solid #ff6b35;
-            transition: all 0.3s ease;
-        }
-
-        .status-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(255, 107, 53, 0.1);
-            border-left-color: #ff8c60;
-        }
-
-        .status-label {
-            font-weight: 600;
-            color: #ff6b35;
-            margin-bottom: 0.5rem;
-        }
-
-        .status-value {
-            font-size: 1.1rem;
-            color: #e0e0e0;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin-top: 2rem;
-        }
-
-        .btn {
-            background: linear-gradient(45deg, #ff6b35, #ff8c60);
+        .cta-button {
+            display: inline-block;
+            background-color: var(--orange-accent);
             color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 25px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            padding: 12px 30px;
             text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(255, 107, 53, 0.3);
-            background: linear-gradient(45deg, #ff8c60, #ffaa85);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            border: 2px solid #ff6b35;
-            color: #ff6b35;
-        }
-
-        .btn-secondary:hover {
-            background: #ff6b35;
-            color: white;
-        }
-
-        .git-commands {
-            background: rgba(20, 20, 20, 0.8);
-            border-radius: 10px;
-            padding: 2rem;
-            margin: 2rem 0;
-            border: 1px solid #444;
-            text-align: left;
-        }
-
-        .command-title {
-            color: #ff6b35;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            font-size: 1.2rem;
-        }
-
-        .command-line {
-            background: #111;
-            color: #00ff00;
-            padding: 0.8rem;
             border-radius: 5px;
-            font-family: 'Courier New', monospace;
-            margin: 0.5rem 0;
-            border-left: 3px solid #ff6b35;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .cta-button:hover {
+            background-color: var(--orange-hover);
+        }
+
+        .services {
+            padding: 80px 0;
+            background-color: var(--dark-bg);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: var(--orange-accent);
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .service-card {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--orange-accent);
+        }
+
+        .service-card h3 {
+            color: var(--orange-accent);
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+
+        .service-card p {
+            color: var(--text-gray);
+        }
+
+        .about {
+            padding: 80px 0;
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .about-text h2 {
+            color: var(--orange-accent);
+            font-size: 2.2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .about-text p {
+            color: var(--text-gray);
+            margin-bottom: 1rem;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            color: var(--orange-accent);
+            font-weight: bold;
+        }
+
+        .contact {
+            padding: 80px 0;
+            background-color: var(--dark-bg);
+        }
+
+        .contact-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+        }
+
+        .contact-form {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-light);
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            background-color: var(--darker-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            color: var(--text-light);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--orange-accent);
+        }
+
+        .contact-info h3 {
+            color: var(--orange-accent);
+            margin-bottom: 1rem;
+        }
+
+        .contact-item {
+            margin-bottom: 1rem;
+            color: var(--text-gray);
         }
 
         footer {
-            background: rgba(0, 0, 0, 0.5);
-            text-align: center;
+            background-color: var(--darker-bg);
             padding: 2rem 0;
-            border-top: 1px solid #444;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.8; }
-            100% { transform: scale(1); opacity: 1; }
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h4 {
+            color: var(--orange-accent);
+            margin-bottom: 1rem;
+        }
+
+        .footer-section a {
+            color: var(--text-gray);
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section a:hover {
+            color: var(--orange-accent);
+        }
+
+        .footer-bottom {
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-gray);
         }
 
         @media (max-width: 768px) {
-            .logo {
-                font-size: 1.5rem;
+            .nav-links {
+                display: none;
             }
-            
-            .sync-question {
+
+            .mobile-menu {
+                display: flex;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .about-content,
+            .contact-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
                 font-size: 2rem;
             }
-            
-            .sync-status-card {
-                padding: 2rem;
-                margin: 1rem;
+
+            .hero p {
+                font-size: 1rem;
             }
-            
-            .header-content {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-            
-            .action-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .btn {
-                width: 100%;
-                max-width: 200px;
+
+            .section-title {
+                font-size: 2rem;
             }
         }
     </style>
 </head>
 <body>
     <header>
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">IGNYTE Consulting</div>
-                <div class="tagline">Igniting Innovation Through Technology</div>
+        <nav class="container">
+            <a href="#" class="logo">IGNYTE</a>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <div class="mobile-menu">
+                <span></span>
+                <span></span>
+                <span></span>
             </div>
-        </div>
+        </nav>
     </header>
 
     <main>
-        <div class="container">
-            <div class="sync-status-card">
-                <div class="sync-icon">🔄</div>
-                <h1 class="sync-question">Are We All Synced in Git?</h1>
-                <p class="sync-subtitle">Let's check our repository synchronization status and ensure everyone's on the same page.</p>
+        <section id="home" class="hero">
+            <div class="container">
+                <h1>IGNYTE Your Business</h1>
+                <p>Strategic consulting solutions that transform challenges into opportunities. We partner with forward-thinking organizations to drive sustainable growth and innovation.</p>
+                <a href="#contact" class="cta-button">Get Started</a>
+            </div>
+        </section>
 
-                <div class="status-grid">
-                    <div class="status-item">
-                        <div class="status-label">Current Branch</div>
-                        <div class="status-value">main</div>
+        <section id="services" class="services">
+            <div class="container">
+                <h2 class="section-title">Our Services</h2>
+                <div class="services-grid">
+                    <div class="service-card">
+                        <h3>Strategic Planning</h3>
+                        <p>Develop comprehensive strategies that align with your business objectives and market opportunities. Our data-driven approach ensures sustainable growth.</p>
                     </div>
-                    <div class="status-item">
-                        <div class="status-label">Last Pull</div>
-                        <div class="status-value">2 hours ago</div>
+                    <div class="service-card">
+                        <h3>Digital Transformation</h3>
+                        <p>Navigate the digital landscape with confidence. We help organizations modernize processes, implement new technologies, and create digital-first experiences.</p>
                     </div>
-                    <div class="status-item">
-                        <div class="status-label">Pending Changes</div>
-                        <div class="status-value">3 files</div>
+                    <div class="service-card">
+                        <h3>Operational Excellence</h3>
+                        <p>Optimize your operations for maximum efficiency. From process improvement to supply chain optimization, we streamline your business for peak performance.</p>
                     </div>
-                    <div class="status-item">
-                        <div class="status-label">Team Status</div>
-                        <div class="status-value">⚠️ Check needed</div>
+                    <div class="service-card">
+                        <h3>Change Management</h3>
+                        <p>Successfully implement organizational changes with minimal disruption. Our proven methodologies ensure smooth transitions and employee engagement.</p>
                     </div>
-                </div>
-
-                <div class="git-commands">
-                    <div class="command-title">Quick Sync Commands</div>
-                    <div class="command-line">$ git status</div>
-                    <div class="command-line">$ git pull origin main</div>
-                    <div class="command-line">$ git fetch --all</div>
-                    <div class="command-line">$ git log --oneline -5</div>
-                </div>
-
-                <div class="action-buttons">
-                    <button class="btn" onclick="checkStatus()">🔍 Check Status</button>
-                    <button class="btn btn-secondary" onclick="syncNow()">🔄 Sync Now</button>
-                    <button class="btn btn-secondary" onclick="viewHistory()">📊 View History</button>
+                    <div class="service-card">
+                        <h3>Innovation Strategy</h3>
+                        <p>Foster a culture of innovation and stay ahead of market trends. We help organizations develop innovation frameworks and bring new ideas to market.</p>
+                    </div>
+                    <div class="service-card">
+                        <h3>Leadership Development</h3>
+                        <p>Build strong leadership capabilities at every level. Our programs develop the skills needed to lead in today's complex business environment.</p>
+                    </div>
                 </div>
             </div>
-        </div>
+        </section>
+
+        <section id="about" class="about">
+            <div class="container">
+                <div class="about-content">
+                    <div class="about-text">
+                        <h2>About IGNYTE</h2>
+                        <p>At IGNYTE Consulting, we believe every organization has untapped potential waiting to be unleashed. Founded by industry veterans with decades of experience, we bring a unique blend of strategic thinking and practical execution.</p>
+                        <p>Our team of experts has worked across various industries, from startups to Fortune 500 companies, helping them navigate complex challenges and achieve breakthrough results.</p>
+                        <p>We don't just provide recommendations – we partner with you to implement solutions that create lasting impact.</p>
+                    </div>
+                    <div class="stats">
+                        <div class="stat-item">
+                            <div class="stat-number">200+</div>
+                            <div>Projects Completed</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">50+</div>
+                            <div>Happy Clients</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">15+</div>
+                            <div>Years Experience</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">95%</div>
+                            <div>Success Rate</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="contact">
+            <div class="container">
+                <h2 class="section-title">Get In Touch</h2>
+                <div class="contact-content">
+                    <div class="contact-form">
+                        <form>
+                            <div class="form-group">
+                                <label for="name">Name</label>
+                                <input type="text" id="name" name="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="company">Company</label>
+                                <input type="text" id="company" name="company">
+                            </div>
+                            <div class="form-group">
+                                <label for="message">Message</label>
+                                <textarea id="message" name="message" rows="5" required></textarea>
+                            </div>
+                            <button type="submit" class="cta-button">Send Message</button>
+                        </form>
+                    </div>
+                    <div class="contact-info">
+                        <h3>Contact Information</h3>
+                        <div class="contact-item">
+                            <strong>Email:</strong> info@ignyteconsulting.com
+                        </div>
+                        <div class="contact-item">
+                            <strong>Phone:</strong> +1 (555) 123-4567
+                        </div>
+                        <div class="contact-item">
+                            <strong>Address:</strong> 123 Business District<br>
+                            Suite 456<br>
+                            City, State 12345
+                        </div>
+                        <div class="contact-item">
+                            <strong>Office Hours:</strong><br>
+                            Monday - Friday: 9:00 AM - 6:00 PM<br>
+                            Saturday: 10:00 AM - 2:00 PM
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
     <footer>
         <div class="container">
-            <p>&copy; 2024 IGNYTE Consulting. Keeping teams synchronized and projects on track.</p>
-        </div>
-    </footer>
-
-    <script>
-        function checkStatus() {
-            alert('Checking git status... \n\nPlease run "git status" in your terminal to see your current repository state.');
-        }
-
-        function syncNow() {
-            if (confirm('This will guide you through syncing with the remote repository. Continue?')) {
-                alert('Sync Process:\n\n1. Save your current work\n2. Run "git add ."\n3. Run "git commit -m "your message""\n4. Run "git pull origin main"\n5. Run "git push origin main"\n\nCheck your terminal for any conflicts!');
-            }
-        }
-
-        function viewHistory() {
-            alert('To view git history, run:\n\ngit log --oneline --graph --decorate\n\nThis shows a visual representation of your commit history.');
-        }
-
-        // Add some interactive animations
-        document.addEventListener('DOMContentLoaded', function() {
-            const statusItems = document.querySelectorAll('.status-item');
-            statusItems.forEach((item, index) => {
-                item.style.animationDelay = `${index * 0.1}s`;
-                item.style.animation = 'fadeInUp 0.6s ease forwards';
-            });
-        });
-
-        // Add fadeInUp animation
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes fadeInUp {
-                from {
-                    opacity: 0;
-                    transform: translateY(20px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-        `;
-        document.head.appendChild(style);
-    </script>
-</body>
-</html>
+            <div
