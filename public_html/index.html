@@ -17,16 +17,15 @@
             --accent-orange: #ff6b35;
             --light-orange: #ff8c42;
             --text-light: #ffffff;
-            --text-gray: #cccccc;
-            --text-dark-gray: #999999;
+            --text-gray: #b0b0b0;
+            --border-color: #404040;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: var(--text-light);
             background-color: var(--primary-dark);
-            overflow-x: hidden;
+            color: var(--text-light);
+            line-height: 1.6;
         }
 
         .container {
@@ -36,13 +35,13 @@
         }
 
         header {
-            background-color: var(--primary-dark);
+            background-color: var(--secondary-dark);
             padding: 1rem 0;
             position: fixed;
             width: 100%;
             top: 0;
             z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
 
         nav {
@@ -52,10 +51,9 @@
         }
 
         .logo {
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: bold;
             color: var(--accent-orange);
-            text-decoration: none;
         }
 
         .nav-links {
@@ -74,13 +72,18 @@
             color: var(--accent-orange);
         }
 
-        .menu-toggle {
+        .mobile-menu {
             display: none;
-            background: none;
-            border: none;
-            color: var(--text-light);
-            font-size: 1.5rem;
+            flex-direction: column;
             cursor: pointer;
+        }
+
+        .mobile-menu span {
+            width: 25px;
+            height: 3px;
+            background-color: var(--text-light);
+            margin: 3px 0;
+            transition: 0.3s;
         }
 
         main {
@@ -92,6 +95,7 @@
             padding: 100px 0;
             text-align: center;
             position: relative;
+            overflow: hidden;
         }
 
         .hero::before {
@@ -101,8 +105,8 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="%23ff6b35" fill-opacity="0.05" points="0,0 1000,300 1000,1000 0,700"/></svg>');
-            background-size: cover;
+            background: radial-gradient(circle at 20% 80%, var(--accent-orange)20, transparent 50%);
+            opacity: 0.1;
         }
 
         .hero-content {
@@ -130,22 +134,27 @@
 
         .cta-button {
             display: inline-block;
-            background: linear-gradient(45deg, var(--accent-orange), var(--light-orange));
-            color: white;
+            background-color: var(--accent-orange);
+            color: var(--text-light);
             padding: 15px 30px;
-            border-radius: 50px;
             text-decoration: none;
+            border-radius: 50px;
             font-weight: bold;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
         }
 
         .cta-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(255, 107, 53, 0.3);
+            background-color: var(--light-orange);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
         }
 
-        .services {
-            padding: 100px 0;
+        .section {
+            padding: 80px 0;
+        }
+
+        .section-alt {
             background-color: var(--secondary-dark);
         }
 
@@ -164,167 +173,147 @@
         }
 
         .service-card {
-            background-color: var(--primary-dark);
+            background-color: var(--secondary-dark);
             padding: 2rem;
-            border-radius: 15px;
-            border-left: 4px solid var(--accent-orange);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-orange), var(--light-orange));
         }
 
         .service-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.2);
         }
 
         .service-card h3 {
             color: var(--accent-orange);
             margin-bottom: 1rem;
-            font-size: 1.4rem;
-        }
-
-        .service-card p {
-            color: var(--text-gray);
-        }
-
-        .about {
-            padding: 100px 0;
-            background-color: var(--primary-dark);
+            font-size: 1.5rem;
         }
 
         .about-content {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 3rem;
+            gap: 4rem;
             align-items: center;
         }
 
-        .about-text h2 {
-            font-size: 2.5rem;
-            color: var(--accent-orange);
-            margin-bottom: 2rem;
+        .about-text {
+            font-size: 1.1rem;
+            color: var(--text-gray);
         }
 
-        .about-text p {
-            color: var(--text-gray);
-            margin-bottom: 1.5rem;
-            font-size: 1.1rem;
+        .about-text h3 {
+            color: var(--accent-orange);
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
         }
 
         .stats {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 2rem;
-            margin-top: 2rem;
+            text-align: center;
         }
 
-        .stat {
-            text-align: center;
-            padding: 1rem;
-            background-color: var(--secondary-dark);
-            border-radius: 10px;
+        .stat-item {
+            padding: 2rem;
         }
 
         .stat-number {
-            font-size: 2rem;
+            font-size: 3rem;
             font-weight: bold;
             color: var(--accent-orange);
             display: block;
         }
 
-        .contact {
-            padding: 100px 0;
-            background-color: var(--secondary-dark);
-            text-align: center;
-        }
-
         .contact-form {
             max-width: 600px;
             margin: 0 auto;
-            margin-top: 3rem;
         }
 
         .form-group {
-            margin-bottom: 2rem;
-            text-align: left;
+            margin-bottom: 1.5rem;
         }
 
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
-            color: var(--text-gray);
+            color: var(--accent-orange);
+            font-weight: bold;
         }
 
         .form-group input,
         .form-group textarea {
             width: 100%;
-            padding: 15px;
-            border: 2px solid var(--primary-dark);
-            border-radius: 10px;
-            background-color: var(--primary-dark);
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: var(--secondary-dark);
             color: var(--text-light);
             font-size: 1rem;
-            transition: border-color 0.3s ease;
         }
 
         .form-group input:focus,
         .form-group textarea:focus {
             outline: none;
             border-color: var(--accent-orange);
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 120px;
+            box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
         }
 
         footer {
             background-color: var(--primary-dark);
-            padding: 2rem 0;
-            text-align: center;
-            border-top: 1px solid var(--secondary-dark);
+            padding: 3rem 0 1rem;
+            border-top: 1px solid var(--border-color);
         }
 
         .footer-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .footer-links {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 2rem;
-            list-style: none;
+            margin-bottom: 2rem;
         }
 
-        .footer-links a {
+        .footer-section h4 {
+            color: var(--accent-orange);
+            margin-bottom: 1rem;
+        }
+
+        .footer-section a {
             color: var(--text-gray);
             text-decoration: none;
             transition: color 0.3s ease;
         }
 
-        .footer-links a:hover {
+        .footer-section a:hover {
             color: var(--accent-orange);
         }
 
-        @media (max-width: 768px) {
-            .menu-toggle {
-                display: block;
-            }
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-gray);
+        }
 
+        @media (max-width: 768px) {
             .nav-links {
                 display: none;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                width: 100%;
-                background-color: var(--primary-dark);
-                flex-direction: column;
-                padding: 1rem;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.3);
             }
 
-            .nav-links.active {
+            .mobile-menu {
                 display: flex;
             }
 
@@ -338,41 +327,28 @@
 
             .about-content {
                 grid-template-columns: 1fr;
-                text-align: center;
+                gap: 2rem;
             }
 
-            .stats {
+            .services-grid {
                 grid-template-columns: 1fr;
             }
 
-            .footer-content {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .footer-links {
-                flex-direction: column;
-                text-align: center;
-                gap: 1rem;
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
 
         @media (max-width: 480px) {
-            .hero {
-                padding: 60px 0;
-            }
-
             .hero h1 {
                 font-size: 2rem;
             }
 
-            .services,
-            .about,
-            .contact {
-                padding: 60px 0;
+            .section-title {
+                font-size: 2rem;
             }
 
-            .services-grid {
+            .stats {
                 grid-template-columns: 1fr;
             }
         }
@@ -381,14 +357,18 @@
 <body>
     <header>
         <nav class="container">
-            <a href="#" class="logo">IGNYTE</a>
+            <div class="logo">IGNYTE Consulting</div>
             <ul class="nav-links">
                 <li><a href="#home">Home</a></li>
                 <li><a href="#services">Services</a></li>
                 <li><a href="#about">About</a></li>
                 <li><a href="#contact">Contact</a></li>
             </ul>
-            <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+            <div class="mobile-menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
         </nav>
     </header>
 
@@ -396,92 +376,95 @@
         <section id="home" class="hero">
             <div class="container">
                 <div class="hero-content">
-                    <h1>IGNYTE Your Business</h1>
-                    <p>Strategic consulting solutions that transform challenges into opportunities. We help businesses scale, innovate, and thrive in today's competitive landscape.</p>
-                    <a href="#contact" class="cta-button">Start Your Journey</a>
+                    <h1>Write Again</h1>
+                    <p>Transform your business narrative with strategic consulting that reignites growth, reimagines possibilities, and rewrites your path to success.</p>
+                    <a href="#contact" class="cta-button">Start Your Story</a>
                 </div>
             </div>
         </section>
 
-        <section id="services" class="services">
+        <section id="services" class="section">
             <div class="container">
-                <h2 class="section-title">Our Services</h2>
+                <h2 class="section-title">Rewrite Your Business Future</h2>
                 <div class="services-grid">
                     <div class="service-card">
-                        <h3>Strategic Planning</h3>
-                        <p>Comprehensive business strategy development to align your vision with actionable plans that drive sustainable growth and competitive advantage.</p>
+                        <h3>Strategic Rebranding</h3>
+                        <p>Craft a compelling new identity that resonates with your audience and drives market differentiation. We help you tell your story in a way that ignites customer engagement.</p>
                     </div>
                     <div class="service-card">
-                        <h3>Digital Transformation</h3>
-                        <p>Navigate the digital landscape with confidence. We help modernize your operations, implement cutting-edge technologies, and optimize processes.</p>
+                        <h3>Business Transformation</h3>
+                        <p>Reimagine your operations, processes, and culture. Our comprehensive approach ensures sustainable change that positions you for long-term success.</p>
                     </div>
                     <div class="service-card">
-                        <h3>Performance Optimization</h3>
-                        <p>Identify bottlenecks, streamline workflows, and maximize efficiency across all business functions to enhance productivity and profitability.</p>
+                        <h3>Growth Strategy</h3>
+                        <p>Write your expansion story with data-driven strategies that open new markets, optimize revenue streams, and accelerate sustainable growth.</p>
                     </div>
                     <div class="service-card">
-                        <h3>Change Management</h3>
-                        <p>Guide your organization through transitions with structured change management strategies that ensure smooth adoption and minimal disruption.</p>
+                        <h3>Digital Innovation</h3>
+                        <p>Redefine your digital presence and capabilities. From automation to digital marketing, we help you write a new chapter in technological excellence.</p>
                     </div>
                     <div class="service-card">
                         <h3>Leadership Development</h3>
-                        <p>Cultivate strong leadership at every level with tailored development programs that build capabilities and drive organizational success.</p>
+                        <p>Empower your team to write their own success stories. Our leadership programs build confidence, skills, and vision for transformational leadership.</p>
                     </div>
                     <div class="service-card">
-                        <h3>Market Analysis</h3>
-                        <p>Deep market insights and competitive intelligence to inform strategic decisions and identify new opportunities for growth and expansion.</p>
+                        <h3>Market Repositioning</h3>
+                        <p>Reframe your market position with strategic insights that differentiate your brand and create competitive advantages in your industry.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="about" class="about">
+        <section id="about" class="section section-alt">
             <div class="container">
+                <h2 class="section-title">Rewriting Success Stories</h2>
                 <div class="about-content">
                     <div class="about-text">
-                        <h2>About IGNYTE</h2>
-                        <p>Founded on the principle that every business has untapped potential, IGNYTE Consulting specializes in igniting growth through strategic innovation and operational excellence.</p>
-                        <p>Our team of experienced consultants brings decades of cross-industry expertise to help organizations overcome challenges, seize opportunities, and achieve sustainable success.</p>
-                        <p>We believe in collaborative partnerships that create lasting value and measurable results for our clients.</p>
+                        <h3>Every Business Has a Story to Rewrite</h3>
+                        <p>At IGNYTE Consulting, we believe that every organization has the potential to write again—to reimagine their purpose, restructure their approach, and reignite their passion for excellence.</p>
+                        <p>Our mission is to help businesses rewrite their narratives, moving from where they are to where they dream to be. We don't just offer solutions; we craft transformation stories that inspire teams, engage customers, and drive sustainable success.</p>
+                        <p>With years of experience across industries, our team brings fresh perspectives and proven methodologies to help you write the next chapter of your business journey with confidence and clarity.</p>
                     </div>
                     <div class="stats">
-                        <div class="stat">
+                        <div class="stat-item">
                             <span class="stat-number">150+</span>
-                            <span>Projects Completed</span>
+                            <span>Stories Rewritten</span>
                         </div>
-                        <div class="stat">
-                            <span class="stat-number">95%</span>
-                            <span>Client Satisfaction</span>
+                        <div class="stat-item">
+                            <span class="stat-number">98%</span>
+                            <span>Client Success Rate</span>
                         </div>
-                        <div class="stat">
-                            <span class="stat-number">10+</span>
-                            <span>Years Experience</span>
-                        </div>
-                        <div class="stat">
+                        <div class="stat-item">
                             <span class="stat-number">25+</span>
-                            <span>Industries Served</span>
+                            <span>Industries Transformed</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">$50M+</span>
+                            <span>Revenue Impact</span>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="contact" class="contact">
+        <section id="contact" class="section">
             <div class="container">
-                <h2 class="section-title">Let's Ignite Your Success</h2>
-                <p style="color: var(--text-gray); font-size: 1.1rem; margin-bottom: 2rem;">Ready to transform your business? Get in touch with our experts today.</p>
-                
+                <h2 class="section-title">Write Your Next Chapter</h2>
                 <form class="contact-form">
                     <div class="form-group">
-                        <label for="name">Full Name</label>
+                        <label for="name">Name</label>
                         <input type="text" id="name" name="name" required>
                     </div>
                     <div class="form-group">
-                        <label for="email">Email Address</label>
+                        <label for="email">Email</label>
                         <input type="email" id="email" name="email" required>
                     </div>
                     <div class="form-group">
                         <label for="company">Company</label>
                         <input type="text" id="company" name="company">
                     </div>
-                    <div class="form-group
+                    <div class="form-group">
+                        <label for="message">Tell Us Your Story</label>
+                        <textarea id="message" name="message" rows="5" placeholder="What chapter of your business would you like to rewrite?" required></textarea>
+                    </div>
+                    <div class="form-group" style="text-align:

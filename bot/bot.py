@@ -17,7 +17,7 @@ def git_push(repo_path, message):
         os.chdir(repo_path)
         subprocess.run(["git", "add", "."], check=True, capture_output=True)
         subprocess.run(["git", "commit", "-m", message], check=True, capture_output=True, text=True)
-        subprocess.run(["git", "push", "origin", "master"], check=True, capture_output=True)
+        subprocess.run(["git", "push", "origin", "main"], check=True, capture_output=True)
         return "Pushed to GitHub"
     except subprocess.CalledProcessError as e:
         return "Git error: " + str(e)
