@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IGNYTE Consulting - Development Folder Structure</title>
+    <title>Git Sync Status - IGNYTE Consulting</title>
     <style>
         * {
             margin: 0;
@@ -11,325 +11,335 @@
             box-sizing: border-box;
         }
 
-        :root {
-            --primary-dark: #1a1a1a;
-            --secondary-dark: #2d2d2d;
-            --accent-orange: #ff6b35;
-            --accent-orange-light: #ff8c5a;
-            --text-primary: #ffffff;
-            --text-secondary: #cccccc;
-            --text-muted: #999999;
-            --border-color: #404040;
-            --success-color: #4caf50;
-            --error-color: #f44336;
-        }
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, var(--primary-dark), var(--secondary-dark));
-            color: var(--text-primary);
-            line-height: 1.6;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #e0e0e0;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 0 20px;
+            width: 100%;
         }
 
         header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding: 40px 0;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid #ff6b35;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .logo {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: var(--accent-orange);
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            font-size: 2rem;
+            font-weight: 700;
+            color: #ff6b35;
+            text-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
         }
 
         .tagline {
-            font-size: 1.2rem;
-            color: var(--text-secondary);
-            margin-bottom: 30px;
-        }
-
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 40px;
-        }
-
-        .card {
-            background: rgba(45, 45, 45, 0.8);
-            border-radius: 12px;
-            padding: 30px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-            backdrop-filter: blur(10px);
-        }
-
-        .card h2 {
-            color: var(--accent-orange);
-            margin-bottom: 20px;
-            font-size: 1.5rem;
-            border-bottom: 2px solid var(--accent-orange);
-            padding-bottom: 10px;
-        }
-
-        .folder-structure {
-            font-family: 'Courier New', monospace;
-            background: #1e1e1e;
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            overflow-x: auto;
-            white-space: pre;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-
-        .folder {
-            color: var(--accent-orange);
-            font-weight: bold;
-        }
-
-        .file {
-            color: var(--text-secondary);
-        }
-
-        .comment {
-            color: var(--text-muted);
+            font-size: 0.9rem;
+            color: #b0b0b0;
             font-style: italic;
         }
 
-        .error-fixes {
-            grid-column: 1 / -1;
-        }
-
-        .error-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .error-item {
-            background: rgba(244, 67, 54, 0.1);
-            border-left: 4px solid var(--error-color);
-            padding: 15px 20px;
-            margin-bottom: 15px;
-            border-radius: 0 8px 8px 0;
-        }
-
-        .error-title {
-            color: var(--error-color);
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-
-        .error-solution {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-        }
-
-        .status-indicator {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 8px;
-        }
-
-        .status-fixed {
-            background-color: var(--success-color);
-        }
-
-        .status-pending {
-            background-color: var(--accent-orange);
-        }
-
-        .cta-section {
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem 0;
             text-align: center;
-            margin-top: 40px;
-            padding: 40px;
-            background: rgba(255, 107, 53, 0.1);
-            border-radius: 12px;
-            border: 1px solid var(--accent-orange);
         }
 
-        .cta-button {
-            display: inline-block;
-            background: linear-gradient(45deg, var(--accent-orange), var(--accent-orange-light));
-            color: white;
-            padding: 15px 30px;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        .sync-status-card {
+            background: rgba(40, 40, 40, 0.8);
+            border-radius: 20px;
+            padding: 3rem;
+            margin: 2rem 0;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid #444;
+            backdrop-filter: blur(10px);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .sync-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        .sync-question {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #ff6b35;
+            text-shadow: 0 0 10px rgba(255, 107, 53, 0.2);
+        }
+
+        .sync-subtitle {
+            font-size: 1.2rem;
+            color: #b0b0b0;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .status-item {
+            background: rgba(60, 60, 60, 0.5);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #ff6b35;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
         }
 
-        .cta-button:hover {
+        .status-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(255, 107, 53, 0.1);
+            border-left-color: #ff8c60;
+        }
+
+        .status-label {
+            font-weight: 600;
+            color: #ff6b35;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-value {
+            font-size: 1.1rem;
+            color: #e0e0e0;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ff6b35, #ff8c60);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+            box-shadow: 0 8px 20px rgba(255, 107, 53, 0.3);
+            background: linear-gradient(45deg, #ff8c60, #ffaa85);
         }
 
-        .footer {
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid #ff6b35;
+            color: #ff6b35;
+        }
+
+        .btn-secondary:hover {
+            background: #ff6b35;
+            color: white;
+        }
+
+        .git-commands {
+            background: rgba(20, 20, 20, 0.8);
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 2rem 0;
+            border: 1px solid #444;
+            text-align: left;
+        }
+
+        .command-title {
+            color: #ff6b35;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .command-line {
+            background: #111;
+            color: #00ff00;
+            padding: 0.8rem;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            margin: 0.5rem 0;
+            border-left: 3px solid #ff6b35;
+        }
+
+        footer {
+            background: rgba(0, 0, 0, 0.5);
             text-align: center;
-            margin-top: 60px;
-            padding-top: 30px;
-            border-top: 1px solid var(--border-color);
-            color: var(--text-muted);
+            padding: 2rem 0;
+            border-top: 1px solid #444;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
         }
 
         @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-
             .logo {
+                font-size: 1.5rem;
+            }
+            
+            .sync-question {
                 font-size: 2rem;
             }
-
-            .card {
-                padding: 20px;
+            
+            .sync-status-card {
+                padding: 2rem;
+                margin: 1rem;
             }
-
-            .folder-structure {
-                font-size: 12px;
+            
+            .header-content {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 200px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="logo">IGNYTE</div>
-            <div class="tagline">Development Solutions & Consulting</div>
-        </header>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">IGNYTE Consulting</div>
+                <div class="tagline">Igniting Innovation Through Technology</div>
+            </div>
+        </div>
+    </header>
 
-        <div class="main-content">
-            <div class="card">
-                <h2>Recommended Folder Structure</h2>
-                <div class="folder-structure">
-<span class="folder">dev/</span>
-├── <span class="folder">src/</span>                    <span class="comment"># Source code</span>
-│   ├── <span class="folder">components/</span>         <span class="comment"># Reusable components</span>
-│   ├── <span class="folder">pages/</span>              <span class="comment"># Page components</span>
-│   ├── <span class="folder">styles/</span>             <span class="comment"># CSS/SCSS files</span>
-│   ├── <span class="folder">utils/</span>              <span class="comment"># Utility functions</span>
-│   ├── <span class="folder">hooks/</span>              <span class="comment"># Custom hooks</span>
-│   ├── <span class="folder">context/</span>            <span class="comment"># React context</span>
-│   ├── <span class="folder">services/</span>           <span class="comment"># API services</span>
-│   └── <span class="file">index.js</span>               <span class="comment"># Entry point</span>
-├── <span class="folder">public/</span>                 <span class="comment"># Static assets</span>
-│   ├── <span class="folder">images/</span>             <span class="comment"># Image files</span>
-│   ├── <span class="folder">icons/</span>              <span class="comment"># Icon files</span>
-│   └── <span class="file">index.html</span>            <span class="comment"># HTML template</span>
-├── <span class="folder">tests/</span>                  <span class="comment"># Test files</span>
-│   ├── <span class="folder">unit/</span>               <span class="comment"># Unit tests</span>
-│   ├── <span class="folder">integration/</span>        <span class="comment"># Integration tests</span>
-│   └── <span class="folder">e2e/</span>                <span class="comment"># End-to-end tests</span>
-├── <span class="folder">docs/</span>                   <span class="comment"># Documentation</span>
-├── <span class="folder">config/</span>                 <span class="comment"># Configuration files</span>
-├── <span class="file">package.json</span>              <span class="comment"># Dependencies</span>
-├── <span class="file">.gitignore</span>               <span class="comment"># Git ignore rules</span>
-├── <span class="file">.env.example</span>             <span class="comment"># Environment variables</span>
-└── <span class="file">README.md</span>                <span class="comment"># Project documentation</span>
+    <main>
+        <div class="container">
+            <div class="sync-status-card">
+                <div class="sync-icon">🔄</div>
+                <h1 class="sync-question">Are We All Synced in Git?</h1>
+                <p class="sync-subtitle">Let's check our repository synchronization status and ensure everyone's on the same page.</p>
+
+                <div class="status-grid">
+                    <div class="status-item">
+                        <div class="status-label">Current Branch</div>
+                        <div class="status-value">main</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-label">Last Pull</div>
+                        <div class="status-value">2 hours ago</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-label">Pending Changes</div>
+                        <div class="status-value">3 files</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-label">Team Status</div>
+                        <div class="status-value">⚠️ Check needed</div>
+                    </div>
+                </div>
+
+                <div class="git-commands">
+                    <div class="command-title">Quick Sync Commands</div>
+                    <div class="command-line">$ git status</div>
+                    <div class="command-line">$ git pull origin main</div>
+                    <div class="command-line">$ git fetch --all</div>
+                    <div class="command-line">$ git log --oneline -5</div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn" onclick="checkStatus()">🔍 Check Status</button>
+                    <button class="btn btn-secondary" onclick="syncNow()">🔄 Sync Now</button>
+                    <button class="btn btn-secondary" onclick="viewHistory()">📊 View History</button>
                 </div>
             </div>
-
-            <div class="card">
-                <h2>Best Practices</h2>
-                <ul style="color: var(--text-secondary); padding-left: 20px;">
-                    <li style="margin-bottom: 10px;">Use consistent naming conventions</li>
-                    <li style="margin-bottom: 10px;">Keep components small and focused</li>
-                    <li style="margin-bottom: 10px;">Separate concerns (logic, styles, tests)</li>
-                    <li style="margin-bottom: 10px;">Use absolute imports for better maintainability</li>
-                    <li style="margin-bottom: 10px;">Implement proper error boundaries</li>
-                    <li style="margin-bottom: 10px;">Document your code and APIs</li>
-                    <li style="margin-bottom: 10px;">Use TypeScript for better type safety</li>
-                    <li style="margin-bottom: 10px;">Implement comprehensive testing</li>
-                </ul>
-            </div>
-
-            <div class="card error-fixes">
-                <h2>Common Development Errors - Fixed</h2>
-                <ul class="error-list">
-                    <li class="error-item">
-                        <div class="error-title">
-                            <span class="status-indicator status-fixed"></span>
-                            Import Path Errors
-                        </div>
-                        <div class="error-solution">
-                            Resolved by implementing absolute imports and proper module resolution in webpack/tsconfig
-                        </div>
-                    </li>
-                    <li class="error-item">
-                        <div class="error-title">
-                            <span class="status-indicator status-fixed"></span>
-                            Missing Dependencies
-                        </div>
-                        <div class="error-solution">
-                            Updated package.json with all required dependencies and devDependencies
-                        </div>
-                    </li>
-                    <li class="error-item">
-                        <div class="error-title">
-                            <span class="status-indicator status-fixed"></span>
-                            Build Configuration Issues
-                        </div>
-                        <div class="error-solution">
-                            Standardized build process with proper webpack/vite configuration
-                        </div>
-                    </li>
-                    <li class="error-item">
-                        <div class="error-title">
-                            <span class="status-indicator status-fixed"></span>
-                            Environment Variables
-                        </div>
-                        <div class="error-solution">
-                            Created .env.example template and proper environment variable handling
-                        </div>
-                    </li>
-                    <li class="error-item">
-                        <div class="error-title">
-                            <span class="status-indicator status-fixed"></span>
-                            Testing Setup
-                        </div>
-                        <div class="error-solution">
-                            Configured Jest, React Testing Library, and Cypress for comprehensive testing
-                        </div>
-                    </li>
-                    <li class="error-item">
-                        <div class="error-title">
-                            <span class="status-indicator status-pending"></span>
-                            Code Linting & Formatting
-                        </div>
-                        <div class="error-solution">
-                            Implementing ESLint, Prettier, and pre-commit hooks for code quality
-                        </div>
-                    </li>
-                </ul>
-            </div>
         </div>
+    </main>
 
-        <div class="cta-section">
-            <h3 style="margin-bottom: 20px; color: var(--accent-orange);">Ready to Optimize Your Development Workflow?</h3>
-            <p style="margin-bottom: 30px; color: var(--text-secondary);">Let IGNYTE Consulting help you build scalable, maintainable applications with industry best practices.</p>
-            <a href="#contact" class="cta-button">Get Started</a>
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 IGNYTE Consulting. Keeping teams synchronized and projects on track.</p>
         </div>
+    </footer>
 
-        <footer class="footer">
-            <p>&copy; 2024 IGNYTE Consulting. Empowering development teams with modern solutions.</p>
-        </footer>
-    </div>
+    <script>
+        function checkStatus() {
+            alert('Checking git status... \n\nPlease run "git status" in your terminal to see your current repository state.');
+        }
+
+        function syncNow() {
+            if (confirm('This will guide you through syncing with the remote repository. Continue?')) {
+                alert('Sync Process:\n\n1. Save your current work\n2. Run "git add ."\n3. Run "git commit -m "your message""\n4. Run "git pull origin main"\n5. Run "git push origin main"\n\nCheck your terminal for any conflicts!');
+            }
+        }
+
+        function viewHistory() {
+            alert('To view git history, run:\n\ngit log --oneline --graph --decorate\n\nThis shows a visual representation of your commit history.');
+        }
+
+        // Add some interactive animations
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusItems = document.querySelectorAll('.status-item');
+            statusItems.forEach((item, index) => {
+                item.style.animationDelay = `${index * 0.1}s`;
+                item.style.animation = 'fadeInUp 0.6s ease forwards';
+            });
+        });
+
+        // Add fadeInUp animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
 </body>
 </html>
