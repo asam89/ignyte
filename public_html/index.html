@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IGNYTE Consulting - Strategic Business Solutions</title>
+    <title>Preview Issues - IGNYTE Consulting</title>
     <style>
         * {
             margin: 0;
@@ -15,10 +15,10 @@
             --primary-dark: #1a1a1a;
             --secondary-dark: #2d2d2d;
             --accent-orange: #ff6b35;
-            --light-orange: #ff8c5a;
+            --light-orange: #ff8c42;
             --text-light: #ffffff;
             --text-gray: #cccccc;
-            --gradient: linear-gradient(135deg, #ff6b35, #ff8c5a);
+            --text-muted: #999999;
         }
 
         body {
@@ -26,6 +26,7 @@
             background-color: var(--primary-dark);
             color: var(--text-light);
             line-height: 1.6;
+            overflow-x: hidden;
         }
 
         .container {
@@ -35,16 +36,15 @@
         }
 
         header {
-            background-color: var(--secondary-dark);
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
             padding: 1rem 0;
-            position: fixed;
-            width: 100%;
+            position: sticky;
             top: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            z-index: 100;
+            border-bottom: 2px solid var(--accent-orange);
         }
 
-        nav {
+        .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -54,335 +54,348 @@
             font-size: 2rem;
             font-weight: bold;
             color: var(--accent-orange);
-            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
-        .nav-links {
+        .nav-menu {
             display: flex;
             list-style: none;
             gap: 2rem;
         }
 
-        .nav-links a {
-            color: var(--text-light);
+        .nav-menu a {
+            color: var(--text-gray);
             text-decoration: none;
             transition: color 0.3s ease;
+            font-weight: 500;
         }
 
-        .nav-links a:hover {
+        .nav-menu a:hover {
             color: var(--accent-orange);
         }
 
         .hero {
-            margin-top: 80px;
-            padding: 6rem 0;
+            padding: 4rem 0;
+            background: radial-gradient(circle at 30% 50%, rgba(255, 107, 53, 0.1) 0%, transparent 50%);
             text-align: center;
-            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><rect fill="%23333" width="1200" height="600"/><circle fill="%23ff6b35" opacity="0.1" cx="200" cy="150" r="100"/><circle fill="%23ff6b35" opacity="0.1" cx="800" cy="400" r="150"/></svg>');
-            background-size: cover;
         }
 
         .hero h1 {
-            font-size: 3.5rem;
+            font-size: 3rem;
             margin-bottom: 1rem;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: var(--text-light);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
 
-        .hero p {
-            font-size: 1.3rem;
-            margin-bottom: 2rem;
+        .hero .subtitle {
+            font-size: 1.2rem;
             color: var(--text-gray);
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
+            margin-bottom: 2rem;
         }
 
-        .cta-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 2rem;
+        .content-section {
+            padding: 3rem 0;
         }
 
-        .btn {
-            padding: 1rem 2rem;
-            border: none;
-            border-radius: 50px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary {
-            background: var(--gradient);
-            color: white;
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: var(--accent-orange);
-            border: 2px solid var(--accent-orange);
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(255, 107, 53, 0.3);
-        }
-
-        .whatsapp-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: #25d366;
-            color: white;
-            border: none;
-            border-radius: 50px;
-            padding: 1rem 1.5rem;
-            font-size: 1rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
-            transition: all 0.3s ease;
-            z-index: 1000;
-        }
-
-        .whatsapp-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
-        }
-
-        .whatsapp-icon {
-            width: 24px;
-            height: 24px;
-            fill: currentColor;
-        }
-
-        .services {
-            padding: 6rem 0;
-            background-color: var(--secondary-dark);
-        }
-
-        .services h2 {
-            text-align: center;
+        .section-title {
             font-size: 2.5rem;
-            margin-bottom: 3rem;
             color: var(--accent-orange);
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
         }
 
-        .services-grid {
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: var(--light-orange);
+        }
+
+        .problem-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 2rem;
+            margin: 3rem 0;
         }
 
-        .service-card {
-            background-color: var(--primary-dark);
+        .problem-card {
+            background: var(--secondary-dark);
             padding: 2rem;
-            border-radius: 15px;
-            text-align: center;
-            transition: transform 0.3s ease;
-            border: 1px solid transparent;
+            border-radius: 12px;
+            border-left: 4px solid var(--accent-orange);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
-        .service-card:hover {
+        .problem-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 107, 53, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .problem-card:hover::before {
+            left: 100%;
+        }
+
+        .problem-card:hover {
             transform: translateY(-5px);
-            border-color: var(--accent-orange);
+            box-shadow: 0 10px 25px rgba(255, 107, 53, 0.2);
         }
 
-        .service-card h3 {
+        .problem-card h3 {
             color: var(--accent-orange);
             margin-bottom: 1rem;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
         }
 
-        .contact {
-            padding: 6rem 0;
+        .problem-card p {
+            color: var(--text-gray);
+            line-height: 1.7;
+        }
+
+        .solutions-list {
+            background: var(--secondary-dark);
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+        }
+
+        .solutions-list ul {
+            list-style: none;
+        }
+
+        .solutions-list li {
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: rgba(255, 107, 53, 0.1);
+            border-left: 3px solid var(--accent-orange);
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .solutions-list li:hover {
+            background: rgba(255, 107, 53, 0.15);
+            transform: translateX(10px);
+        }
+
+        .solutions-list li::before {
+            content: "→";
+            color: var(--accent-orange);
+            font-weight: bold;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, var(--accent-orange) 0%, var(--light-orange) 100%);
+            padding: 3rem 0;
             text-align: center;
+            margin: 3rem 0;
+            border-radius: 12px;
         }
 
-        .contact h2 {
-            font-size: 2.5rem;
+        .cta-section h2 {
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+            font-size: 2rem;
+        }
+
+        .cta-section p {
+            color: var(--primary-dark);
             margin-bottom: 2rem;
-            color: var(--accent-orange);
+            font-size: 1.1rem;
         }
 
-        .contact-info {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin-top: 3rem;
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: var(--primary-dark);
+            color: var(--text-light);
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: 2px solid var(--primary-dark);
         }
 
-        .contact-item {
-            padding: 1.5rem;
-            background-color: var(--secondary-dark);
-            border-radius: 10px;
-        }
-
-        .contact-item h3 {
-            color: var(--accent-orange);
-            margin-bottom: 0.5rem;
+        .btn:hover {
+            background: transparent;
+            color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
         footer {
-            background-color: var(--secondary-dark);
+            background: var(--primary-dark);
             padding: 2rem 0;
+            border-top: 2px solid var(--accent-orange);
             text-align: center;
-            border-top: 1px solid var(--accent-orange);
         }
 
-        .mobile-menu {
-            display: none;
+        .footer-content {
+            color: var(--text-muted);
+        }
+
+        .footer-logo {
+            color: var(--accent-orange);
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
         }
 
         @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-            
-            .mobile-menu {
-                display: block;
-                background: none;
-                border: none;
-                color: var(--accent-orange);
-                font-size: 1.5rem;
-                cursor: pointer;
+            .nav-menu {
+                flex-direction: column;
+                gap: 1rem;
             }
 
             .hero h1 {
-                font-size: 2.5rem;
+                font-size: 2rem;
             }
 
-            .hero p {
-                font-size: 1.1rem;
+            .section-title {
+                font-size: 2rem;
             }
 
-            .cta-buttons {
+            .problem-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-content {
                 flex-direction: column;
-                align-items: center;
-            }
-
-            .whatsapp-btn {
-                bottom: 20px;
-                right: 20px;
-                padding: 0.8rem 1.2rem;
-                font-size: 0.9rem;
+                gap: 1rem;
             }
         }
 
-        .fade-in {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.6s ease;
+        .pulse {
+            animation: pulse 2s infinite;
         }
 
-        .fade-in.visible {
-            opacity: 1;
-            transform: translateY(0);
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, transparent 0%, rgba(255, 107, 53, 0.3) 50%, transparent 100%);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
     <header>
-        <nav class="container">
-            <a href="#" class="logo">IGNYTE</a>
-            <ul class="nav-links">
-                <li><a href="#home">Home</a></li>
-                <li><a href="#services">Services</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-            <button class="mobile-menu">☰</button>
-        </nav>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">IGNYTE Consulting</div>
+                <nav>
+                    <ul class="nav-menu">
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#services">Services</a></li>
+                        <li><a href="#solutions">Solutions</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
     </header>
 
     <main>
-        <section id="home" class="hero">
+        <section class="hero">
             <div class="container">
-                <h1 class="fade-in">IGNYTE Consulting</h1>
-                <p class="fade-in">Transforming businesses through strategic innovation and cutting-edge solutions. We ignite growth, optimize operations, and drive success in the digital age.</p>
-                <div class="cta-buttons fade-in">
-                    <a href="#services" class="btn btn-primary">Our Services</a>
-                    <a href="#contact" class="btn btn-secondary">Get Started</a>
-                </div>
-                <div class="contact-info" style="margin-top: 3rem;">
-                    <div class="contact-item fade-in">
-                        <h3>Business Phone</h3>
-                        <p style="color: var(--accent-orange); font-size: 1.2rem; font-weight: bold;">+1 (555) 123-4567</p>
+                <h1 class="pulse">Preview Always the Same?</h1>
+                <p class="subtitle">Let's diagnose and solve your preview consistency issues</p>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <div class="container">
+                <h2 class="section-title">Common Causes</h2>
+                
+                <div class="problem-grid">
+                    <div class="problem-card">
+                        <h3>Browser Caching</h3>
+                        <p>Your browser is storing old versions of files and not fetching the latest changes. This is the most common culprit when previews don't update.</p>
+                    </div>
+                    
+                    <div class="problem-card">
+                        <h3>CDN Caching</h3>
+                        <p>Content Delivery Networks cache your assets globally. Even after updating files, the CDN might serve old cached versions to maintain performance.</p>
+                    </div>
+                    
+                    <div class="problem-card">
+                        <h3>Server-Side Caching</h3>
+                        <p>Your web server or hosting platform might be caching generated content, causing previews to remain static despite code changes.</p>
+                    </div>
+                    
+                    <div class="problem-card">
+                        <h3>Hard-Coded URLs</h3>
+                        <p>Static preview images or <span class="highlight">meta tags with fixed URLs</span> won't change unless explicitly updated in your code.</p>
+                    </div>
+                    
+                    <div class="problem-card">
+                        <h3>Social Media Caching</h3>
+                        <p>Platforms like Facebook, Twitter, and LinkedIn cache preview data and may not refresh it automatically when shared.</p>
+                    </div>
+                    
+                    <div class="problem-card">
+                        <h3>Development Environment</h3>
+                        <p>Your development setup might not be properly configured to reflect changes, or you're viewing a cached development build.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="services" class="services">
+        <section class="content-section">
             <div class="container">
-                <h2 class="fade-in">Our Services</h2>
-                <div class="services-grid">
-                    <div class="service-card fade-in">
-                        <h3>Strategic Consulting</h3>
-                        <p>Develop comprehensive business strategies that drive growth and competitive advantage in your market.</p>
-                    </div>
-                    <div class="service-card fade-in">
-                        <h3>Digital Transformation</h3>
-                        <p>Modernize your operations with cutting-edge technology solutions and digital workflow optimization.</p>
-                    </div>
-                    <div class="service-card fade-in">
-                        <h3>Process Optimization</h3>
-                        <p>Streamline your business processes to improve efficiency, reduce costs, and enhance productivity.</p>
-                    </div>
-                    <div class="service-card fade-in">
-                        <h3>Leadership Development</h3>
-                        <p>Build strong leadership capabilities within your organization through targeted training and coaching.</p>
-                    </div>
-                    <div class="service-card fade-in">
-                        <h3>Market Analysis</h3>
-                        <p>Gain deep insights into market trends, customer behavior, and competitive landscape.</p>
-                    </div>
-                    <div class="service-card fade-in">
-                        <h3>Change Management</h3>
-                        <p>Navigate organizational change smoothly with our proven change management methodologies.</p>
-                    </div>
+                <h2 class="section-title">Solutions</h2>
+                
+                <div class="solutions-list">
+                    <ul>
+                        <li>Clear browser cache and perform a hard refresh (Ctrl+F5 or Cmd+Shift+R)</li>
+                        <li>Use private/incognito browsing mode to bypass local cache</li>
+                        <li>Add cache-busting parameters to your URLs (?v=timestamp)</li>
+                        <li>Configure proper cache headers in your server response</li>
+                        <li>Purge CDN cache after deploying updates</li>
+                        <li>Use Facebook's Sharing Debugger to refresh social previews</li>
+                        <li>Implement dynamic meta tags that change based on content</li>
+                        <li>Check if your CMS or platform has preview caching settings</li>
+                        <li>Verify that your build process is actually deploying changes</li>
+                        <li>Use developer tools to disable cache during development</li>
+                    </ul>
                 </div>
             </div>
         </section>
 
-        <section id="contact" class="contact">
+        <section class="cta-section">
             <div class="container">
-                <h2 class="fade-in">Ready to Ignite Your Success?</h2>
-                <p class="fade-in" style="font-size: 1.2rem; margin-bottom: 2rem;">Let's discuss how we can transform your business together.</p>
-                <div class="contact-info">
-                    <div class="contact-item fade-in">
-                        <h3>Email</h3>
-                        <p>hello@ignyteconsulting.com</p>
-                    </div>
-                    <div class="contact-item fade-in">
-                        <h3>Phone</h3>
-                        <p>+1 (555) 123-4567</p>
-                    </div>
-                    <div class="contact-item fade-in">
-                        <h3>Office</h3>
-                        <p>123 Business District<br>Innovation City, IC 12345</p>
-                    </div>
-                </div>
+                <h2>Still Having Issues?</h2>
+                <p>Our technical experts can diagnose and resolve your preview consistency problems quickly and efficiently.</p>
+                <a href="#contact" class="btn">Get Expert Help</a>
             </div>
         </section>
     </main>
 
     <footer>
         <div class="container">
-            <p>&copy; 2024 IGNYTE Consulting. All rights reserved. Igniting business transformation.</p>
+            <div class="footer-content">
+                <div class="footer-logo">IGNYTE Consulting</div>
+                <p>&copy; 2024 IGNYTE Consulting. Solving technical challenges with precision.</p>
+            </div>
         </div>
     </footer>
-
-    <button class="whatsapp-btn" onclick="messageWhatsApp()">
-        <svg class="whatsapp-icon" viewBox="0 0 24 24">
-            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893A11.821 11.821 0 0020.465 3
+</body>
+</html>
