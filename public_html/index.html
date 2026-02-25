@@ -12,19 +12,18 @@
         }
 
         :root {
-            --dark-bg: #1a1a1a;
-            --darker-bg: #0f0f0f;
-            --orange-accent: #ff6b35;
-            --orange-hover: #e55a2b;
-            --text-light: #f5f5f5;
-            --text-gray: #b0b0b0;
-            --card-bg: #2a2a2a;
-            --border-color: #404040;
+            --primary-dark: #1a1a1a;
+            --secondary-dark: #2d2d2d;
+            --accent-orange: #ff6b35;
+            --light-orange: #ff8c5a;
+            --text-light: #ffffff;
+            --text-gray: #cccccc;
+            --gradient: linear-gradient(135deg, #ff6b35, #ff8c5a);
         }
 
         body {
             font-family: 'Arial', sans-serif;
-            background-color: var(--darker-bg);
+            background-color: var(--primary-dark);
             color: var(--text-light);
             line-height: 1.6;
         }
@@ -36,13 +35,13 @@
         }
 
         header {
-            background-color: var(--dark-bg);
+            background-color: var(--secondary-dark);
             padding: 1rem 0;
             position: fixed;
             width: 100%;
             top: 0;
             z-index: 1000;
-            border-bottom: 2px solid var(--orange-accent);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
 
         nav {
@@ -52,9 +51,9 @@
         }
 
         .logo {
-            font-size: 1.8rem;
+            font-size: 2rem;
             font-weight: bold;
-            color: var(--orange-accent);
+            color: var(--accent-orange);
             text-decoration: none;
         }
 
@@ -71,76 +70,112 @@
         }
 
         .nav-links a:hover {
-            color: var(--orange-accent);
-        }
-
-        .mobile-menu {
-            display: none;
-            flex-direction: column;
-            cursor: pointer;
-        }
-
-        .mobile-menu span {
-            width: 25px;
-            height: 3px;
-            background-color: var(--orange-accent);
-            margin: 3px 0;
-            transition: 0.3s;
-        }
-
-        main {
-            margin-top: 80px;
+            color: var(--accent-orange);
         }
 
         .hero {
-            background: linear-gradient(135deg, var(--dark-bg) 0%, var(--darker-bg) 100%);
-            padding: 100px 0;
+            margin-top: 80px;
+            padding: 6rem 0;
             text-align: center;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><rect fill="%23333" width="1200" height="600"/><circle fill="%23ff6b35" opacity="0.1" cx="200" cy="150" r="100"/><circle fill="%23ff6b35" opacity="0.1" cx="800" cy="400" r="150"/></svg>');
+            background-size: cover;
         }
 
         .hero h1 {
             font-size: 3.5rem;
             margin-bottom: 1rem;
-            background: linear-gradient(45deg, var(--text-light), var(--orange-accent));
+            background: var(--gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
         .hero p {
-            font-size: 1.2rem;
-            color: var(--text-gray);
+            font-size: 1.3rem;
             margin-bottom: 2rem;
+            color: var(--text-gray);
             max-width: 600px;
             margin-left: auto;
             margin-right: auto;
         }
 
-        .cta-button {
-            display: inline-block;
-            background-color: var(--orange-accent);
-            color: white;
-            padding: 12px 30px;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-            transition: background-color 0.3s ease;
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
         }
 
-        .cta-button:hover {
-            background-color: var(--orange-hover);
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--accent-orange);
+            border: 2px solid var(--accent-orange);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 107, 53, 0.3);
+        }
+
+        .whatsapp-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #25d366;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .whatsapp-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+        }
+
+        .whatsapp-icon {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
         }
 
         .services {
-            padding: 80px 0;
-            background-color: var(--dark-bg);
+            padding: 6rem 0;
+            background-color: var(--secondary-dark);
         }
 
-        .section-title {
+        .services h2 {
             text-align: center;
             font-size: 2.5rem;
             margin-bottom: 3rem;
-            color: var(--orange-accent);
+            color: var(--accent-orange);
         }
 
         .services-grid {
@@ -150,198 +185,109 @@
         }
 
         .service-card {
-            background-color: var(--card-bg);
+            background-color: var(--primary-dark);
             padding: 2rem;
-            border-radius: 10px;
-            border: 1px solid var(--border-color);
-            transition: transform 0.3s ease, border-color 0.3s ease;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            border: 1px solid transparent;
         }
 
         .service-card:hover {
             transform: translateY(-5px);
-            border-color: var(--orange-accent);
+            border-color: var(--accent-orange);
         }
 
         .service-card h3 {
-            color: var(--orange-accent);
+            color: var(--accent-orange);
             margin-bottom: 1rem;
-            font-size: 1.4rem;
-        }
-
-        .service-card p {
-            color: var(--text-gray);
-        }
-
-        .about {
-            padding: 80px 0;
-        }
-
-        .about-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4rem;
-            align-items: center;
-        }
-
-        .about-text h2 {
-            color: var(--orange-accent);
-            font-size: 2.2rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .about-text p {
-            color: var(--text-gray);
-            margin-bottom: 1rem;
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-        }
-
-        .stat-item {
-            text-align: center;
-            padding: 1rem;
-            background-color: var(--card-bg);
-            border-radius: 8px;
-        }
-
-        .stat-number {
-            font-size: 2rem;
-            color: var(--orange-accent);
-            font-weight: bold;
+            font-size: 1.5rem;
         }
 
         .contact {
-            padding: 80px 0;
-            background-color: var(--dark-bg);
-        }
-
-        .contact-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4rem;
-        }
-
-        .contact-form {
-            background-color: var(--card-bg);
-            padding: 2rem;
-            border-radius: 10px;
-        }
-
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--text-light);
-        }
-
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 0.8rem;
-            background-color: var(--darker-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            color: var(--text-light);
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--orange-accent);
-        }
-
-        .contact-info h3 {
-            color: var(--orange-accent);
-            margin-bottom: 1rem;
-        }
-
-        .contact-item {
-            margin-bottom: 1rem;
-            color: var(--text-gray);
-        }
-
-        footer {
-            background-color: var(--darker-bg);
-            padding: 2rem 0;
+            padding: 6rem 0;
             text-align: center;
-            border-top: 1px solid var(--border-color);
         }
 
-        .footer-content {
+        .contact h2 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: var(--accent-orange);
+        }
+
+        .contact-info {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 2rem;
-            margin-bottom: 2rem;
+            margin-top: 3rem;
         }
 
-        .footer-section h4 {
-            color: var(--orange-accent);
-            margin-bottom: 1rem;
+        .contact-item {
+            padding: 1.5rem;
+            background-color: var(--secondary-dark);
+            border-radius: 10px;
         }
 
-        .footer-section a {
-            color: var(--text-gray);
-            text-decoration: none;
-            display: block;
+        .contact-item h3 {
+            color: var(--accent-orange);
             margin-bottom: 0.5rem;
         }
 
-        .footer-section a:hover {
-            color: var(--orange-accent);
+        footer {
+            background-color: var(--secondary-dark);
+            padding: 2rem 0;
+            text-align: center;
+            border-top: 1px solid var(--accent-orange);
         }
 
-        .footer-bottom {
-            padding-top: 2rem;
-            border-top: 1px solid var(--border-color);
-            color: var(--text-gray);
+        .mobile-menu {
+            display: none;
         }
 
         @media (max-width: 768px) {
             .nav-links {
                 display: none;
             }
-
+            
             .mobile-menu {
-                display: flex;
+                display: block;
+                background: none;
+                border: none;
+                color: var(--accent-orange);
+                font-size: 1.5rem;
+                cursor: pointer;
             }
 
             .hero h1 {
                 font-size: 2.5rem;
             }
 
-            .about-content,
-            .contact-content {
-                grid-template-columns: 1fr;
-                gap: 2rem;
+            .hero p {
+                font-size: 1.1rem;
             }
 
-            .services-grid {
-                grid-template-columns: 1fr;
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
             }
 
-            .stats {
-                grid-template-columns: 1fr;
+            .whatsapp-btn {
+                bottom: 20px;
+                right: 20px;
+                padding: 0.8rem 1.2rem;
+                font-size: 0.9rem;
             }
         }
 
-        @media (max-width: 480px) {
-            .hero h1 {
-                font-size: 2rem;
-            }
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
 
-            .hero p {
-                font-size: 1rem;
-            }
-
-            .section-title {
-                font-size: 2rem;
-            }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
     </style>
 </head>
@@ -355,81 +301,55 @@
                 <li><a href="#about">About</a></li>
                 <li><a href="#contact">Contact</a></li>
             </ul>
-            <div class="mobile-menu">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
+            <button class="mobile-menu">☰</button>
         </nav>
     </header>
 
     <main>
         <section id="home" class="hero">
             <div class="container">
-                <h1>IGNYTE Your Business</h1>
-                <p>Strategic consulting solutions that transform challenges into opportunities. We partner with forward-thinking organizations to drive sustainable growth and innovation.</p>
-                <a href="#contact" class="cta-button">Get Started</a>
-            </div>
-        </section>
-
-        <section id="services" class="services">
-            <div class="container">
-                <h2 class="section-title">Our Services</h2>
-                <div class="services-grid">
-                    <div class="service-card">
-                        <h3>Strategic Planning</h3>
-                        <p>Develop comprehensive strategies that align with your business objectives and market opportunities. Our data-driven approach ensures sustainable growth.</p>
-                    </div>
-                    <div class="service-card">
-                        <h3>Digital Transformation</h3>
-                        <p>Navigate the digital landscape with confidence. We help organizations modernize processes, implement new technologies, and create digital-first experiences.</p>
-                    </div>
-                    <div class="service-card">
-                        <h3>Operational Excellence</h3>
-                        <p>Optimize your operations for maximum efficiency. From process improvement to supply chain optimization, we streamline your business for peak performance.</p>
-                    </div>
-                    <div class="service-card">
-                        <h3>Change Management</h3>
-                        <p>Successfully implement organizational changes with minimal disruption. Our proven methodologies ensure smooth transitions and employee engagement.</p>
-                    </div>
-                    <div class="service-card">
-                        <h3>Innovation Strategy</h3>
-                        <p>Foster a culture of innovation and stay ahead of market trends. We help organizations develop innovation frameworks and bring new ideas to market.</p>
-                    </div>
-                    <div class="service-card">
-                        <h3>Leadership Development</h3>
-                        <p>Build strong leadership capabilities at every level. Our programs develop the skills needed to lead in today's complex business environment.</p>
+                <h1 class="fade-in">IGNYTE Consulting</h1>
+                <p class="fade-in">Transforming businesses through strategic innovation and cutting-edge solutions. We ignite growth, optimize operations, and drive success in the digital age.</p>
+                <div class="cta-buttons fade-in">
+                    <a href="#services" class="btn btn-primary">Our Services</a>
+                    <a href="#contact" class="btn btn-secondary">Get Started</a>
+                </div>
+                <div class="contact-info" style="margin-top: 3rem;">
+                    <div class="contact-item fade-in">
+                        <h3>Business Phone</h3>
+                        <p style="color: var(--accent-orange); font-size: 1.2rem; font-weight: bold;">+1 (555) 123-4567</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="about" class="about">
+        <section id="services" class="services">
             <div class="container">
-                <div class="about-content">
-                    <div class="about-text">
-                        <h2>About IGNYTE</h2>
-                        <p>At IGNYTE Consulting, we believe every organization has untapped potential waiting to be unleashed. Founded by industry veterans with decades of experience, we bring a unique blend of strategic thinking and practical execution.</p>
-                        <p>Our team of experts has worked across various industries, from startups to Fortune 500 companies, helping them navigate complex challenges and achieve breakthrough results.</p>
-                        <p>We don't just provide recommendations – we partner with you to implement solutions that create lasting impact.</p>
+                <h2 class="fade-in">Our Services</h2>
+                <div class="services-grid">
+                    <div class="service-card fade-in">
+                        <h3>Strategic Consulting</h3>
+                        <p>Develop comprehensive business strategies that drive growth and competitive advantage in your market.</p>
                     </div>
-                    <div class="stats">
-                        <div class="stat-item">
-                            <div class="stat-number">200+</div>
-                            <div>Projects Completed</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number">50+</div>
-                            <div>Happy Clients</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number">15+</div>
-                            <div>Years Experience</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number">95%</div>
-                            <div>Success Rate</div>
-                        </div>
+                    <div class="service-card fade-in">
+                        <h3>Digital Transformation</h3>
+                        <p>Modernize your operations with cutting-edge technology solutions and digital workflow optimization.</p>
+                    </div>
+                    <div class="service-card fade-in">
+                        <h3>Process Optimization</h3>
+                        <p>Streamline your business processes to improve efficiency, reduce costs, and enhance productivity.</p>
+                    </div>
+                    <div class="service-card fade-in">
+                        <h3>Leadership Development</h3>
+                        <p>Build strong leadership capabilities within your organization through targeted training and coaching.</p>
+                    </div>
+                    <div class="service-card fade-in">
+                        <h3>Market Analysis</h3>
+                        <p>Gain deep insights into market trends, customer behavior, and competitive landscape.</p>
+                    </div>
+                    <div class="service-card fade-in">
+                        <h3>Change Management</h3>
+                        <p>Navigate organizational change smoothly with our proven change management methodologies.</p>
                     </div>
                 </div>
             </div>
@@ -437,47 +357,20 @@
 
         <section id="contact" class="contact">
             <div class="container">
-                <h2 class="section-title">Get In Touch</h2>
-                <div class="contact-content">
-                    <div class="contact-form">
-                        <form>
-                            <div class="form-group">
-                                <label for="name">Name</label>
-                                <input type="text" id="name" name="name" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="email">Email</label>
-                                <input type="email" id="email" name="email" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="company">Company</label>
-                                <input type="text" id="company" name="company">
-                            </div>
-                            <div class="form-group">
-                                <label for="message">Message</label>
-                                <textarea id="message" name="message" rows="5" required></textarea>
-                            </div>
-                            <button type="submit" class="cta-button">Send Message</button>
-                        </form>
+                <h2 class="fade-in">Ready to Ignite Your Success?</h2>
+                <p class="fade-in" style="font-size: 1.2rem; margin-bottom: 2rem;">Let's discuss how we can transform your business together.</p>
+                <div class="contact-info">
+                    <div class="contact-item fade-in">
+                        <h3>Email</h3>
+                        <p>hello@ignyteconsulting.com</p>
                     </div>
-                    <div class="contact-info">
-                        <h3>Contact Information</h3>
-                        <div class="contact-item">
-                            <strong>Email:</strong> info@ignyteconsulting.com
-                        </div>
-                        <div class="contact-item">
-                            <strong>Phone:</strong> +1 (555) 123-4567
-                        </div>
-                        <div class="contact-item">
-                            <strong>Address:</strong> 123 Business District<br>
-                            Suite 456<br>
-                            City, State 12345
-                        </div>
-                        <div class="contact-item">
-                            <strong>Office Hours:</strong><br>
-                            Monday - Friday: 9:00 AM - 6:00 PM<br>
-                            Saturday: 10:00 AM - 2:00 PM
-                        </div>
+                    <div class="contact-item fade-in">
+                        <h3>Phone</h3>
+                        <p>+1 (555) 123-4567</p>
+                    </div>
+                    <div class="contact-item fade-in">
+                        <h3>Office</h3>
+                        <p>123 Business District<br>Innovation City, IC 12345</p>
                     </div>
                 </div>
             </div>
@@ -486,4 +379,10 @@
 
     <footer>
         <div class="container">
-            <div
+            <p>&copy; 2024 IGNYTE Consulting. All rights reserved. Igniting business transformation.</p>
+        </div>
+    </footer>
+
+    <button class="whatsapp-btn" onclick="messageWhatsApp()">
+        <svg class="whatsapp-icon" viewBox="0 0 24 24">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893A11.821 11.821 0 0020.465 3
