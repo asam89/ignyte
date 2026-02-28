@@ -109,6 +109,8 @@
             letter-spacing: 1px;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+            border: none;
+            cursor: pointer;
         }
 
         .cta-button:hover {
@@ -195,6 +197,48 @@
             font-size: 3rem;
             color: #ff6b35;
             margin-bottom: 1rem;
+        }
+
+        .analysis-result {
+            margin-top: 2rem;
+            padding: 2rem;
+            background: rgba(45, 45, 45, 0.8);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 107, 53, 0.2);
+            display: none;
+            text-align: left;
+        }
+
+        .analysis-result h4 {
+            color: #ff6b35;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .analysis-result p {
+            color: #cccccc;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        .loading-spinner {
+            display: none;
+            margin: 1rem 0;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 107, 53, 0.3);
+            border-top: 3px solid #ff6b35;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         footer {
@@ -298,7 +342,7 @@
         <section id="home" class="hero">
             <div class="container">
                 <h1 class="fade-in">IGNYTE Consulting</h1>
-                <p class="fade-in">Empowering businesses to excel through innovative strategies and transformative solutions. We ignite growth, drive performance, and unlock your organization's limitless potential.</p>
+                <p class="fade-in">Transforming businesses through innovative strategies and cutting-edge solutions. We help you ignite your potential and achieve extraordinary results.</p>
                 <a href="#upload" class="cta-button fade-in">Upload File for Review</a>
             </div>
         </section>
@@ -309,15 +353,15 @@
                 <div class="services-grid">
                     <div class="service-card fade-in">
                         <h3>Strategic Consulting</h3>
-                        <p>We deliver world-class strategic planning and business transformation services, guiding your organization through complex challenges toward sustainable growth and market leadership.</p>
+                        <p>We provide comprehensive strategic planning and business transformation services to help your organization navigate complex challenges and achieve sustainable growth.</p>
                     </div>
                     <div class="service-card fade-in">
                         <h3>Document Analysis</h3>
-                        <p>Our specialized team conducts thorough reviews and analyses of your critical business documents, contracts, and operational processes to uncover optimization opportunities and strategic advantages.</p>
+                        <p>Our expert team reviews and analyzes your business documents, contracts, and processes to identify opportunities for improvement and optimization.</p>
                     </div>
                     <div class="service-card fade-in">
                         <h3>Digital Transformation</h3>
-                        <p>We accelerate your digital evolution through cutting-edge technology integration, intelligent process automation, and comprehensive digital strategy development that positions you for future success.</p>
+                        <p>We help modernize your business operations through technology integration, process automation, and digital strategy implementation.</p>
                     </div>
                 </div>
             </div>
@@ -327,7 +371,7 @@
             <div class="container">
                 <div class="file-upload-section fade-in">
                     <h3>Upload Your File for Professional Review</h3>
-                    <p style="color: #cccccc; margin-bottom: 2rem;">Our expert consultants will thoroughly analyze your document and deliver comprehensive insights with actionable recommendations tailored to your business needs.</p>
+                    <p style="color: #cccccc; margin-bottom: 2rem;">Our experts will analyze your document and provide detailed insights and recommendations.</p>
                     <div class="file-upload-area" onclick="document.getElementById('fileInput').click()">
                         <div class="upload-icon">📁</div>
                         <h4 style="color: #ff6b35; margin-bottom: 1rem;">Click to Upload File</h4>
@@ -337,6 +381,18 @@
                     <div style="margin-top: 2rem;">
                         <button class="cta-button" id="analyzeBtn" style="opacity: 0.5; cursor: not-allowed;" disabled>Analyze Document</button>
                     </div>
+                    
+                    <div class="loading-spinner" id="loadingSpinner">
+                        <div class="spinner"></div>
+                        <p style="color: #ff6b35; margin-top: 1rem;">Analyzing your document...</p>
+                    </div>
+
+                    <div class="analysis-result" id="analysisResult">
+                        <h4>Analysis Complete</h4>
+                        <div id="analysisContent">
+                            <!-- AI analysis results will appear here -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -345,7 +401,7 @@
             <div class="container">
                 <h2 class="section-title fade-in">Get in Touch</h2>
                 <div style="text-align: center;">
-                    <p class="fade-in" style="font-size: 1.2rem; color: #cccccc; margin-bottom: 2rem;">Ready to ignite your business transformation? Connect with our expert team today for a personalized consultation that will chart your path to success.</p>
+                    <p class="fade-in" style="font-size: 1.2rem; color: #cccccc; margin-bottom: 2rem;">Ready to ignite your business potential? Contact us today for a consultation.</p>
                     <a href="mailto:contact@ignyteconsulting.com" class="cta-button fade-in">Contact Us</a>
                 </div>
             </div>
@@ -381,10 +437,16 @@
         const fileInput = document.getElementById('fileInput');
         const analyzeBtn = document.getElementById('analyzeBtn');
         const uploadArea = document.querySelector('.file-upload-area');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const analysisResult = document.getElementById('analysisResult');
+        const analysisContent = document.getElementById('analysisContent');
+
+        let selectedFile = null;
 
         fileInput.addEventListener('change', function(e) {
             if (e.target.files.length > 0) {
-                const fileName = e.target.files[0].name;
+                selectedFile = e.target.files[0];
+                const fileName = selectedFile.name;
                 uploadArea.innerHTML = `
                     <div class="upload-icon">✅</div>
                     <h4 style="color: #ff6b35; margin-bottom: 1rem;">File Selected</h4>
@@ -396,11 +458,111 @@
             }
         });
 
-        analyzeBtn.addEventListener('click', function() {
-            if (!this.disabled) {
-                alert('File analysis feature will be implemented. Your document will be processed by our expert team.');
+        analyzeBtn.addEventListener('click', async function() {
+            if (!this.disabled && selectedFile) {
+                // Show loading spinner
+                loadingSpinner.style.display = 'block';
+                analysisResult.style.display = 'none';
+                this.disabled = true;
+                this.style.opacity = '0.5';
+                this.textContent = 'Analyzing...';
+
+                try {
+                    // Read file content
+                    const fileContent = await readFileContent(selectedFile);
+                    
+                    // Call AI API for analysis
+                    const analysis = await analyzeDocument(fileContent, selectedFile.name);
+                    
+                    // Display results
+                    displayAnalysisResults(analysis);
+                    
+                } catch (error) {
+                    console.error('Analysis error:', error);
+                    displayError('Sorry, there was an error analyzing your document. Please try again.');
+                } finally {
+                    loadingSpinner.style.display = 'none';
+                    this.disabled = false;
+                    this.style.opacity = '1';
+                    this.textContent = 'Analyze Document';
+                }
             }
         });
+
+        // File reading function
+        function readFileContent(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.onerror = reject;
+                
+                if (file.type === 'text/plain') {
+                    reader.readAsText(file);
+                } else {
+                    reader.readAsArrayBuffer(file);
+                }
+            });
+        }
+
+        // AI Analysis function (placeholder - needs actual AI integration)
+        async function analyzeDocument(content, filename) {
+            // TODO: Replace with actual AI API call
+            // For now, return mock analysis
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve({
+                        summary: `Analysis of ${filename} completed successfully.`,
+                        keyFindings: [
+                            'Document structure is well-organized',
+                            'Content demonstrates clear business objectives',
+                            'Areas for improvement identified in sections 2-4'
+                        ],
+                        recommendations: [
+                            'Consider adding more quantitative metrics',
+                            'Strengthen the conclusion section',
+                            'Include risk assessment framework'
+                        ],
+                        score: 78
+                    });
+                }, 3000);
+            });
+        }
+
+        // Display analysis results
+        function displayAnalysisResults(analysis) {
+            analysisContent.innerHTML = `
+                <div style="margin-bottom: 1.5rem;">
+                    <p><strong>Overall Score:</strong> ${analysis.score}/100</p>
+                    <p style="margin-top: 0.5rem;">${analysis.summary}</p>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <h5 style="color: #ff6b35; margin-bottom: 0.5rem;">Key Findings:</h5>
+                    <ul style="margin-left: 1rem;">
+                        ${analysis.keyFindings.map(finding => `<li style="margin-bottom: 0.3rem;">${finding}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div>
+                    <h5 style="color: #ff6b35; margin-bottom: 0.5rem;">Recommendations:</h5>
+                    <ul style="margin-left: 1rem;">
+                        ${analysis.recommendations.map(rec => `<li style="margin-bottom: 0.3rem;">${rec}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+            
+            analysisResult.style.display = 'block';
+        }
+
+        // Display error message
+        function displayError(message) {
+            analysisContent.innerHTML = `
+                <div style="color: #ff6b35;">
+                    <p><strong>Error:</strong> ${message}</p>
+                </div>
+            `;
+            analysisResult.style.display = 'block';
+        }
 
         // Smooth scrolling
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
