@@ -109,8 +109,6 @@
             letter-spacing: 1px;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
-            border: none;
-            cursor: pointer;
         }
 
         .cta-button:hover {
@@ -199,46 +197,37 @@
             margin-bottom: 1rem;
         }
 
-        .analysis-result {
-            margin-top: 2rem;
-            padding: 2rem;
+        .ai-data-sources {
             background: rgba(45, 45, 45, 0.8);
+            padding: 2rem;
             border-radius: 15px;
             border: 1px solid rgba(255, 107, 53, 0.2);
-            display: none;
+            margin: 2rem 0;
             text-align: left;
         }
 
-        .analysis-result h4 {
+        .ai-data-sources h4 {
             color: #ff6b35;
             margin-bottom: 1rem;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
         }
 
-        .analysis-result p {
+        .data-source-list {
+            list-style: none;
             color: #cccccc;
-            line-height: 1.8;
-            margin-bottom: 1rem;
         }
 
-        .loading-spinner {
-            display: none;
-            margin: 1rem 0;
+        .data-source-list li {
+            margin-bottom: 0.8rem;
+            padding-left: 1.5rem;
+            position: relative;
         }
 
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(255, 107, 53, 0.3);
-            border-top: 3px solid #ff6b35;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .data-source-list li::before {
+            content: "🤖";
+            position: absolute;
+            left: 0;
+            top: 0;
         }
 
         footer {
@@ -326,6 +315,7 @@
                         <li><a href="#home">Home</a></li>
                         <li><a href="#services">Services</a></li>
                         <li><a href="#upload">File Review</a></li>
+                        <li><a href="#ai-bot">AI Bot Data</a></li>
                         <li><a href="#contact">Contact</a></li>
                     </ul>
                 </nav>
@@ -381,17 +371,36 @@
                     <div style="margin-top: 2rem;">
                         <button class="cta-button" id="analyzeBtn" style="opacity: 0.5; cursor: not-allowed;" disabled>Analyze Document</button>
                     </div>
-                    
-                    <div class="loading-spinner" id="loadingSpinner">
-                        <div class="spinner"></div>
-                        <p style="color: #ff6b35; margin-top: 1rem;">Analyzing your document...</p>
-                    </div>
+                </div>
+            </div>
+        </section>
 
-                    <div class="analysis-result" id="analysisResult">
-                        <h4>Analysis Complete</h4>
-                        <div id="analysisContent">
-                            <!-- AI analysis results will appear here -->
-                        </div>
+        <section id="ai-bot" class="section">
+            <div class="container">
+                <h2 class="section-title fade-in">AI Bot Data Sources</h2>
+                <div class="ai-data-sources fade-in">
+                    <h4>Recommended Data Sources for IGNYTE AI Bot:</h4>
+                    <ul class="data-source-list">
+                        <li><strong>Company Knowledge Base:</strong> Internal documentation, processes, policies, and procedures</li>
+                        <li><strong>Service Offerings:</strong> Detailed descriptions of consulting services, methodologies, and case studies</li>
+                        <li><strong>Client FAQs:</strong> Common questions and answers from previous client interactions</li>
+                        <li><strong>Industry Best Practices:</strong> Business consulting frameworks, strategic planning guides</li>
+                        <li><strong>Document Templates:</strong> Sample contracts, proposals, assessment forms</li>
+                        <li><strong>Team Expertise:</strong> Consultant profiles, specializations, and experience areas</li>
+                        <li><strong>Success Stories:</strong> Client testimonials, project outcomes, performance metrics</li>
+                        <li><strong>Market Research:</strong> Industry trends, competitive analysis, market insights</li>
+                        <li><strong>Regulatory Information:</strong> Compliance requirements, industry standards</li>
+                        <li><strong>Contact Information:</strong> Office locations, contact methods, business hours</li>
+                    </ul>
+                    <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(255, 107, 53, 0.1); border-radius: 10px; border: 1px solid rgba(255, 107, 53, 0.3);">
+                        <h5 style="color: #ff6b35; margin-bottom: 1rem;">Implementation Options:</h5>
+                        <p style="color: #cccccc; font-size: 0.95rem; line-height: 1.7;">
+                            • <strong>Vector Database:</strong> Use Pinecone, Weaviate, or Chroma for semantic search<br>
+                            • <strong>File Formats:</strong> PDFs, Word docs, text files, web scraping, API integrations<br>
+                            • <strong>AI Models:</strong> OpenAI GPT-4, Claude, or open-source alternatives like Llama<br>
+                            • <strong>Embedding Models:</strong> OpenAI text-embedding-ada-002 or sentence-transformers<br>
+                            • <strong>Framework:</strong> LangChain, LlamaIndex for RAG (Retrieval-Augmented Generation)
+                        </p>
                     </div>
                 </div>
             </div>
@@ -437,16 +446,10 @@
         const fileInput = document.getElementById('fileInput');
         const analyzeBtn = document.getElementById('analyzeBtn');
         const uploadArea = document.querySelector('.file-upload-area');
-        const loadingSpinner = document.getElementById('loadingSpinner');
-        const analysisResult = document.getElementById('analysisResult');
-        const analysisContent = document.getElementById('analysisContent');
-
-        let selectedFile = null;
 
         fileInput.addEventListener('change', function(e) {
             if (e.target.files.length > 0) {
-                selectedFile = e.target.files[0];
-                const fileName = selectedFile.name;
+                const fileName = e.target.files[0].name;
                 uploadArea.innerHTML = `
                     <div class="upload-icon">✅</div>
                     <h4 style="color: #ff6b35; margin-bottom: 1rem;">File Selected</h4>
@@ -458,111 +461,11 @@
             }
         });
 
-        analyzeBtn.addEventListener('click', async function() {
-            if (!this.disabled && selectedFile) {
-                // Show loading spinner
-                loadingSpinner.style.display = 'block';
-                analysisResult.style.display = 'none';
-                this.disabled = true;
-                this.style.opacity = '0.5';
-                this.textContent = 'Analyzing...';
-
-                try {
-                    // Read file content
-                    const fileContent = await readFileContent(selectedFile);
-                    
-                    // Call AI API for analysis
-                    const analysis = await analyzeDocument(fileContent, selectedFile.name);
-                    
-                    // Display results
-                    displayAnalysisResults(analysis);
-                    
-                } catch (error) {
-                    console.error('Analysis error:', error);
-                    displayError('Sorry, there was an error analyzing your document. Please try again.');
-                } finally {
-                    loadingSpinner.style.display = 'none';
-                    this.disabled = false;
-                    this.style.opacity = '1';
-                    this.textContent = 'Analyze Document';
-                }
+        analyzeBtn.addEventListener('click', function() {
+            if (!this.disabled) {
+                alert('File analysis feature will be implemented. Your document will be processed by our expert team.');
             }
         });
-
-        // File reading function
-        function readFileContent(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = (e) => resolve(e.target.result);
-                reader.onerror = reject;
-                
-                if (file.type === 'text/plain') {
-                    reader.readAsText(file);
-                } else {
-                    reader.readAsArrayBuffer(file);
-                }
-            });
-        }
-
-        // AI Analysis function (placeholder - needs actual AI integration)
-        async function analyzeDocument(content, filename) {
-            // TODO: Replace with actual AI API call
-            // For now, return mock analysis
-            return new Promise((resolve) => {
-                setTimeout(() => {
-                    resolve({
-                        summary: `Analysis of ${filename} completed successfully.`,
-                        keyFindings: [
-                            'Document structure is well-organized',
-                            'Content demonstrates clear business objectives',
-                            'Areas for improvement identified in sections 2-4'
-                        ],
-                        recommendations: [
-                            'Consider adding more quantitative metrics',
-                            'Strengthen the conclusion section',
-                            'Include risk assessment framework'
-                        ],
-                        score: 78
-                    });
-                }, 3000);
-            });
-        }
-
-        // Display analysis results
-        function displayAnalysisResults(analysis) {
-            analysisContent.innerHTML = `
-                <div style="margin-bottom: 1.5rem;">
-                    <p><strong>Overall Score:</strong> ${analysis.score}/100</p>
-                    <p style="margin-top: 0.5rem;">${analysis.summary}</p>
-                </div>
-                
-                <div style="margin-bottom: 1.5rem;">
-                    <h5 style="color: #ff6b35; margin-bottom: 0.5rem;">Key Findings:</h5>
-                    <ul style="margin-left: 1rem;">
-                        ${analysis.keyFindings.map(finding => `<li style="margin-bottom: 0.3rem;">${finding}</li>`).join('')}
-                    </ul>
-                </div>
-                
-                <div>
-                    <h5 style="color: #ff6b35; margin-bottom: 0.5rem;">Recommendations:</h5>
-                    <ul style="margin-left: 1rem;">
-                        ${analysis.recommendations.map(rec => `<li style="margin-bottom: 0.3rem;">${rec}</li>`).join('')}
-                    </ul>
-                </div>
-            `;
-            
-            analysisResult.style.display = 'block';
-        }
-
-        // Display error message
-        function displayError(message) {
-            analysisContent.innerHTML = `
-                <div style="color: #ff6b35;">
-                    <p><strong>Error:</strong> ${message}</p>
-                </div>
-            `;
-            analysisResult.style.display = 'block';
-        }
 
         // Smooth scrolling
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
