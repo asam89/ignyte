@@ -197,20 +197,21 @@
             margin-bottom: 1rem;
         }
 
-        .blog-section {
+        /* Projects Section Styles */
+        .projects-section {
             background: rgba(26, 26, 26, 0.9);
             padding: 4rem 0;
             margin: 2rem 0;
         }
 
-        .blog-grid {
+        .projects-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
             gap: 2rem;
             margin-top: 2rem;
         }
 
-        .blog-post {
+        .project-card {
             background: rgba(45, 45, 45, 0.8);
             border-radius: 15px;
             overflow: hidden;
@@ -218,17 +219,17 @@
             transition: transform 0.3s ease, border-color 0.3s ease;
         }
 
-        .blog-post:hover {
-            transform: translateY(-5px);
+        .project-card:hover {
+            transform: translateY(-8px);
             border-color: #ff6b35;
         }
 
-        .blog-header {
-            padding: 1.5rem 2rem 1rem;
+        .project-header {
+            padding: 1.5rem 2rem;
             border-bottom: 1px solid rgba(255, 107, 53, 0.2);
         }
 
-        .blog-tag {
+        .project-type {
             display: inline-block;
             background: rgba(255, 107, 53, 0.2);
             color: #ff6b35;
@@ -241,49 +242,75 @@
             margin-bottom: 1rem;
         }
 
-        .blog-post h3 {
+        .project-card h3 {
             color: #ffffff;
             margin-bottom: 0.5rem;
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             line-height: 1.4;
         }
 
-        .blog-date {
-            color: #999999;
+        .client-type {
+            color: #cccccc;
             font-size: 0.9rem;
+            font-style: italic;
         }
 
-        .blog-content {
+        .project-content {
             padding: 1.5rem 2rem;
         }
 
-        .blog-excerpt {
+        .project-description {
             color: #cccccc;
             line-height: 1.6;
             margin-bottom: 1.5rem;
         }
 
-        .blog-highlights {
+        .project-features {
             list-style: none;
             margin-bottom: 1.5rem;
         }
 
-        .blog-highlights li {
+        .project-features li {
             color: #cccccc;
             padding: 0.3rem 0;
             position: relative;
             padding-left: 1.5rem;
         }
 
-        .blog-highlights li::before {
-            content: "▸";
+        .project-features li::before {
+            content: "✓";
             color: #ff6b35;
             position: absolute;
             left: 0;
             font-weight: bold;
         }
 
-        .read-more {
+        .project-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 107, 53, 0.1);
+        }
+
+        .project-status {
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .status-live {
+            color: #22c55e;
+        }
+
+        .status-development {
+            color: #fbbf24;
+        }
+
+        .status-completed {
+            color: #3b82f6;
+        }
+
+        .demo-link {
             color: #ff6b35;
             text-decoration: none;
             font-weight: bold;
@@ -291,7 +318,7 @@
             transition: color 0.3s ease;
         }
 
-        .read-more:hover {
+        .demo-link:hover {
             color: #ff8c42;
         }
 
@@ -334,11 +361,7 @@
                 padding: 0 1rem;
             }
 
-            .services-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .blog-grid {
+            .services-grid, .projects-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -383,8 +406,8 @@
                     <ul>
                         <li><a href="#home">Home</a></li>
                         <li><a href="#services">Services</a></li>
+                        <li><a href="#projects">Projects</a></li>
                         <li><a href="#upload">File Review</a></li>
-                        <li><a href="#blog">Blog</a></li>
                         <li><a href="#contact">Contact</a></li>
                     </ul>
                 </nav>
@@ -426,6 +449,145 @@
             </div>
         </section>
 
+        <section id="projects" class="projects-section">
+            <div class="container">
+                <h2 class="section-title fade-in">Small Business Projects & Demos</h2>
+                <div class="projects-grid">
+                    <article class="project-card fade-in">
+                        <div class="project-header">
+                            <div class="project-type">Web Development</div>
+                            <h3>Local Restaurant Website & Ordering System</h3>
+                            <div class="client-type">Family-owned Italian Restaurant</div>
+                        </div>
+                        <div class="project-content">
+                            <p class="project-description">Complete digital transformation for a local restaurant including online menu, ordering system, and customer management.</p>
+                            <ul class="project-features">
+                                <li>Mobile-responsive menu display</li>
+                                <li>Online ordering and payment processing</li>
+                                <li>Customer loyalty program integration</li>
+                                <li>Real-time order tracking</li>
+                                <li>Social media integration</li>
+                            </ul>
+                            <div class="project-footer">
+                                <span class="project-status status-live">● LIVE</span>
+                                <a href="#" class="demo-link">View Demo →</a>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="project-card fade-in">
+                        <div class="project-header">
+                            <div class="project-type">E-commerce</div>
+                            <h3>Boutique Clothing Store Platform</h3>
+                            <div class="client-type">Local Fashion Boutique</div>
+                        </div>
+                        <div class="project-content">
+                            <p class="project-description">Custom e-commerce solution with inventory management and social selling features for a boutique clothing store.</p>
+                            <ul class="project-features">
+                                <li>Product catalog with high-res imagery</li>
+                                <li>Size and color variant management</li>
+                                <li>Customer reviews and ratings</li>
+                                <li>Instagram shopping integration</li>
+                                <li>Email marketing automation</li>
+                            </ul>
+                            <div class="project-footer">
+                                <span class="project-status status-live">● LIVE</span>
+                                <a href="#" class="demo-link">View Demo →</a>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="project-card fade-in">
+                        <div class="project-header">
+                            <div class="project-type">AI Chatbot</div>
+                            <h3>Customer Service AI Assistant</h3>
+                            <div class="client-type">Home Services Company</div>
+                        </div>
+                        <div class="project-content">
+                            <p class="project-description">Intelligent chatbot system that handles customer inquiries, appointment scheduling, and service recommendations 24/7.</p>
+                            <ul class="project-features">
+                                <li>Natural language processing</li>
+                                <li>Appointment booking integration</li>
+                                <li>Service pricing calculator</li>
+                                <li>Multi-channel support (web, SMS, WhatsApp)</li>
+                                <li>Lead qualification and routing</li>
+                            </ul>
+                            <div class="project-footer">
+                                <span class="project-status status-live">● LIVE</span>
+                                <a href="#" class="demo-link">Try Demo →</a>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="project-card fade-in">
+                        <div class="project-header">
+                            <div class="project-type">Process Automation</div>
+                            <h3>Accounting Firm Document Management</h3>
+                            <div class="client-type">Small CPA Practice</div>
+                        </div>
+                        <div class="project-content">
+                            <p class="project-description">Automated document processing system that extracts data from tax documents and organizes client files.</p>
+                            <ul class="project-features">
+                                <li>OCR document scanning and data extraction</li>
+                                <li>Automated file categorization</li>
+                                <li>Client portal for secure document sharing</li>
+                                <li>Tax deadline tracking and reminders</li>
+                                <li>Secure cloud storage integration</li>
+                            </ul>
+                            <div class="project-footer">
+                                <span class="project-status status-completed">● COMPLETED</span>
+                                <a href="#" class="demo-link">View Case Study →</a>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="project-card fade-in">
+                        <div class="project-header">
+                            <div class="project-type">Marketing Automation</div>
+                            <h3>Real Estate Lead Generation System</h3>
+                            <div class="client-type">Independent Real Estate Agent</div>
+                        </div>
+                        <div class="project-content">
+                            <p class="project-description">Complete lead generation and nurturing system with automated property alerts and client communication.</p>
+                            <ul class="project-features">
+                                <li>Property listing aggregation</li>
+                                <li>Automated email campaigns</li>
+                                <li>Market analysis reports</li>
+                                <li>Social media posting scheduler</li>
+                                <li>CRM integration and lead scoring</li>
+                            </ul>
+                            <div class="project-footer">
+                                <span class="project-status status-development">● IN DEVELOPMENT</span>
+                                <a href="#" class="demo-link">Preview Demo →</a>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="project-card fade-in">
+                        <div class="project-header">
+                            <div class="project-type">Mobile App</div>
+                            <h3>Fitness Studio Booking App</h3>
+                            <div class="client-type">Local Yoga & Pilates Studio</div>
+                        </div>
+                        <div class="project-content">
+                            <p class="project-description">Mobile app for class bookings, membership management, and community features for fitness studio clients.</p>
+                            <ul class="project-features">
+                                <li>Real-time class scheduling and booking</li>
+                                <li>Membership and package management</li>
+                                <li>In-app payments and credits</li>
+                                <li>Community chat and challenges</li>
+                                <li>Instructor profiles and ratings</li>
+                            </ul>
+                            <div class="project-footer">
+                                <span class="project-status status-live">● LIVE</span>
+                                <a href="#" class="demo-link">Download Demo →</a>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
         <section id="upload" class="section">
             <div class="container">
                 <div class="file-upload-section fade-in">
@@ -440,121 +602,6 @@
                     <div style="margin-top: 2rem;">
                         <button class="cta-button" id="analyzeBtn" style="opacity: 0.5; cursor: not-allowed;" disabled>Analyze Document</button>
                     </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="blog" class="blog-section">
-            <div class="container">
-                <h2 class="section-title fade-in">Project Updates & Insights</h2>
-                <div class="blog-grid">
-                    <article class="blog-post fade-in">
-                        <div class="blog-header">
-                            <div class="blog-tag">AI Innovation</div>
-                            <h3>Building Intelligent Chatbots with RAG Technology</h3>
-                            <div class="blog-date">December 2024</div>
-                        </div>
-                        <div class="blog-content">
-                            <p class="blog-excerpt">Developing cutting-edge AI chatbots that leverage Retrieval-Augmented Generation (RAG) to provide accurate, context-aware responses for business applications.</p>
-                            <ul class="blog-highlights">
-                                <li>Vector database implementation for document retrieval</li>
-                                <li>Custom training on business-specific knowledge bases</li>
-                                <li>Multi-modal support for text, images, and files</li>
-                                <li>Real-time learning and adaptation capabilities</li>
-                            </ul>
-                            <a href="#" class="read-more">View Project Details →</a>
-                        </div>
-                    </article>
-
-                    <article class="blog-post fade-in">
-                        <div class="blog-header">
-                            <div class="blog-tag">Web Development</div>
-                            <h3>Modern Website Architecture & User Experience</h3>
-                            <div class="blog-date">November 2024</div>
-                        </div>
-                        <div class="blog-content">
-                            <p class="blog-excerpt">Creating responsive, high-performance websites with modern design principles, focusing on user engagement and conversion optimization.</p>
-                            <ul class="blog-highlights">
-                                <li>Progressive Web App (PWA) development</li>
-                                <li>Mobile-first responsive design approach</li>
-                                <li>Performance optimization and SEO enhancement</li>
-                                <li>Interactive user interfaces with smooth animations</li>
-                            </ul>
-                            <a href="#" class="read-more">Explore Design Process →</a>
-                        </div>
-                    </article>
-
-                    <article class="blog-post fade-in">
-                        <div class="blog-header">
-                            <div class="blog-tag">Automation</div>
-                            <h3>Business Process Automation Solutions</h3>
-                            <div class="blog-date">November 2024</div>
-                        </div>
-                        <div class="blog-content">
-                            <p class="blog-excerpt">Implementing intelligent automation systems to streamline workflows, reduce manual tasks, and improve operational efficiency across organizations.</p>
-                            <ul class="blog-highlights">
-                                <li>Document processing and data extraction automation</li>
-                                <li>Workflow orchestration and task management</li>
-                                <li>Integration with existing business systems</li>
-                                <li>Custom API development and third-party integrations</li>
-                            </ul>
-                            <a href="#" class="read-more">Learn About Automation →</a>
-                        </div>
-                    </article>
-
-                    <article class="blog-post fade-in">
-                        <div class="blog-header">
-                            <div class="blog-tag">Data Analytics</div>
-                            <h3>Advanced Data Analysis & Business Intelligence</h3>
-                            <div class="blog-date">October 2024</div>
-                        </div>
-                        <div class="blog-content">
-                            <p class="blog-excerpt">Transforming raw data into actionable insights through advanced analytics, machine learning models, and interactive dashboards for data-driven decision making.</p>
-                            <ul class="blog-highlights">
-                                <li>Custom dashboard development with real-time metrics</li>
-                                <li>Predictive analytics and forecasting models</li>
-                                <li>Data visualization and reporting automation</li>
-                                <li>ETL pipeline design and data warehouse optimization</li>
-                            </ul>
-                            <a href="#" class="read-more">View Analytics Solutions →</a>
-                        </div>
-                    </article>
-
-                    <article class="blog-post fade-in">
-                        <div class="blog-header">
-                            <div class="blog-tag">Cloud Solutions</div>
-                            <h3>Cloud Infrastructure & Digital Transformation</h3>
-                            <div class="blog-date">October 2024</div>
-                        </div>
-                        <div class="blog-content">
-                            <p class="blog-excerpt">Architecting scalable cloud solutions that enable digital transformation, improve system reliability, and reduce operational costs for modern businesses.</p>
-                            <ul class="blog-highlights">
-                                <li>Multi-cloud architecture design and deployment</li>
-                                <li>Containerization and microservices implementation</li>
-                                <li>DevOps automation and CI/CD pipeline setup</li>
-                                <li>Security hardening and compliance management</li>
-                            </ul>
-                            <a href="#" class="read-more">Discover Cloud Solutions →</a>
-                        </div>
-                    </article>
-
-                    <article class="blog-post fade-in">
-                        <div class="blog-header">
-                            <div class="blog-tag">Consulting</div>
-                            <h3>Strategic Technology Consulting & Implementation</h3>
-                            <div class="blog-date">September 2024</div>
-                        </div>
-                        <div class="blog-content">
-                            <p class="blog-excerpt">Providing expert guidance on technology strategy, system architecture, and implementation roadmaps to help businesses leverage technology for competitive advantage.</p>
-                            <ul class="blog-highlights">
-                                <li>Technology assessment and gap analysis</li>
-                                <li>Digital transformation roadmap development</li>
-                                <li>Vendor selection and technology evaluation</li>
-                                <li>Change management and team training programs</li>
-                            </ul>
-                            <a href="#" class="read-more">Schedule Consultation →</a>
-                        </div>
-                    </article>
                 </div>
             </div>
         </section>
