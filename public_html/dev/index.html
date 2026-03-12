@@ -197,60 +197,54 @@
             margin-bottom: 1rem;
         }
 
-        .data-sources {
-            background: rgba(26, 26, 26, 0.9);
+        .status-section {
+            background: rgba(26, 26, 26, 0.8);
             padding: 3rem;
             border-radius: 20px;
             border: 1px solid rgba(255, 107, 53, 0.3);
             margin: 2rem 0;
         }
 
-        .data-sources h3 {
+        .status-section h3 {
             color: #ff6b35;
             margin-bottom: 2rem;
             font-size: 1.8rem;
             text-align: center;
         }
 
-        .data-grid {
+        .status-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 2rem;
         }
 
-        .data-source-card {
+        .status-card {
             background: rgba(45, 45, 45, 0.6);
             padding: 1.5rem;
             border-radius: 12px;
             border: 1px solid rgba(255, 107, 53, 0.2);
-            transition: all 0.3s ease;
         }
 
-        .data-source-card:hover {
-            border-color: #ff6b35;
-            transform: translateY(-3px);
+        .status-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
         }
 
-        .data-source-card h4 {
+        .status-title {
             color: #ffffff;
-            margin-bottom: 1rem;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
         }
 
-        .data-source-card p {
-            color: #cccccc;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-        }
-
-        .data-connection {
+        .status-indicator {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            margin-top: 1rem;
         }
 
-        .connection-status {
+        .status-dot {
             width: 8px;
             height: 8px;
             border-radius: 50%;
@@ -259,7 +253,12 @@
             animation: pulse 2s infinite;
         }
 
-        .connection-status.inactive {
+        .status-dot.warning {
+            background: #f59e0b;
+            box-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
+        }
+
+        .status-dot.error {
             background: #ef4444;
             box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
         }
@@ -269,69 +268,53 @@
             50% { opacity: 0.5; }
         }
 
-        .connection-text {
-            font-size: 0.8rem;
+        .status-text {
+            font-size: 0.9rem;
             color: #22c55e;
+            font-weight: 500;
         }
 
-        .connection-text.inactive {
+        .status-text.warning {
+            color: #f59e0b;
+        }
+
+        .status-text.error {
             color: #ef4444;
         }
 
-        .data-config {
-            background: rgba(26, 26, 26, 0.8);
-            padding: 2rem;
-            border-radius: 15px;
-            border: 1px solid rgba(255, 107, 53, 0.2);
-            margin-top: 2rem;
-        }
-
-        .config-section {
-            margin-bottom: 2rem;
-        }
-
-        .config-section h4 {
-            color: #ff6b35;
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
-        }
-
-        .config-row {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            align-items: center;
-        }
-
-        .config-input {
-            flex: 1;
-            padding: 0.8rem;
-            background: rgba(45, 45, 45, 0.8);
-            border: 1px solid rgba(255, 107, 53, 0.3);
-            border-radius: 8px;
-            color: #ffffff;
+        .status-details {
+            color: #cccccc;
             font-size: 0.9rem;
+            line-height: 1.6;
         }
 
-        .config-input:focus {
-            outline: none;
-            border-color: #ff6b35;
+        .status-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
         }
 
-        .config-button {
-            padding: 0.8rem 1.5rem;
-            background: linear-gradient(45deg, #ff6b35, #ff8c42);
-            color: #ffffff;
-            border: none;
+        .metric {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255, 107, 53, 0.1);
             border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
         }
 
-        .config-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+        .metric-value {
+            display: block;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ff6b35;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            color: #cccccc;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         footer {
@@ -373,7 +356,7 @@
                 padding: 0 1rem;
             }
 
-            .services-grid, .data-grid {
+            .services-grid, .status-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -381,8 +364,8 @@
                 font-size: 2rem;
             }
 
-            .config-row {
-                flex-direction: column;
+            .status-metrics {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
 
@@ -398,6 +381,10 @@
             .cta-button {
                 padding: 0.8rem 1.5rem;
                 font-size: 0.9rem;
+            }
+
+            .status-metrics {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -422,7 +409,7 @@
                     <ul>
                         <li><a href="#home">Home</a></li>
                         <li><a href="#services">Services</a></li>
-                        <li><a href="#data-sources">Data Sources</a></li>
+                        <li><a href="#status">Status</a></li>
                         <li><a href="#upload">File Review</a></li>
                         <li><a href="#contact">Contact</a></li>
                     </ul>
@@ -465,92 +452,68 @@
             </div>
         </section>
 
-        <section id="data-sources" class="section">
+        <section id="status" class="section">
             <div class="container">
-                <div class="data-sources fade-in">
-                    <h3>Data Sources & Integration</h3>
-                    <div class="data-grid">
-                        <div class="data-source-card">
-                            <h4>Database Connections</h4>
-                            <p>Connect to MySQL, PostgreSQL, MongoDB, and SQL Server databases</p>
-                            <div class="data-connection">
-                                <div class="connection-status"></div>
-                                <span class="connection-text">Active</span>
+                <div class="status-section fade-in">
+                    <h3>System Status</h3>
+                    <div class="status-grid">
+                        <div class="status-card">
+                            <div class="status-header">
+                                <span class="status-title">Platform Services</span>
+                                <div class="status-indicator">
+                                    <div class="status-dot"></div>
+                                    <span class="status-text">Operational</span>
+                                </div>
                             </div>
+                            <p class="status-details">All core platform services are running smoothly. No issues detected.</p>
                         </div>
-                        <div class="data-source-card">
-                            <h4>Cloud Storage</h4>
-                            <p>Integrate with AWS S3, Google Cloud Storage, and Azure Blob Storage</p>
-                            <div class="data-connection">
-                                <div class="connection-status"></div>
-                                <span class="connection-text">Active</span>
+                        <div class="status-card">
+                            <div class="status-header">
+                                <span class="status-title">File Processing</span>
+                                <div class="status-indicator">
+                                    <div class="status-dot"></div>
+                                    <span class="status-text">Operational</span>
+                                </div>
                             </div>
+                            <p class="status-details">Document analysis and file upload services are functioning normally.</p>
                         </div>
-                        <div class="data-source-card">
-                            <h4>API Integrations</h4>
-                            <p>RESTful APIs, GraphQL endpoints, and third-party service integrations</p>
-                            <div class="data-connection">
-                                <div class="connection-status inactive"></div>
-                                <span class="connection-text inactive">Configure</span>
+                        <div class="status-card">
+                            <div class="status-header">
+                                <span class="status-title">API Services</span>
+                                <div class="status-indicator">
+                                    <div class="status-dot warning"></div>
+                                    <span class="status-text warning">Maintenance</span>
+                                </div>
                             </div>
+                            <p class="status-details">Scheduled maintenance in progress. Some API endpoints may experience delays.</p>
                         </div>
-                        <div class="data-source-card">
-                            <h4>File Systems</h4>
-                            <p>Local file uploads, FTP servers, and network attached storage</p>
-                            <div class="data-connection">
-                                <div class="connection-status"></div>
-                                <span class="connection-text">Active</span>
+                        <div class="status-card">
+                            <div class="status-header">
+                                <span class="status-title">Data Security</span>
+                                <div class="status-indicator">
+                                    <div class="status-dot"></div>
+                                    <span class="status-text">Operational</span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="data-source-card">
-                            <h4>Business Intelligence</h4>
-                            <p>Tableau, Power BI, Google Analytics, and custom dashboards</p>
-                            <div class="data-connection">
-                                <div class="connection-status inactive"></div>
-                                <span class="connection-text inactive">Setup Required</span>
-                            </div>
-                        </div>
-                        <div class="data-source-card">
-                            <h4>Real-time Streams</h4>
-                            <p>Kafka, RabbitMQ, WebSocket connections, and IoT data feeds</p>
-                            <div class="data-connection">
-                                <div class="connection-status inactive"></div>
-                                <span class="connection-text inactive">Coming Soon</span>
-                            </div>
+                            <p class="status-details">All security protocols are active and monitoring systems are operational.</p>
                         </div>
                     </div>
-
-                    <div class="data-config">
-                        <div class="config-section">
-                            <h4>Database Configuration</h4>
-                            <div class="config-row">
-                                <input type="text" class="config-input" placeholder="Host URL" id="db-host">
-                                <input type="text" class="config-input" placeholder="Database Name" id="db-name">
-                                <button class="config-button" onclick="testConnection('database')">Test</button>
-                            </div>
-                            <div class="config-row">
-                                <input type="text" class="config-input" placeholder="Username" id="db-user">
-                                <input type="password" class="config-input" placeholder="Password" id="db-pass">
-                                <button class="config-button" onclick="saveConnection('database')">Save</button>
-                            </div>
+                    <div class="status-metrics">
+                        <div class="metric">
+                            <span class="metric-value">99.9%</span>
+                            <span class="metric-label">Uptime</span>
                         </div>
-
-                        <div class="config-section">
-                            <h4>API Configuration</h4>
-                            <div class="config-row">
-                                <input type="text" class="config-input" placeholder="API Endpoint URL" id="api-url">
-                                <input type="text" class="config-input" placeholder="API Key" id="api-key">
-                                <button class="config-button" onclick="testConnection('api')">Test</button>
-                            </div>
+                        <div class="metric">
+                            <span class="metric-value">24ms</span>
+                            <span class="metric-label">Response Time</span>
                         </div>
-
-                        <div class="config-section">
-                            <h4>Cloud Storage Configuration</h4>
-                            <div class="config-row">
-                                <input type="text" class="config-input" placeholder="Bucket/Container Name" id="cloud-bucket">
-                                <input type="text" class="config-input" placeholder="Access Key" id="cloud-key">
-                                <button class="config-button" onclick="testConnection('cloud')">Test</button>
-                            </div>
+                        <div class="metric">
+                            <span class="metric-value">2.1k</span>
+                            <span class="metric-label">Files Processed</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">156</span>
+                            <span class="metric-label">Active Users</span>
                         </div>
                     </div>
                 </div>
@@ -593,66 +556,6 @@
     </footer>
 
     <script>
-        // Data sources configuration
-        const dataSources = {
-            database: {
-                host: '',
-                name: '',
-                user: '',
-                password: '',
-                status: 'disconnected'
-            },
-            api: {
-                url: '',
-                key: '',
-                status: 'disconnected'
-            },
-            cloud: {
-                bucket: '',
-                accessKey: '',
-                status: 'disconnected'
-            }
-        };
-
-        // Test connection function
-        function testConnection(type) {
-            console.log(`Testing ${type} connection...`);
-            
-            // Simulate connection test
-            setTimeout(() => {
-                const success = Math.random() > 0.3; // 70% success rate for demo
-                
-                if (success) {
-                    alert(`${type.toUpperCase()} connection successful!`);
-                    dataSources[type].status = 'connected';
-                    updateConnectionStatus(type, true);
-                } else {
-                    alert(`${type.toUpperCase()} connection failed. Please check your configuration.`);
-                    dataSources[type].status = 'disconnected';
-                    updateConnectionStatus(type, false);
-                }
-            }, 1500);
-        }
-
-        // Save connection function
-        function saveConnection(type) {
-            if (type === 'database') {
-                dataSources.database.host = document.getElementById('db-host').value;
-                dataSources.database.name = document.getElementById('db-name').value;
-                dataSources.database.user = document.getElementById('db-user').value;
-                dataSources.database.password = document.getElementById('db-pass').value;
-            }
-            
-            alert(`${type.toUpperCase()} configuration saved!`);
-            console.log('Saved configuration:', dataSources[type]);
-        }
-
-        // Update connection status in UI
-        function updateConnectionStatus(type, isConnected) {
-            // This would update the visual status indicators in a real implementation
-            console.log(`${type} connection status updated: ${isConnected ? 'connected' : 'disconnected'}`);
-        }
-
         // Fade in animation
         const observerOptions = {
             threshold: 0.1,
@@ -726,6 +629,28 @@
                 nav.style.padding = '1rem';
             }
         });
+
+        // Status updates simulation
+        function updateStatusMetrics() {
+            const uptime = document.querySelector('.metric-value');
+            const responseTime = document.querySelectorAll('.metric-value')[1];
+            const filesProcessed = document.querySelectorAll('.metric-value')[2];
+            const activeUsers = document.querySelectorAll('.metric-value')[3];
+
+            // Simulate real-time updates
+            setInterval(() => {
+                const newFiles = Math.floor(Math.random() * 5) + 2100;
+                const newUsers = Math.floor(Math.random() * 20) + 150;
+                const newResponseTime = Math.floor(Math.random() * 10) + 20;
+                
+                filesProcessed.textContent = newFiles.toLocaleString();
+                activeUsers.textContent = newUsers;
+                responseTime.textContent = newResponseTime + 'ms';
+            }, 5000);
+        }
+
+        // Initialize status updates
+        updateStatusMetrics();
     </script>
 </body>
 </html>
