@@ -197,7 +197,7 @@
             margin-bottom: 1rem;
         }
 
-        .status-section {
+        .orders-section {
             background: rgba(26, 26, 26, 0.8);
             padding: 3rem;
             border-radius: 20px;
@@ -205,116 +205,86 @@
             margin: 2rem 0;
         }
 
-        .status-section h3 {
+        .orders-section h3 {
             color: #ff6b35;
             margin-bottom: 2rem;
             font-size: 1.8rem;
             text-align: center;
         }
 
-        .status-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
+        .data-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
         }
 
-        .status-card {
+        .data-controls button {
+            background: linear-gradient(45deg, #ff6b35, #ff8c42);
+            color: #ffffff;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+        }
+
+        .data-controls button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(255, 107, 53, 0.5);
+        }
+
+        .data-controls button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .data-display {
             background: rgba(45, 45, 45, 0.6);
-            padding: 1.5rem;
-            border-radius: 12px;
+            border-radius: 15px;
+            padding: 2rem;
+            min-height: 300px;
             border: 1px solid rgba(255, 107, 53, 0.2);
         }
 
-        .status-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1rem;
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
         }
 
-        .status-title {
-            color: #ffffff;
-            font-size: 1.1rem;
-            font-weight: 600;
+        .data-table th,
+        .data-table td {
+            padding: 0.8rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 107, 53, 0.2);
         }
 
-        .status-indicator {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #22c55e;
-            box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
-            animation: pulse 2s infinite;
-        }
-
-        .status-dot.warning {
-            background: #f59e0b;
-            box-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
-        }
-
-        .status-dot.error {
-            background: #ef4444;
-            box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .status-text {
-            font-size: 0.9rem;
-            color: #22c55e;
-            font-weight: 500;
-        }
-
-        .status-text.warning {
-            color: #f59e0b;
-        }
-
-        .status-text.error {
-            color: #ef4444;
-        }
-
-        .status-details {
-            color: #cccccc;
-            font-size: 0.9rem;
-            line-height: 1.6;
-        }
-
-        .status-metrics {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 1rem;
-            margin-top: 1.5rem;
-        }
-
-        .metric {
-            text-align: center;
-            padding: 1rem;
+        .data-table th {
             background: rgba(255, 107, 53, 0.1);
-            border-radius: 8px;
-        }
-
-        .metric-value {
-            display: block;
-            font-size: 1.8rem;
-            font-weight: bold;
             color: #ff6b35;
-            margin-bottom: 0.5rem;
+            font-weight: bold;
         }
 
-        .metric-label {
-            font-size: 0.8rem;
+        .data-table td {
             color: #cccccc;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+        }
+
+        .loading {
+            text-align: center;
+            color: #ff6b35;
+            font-size: 1.2rem;
+            padding: 2rem;
+        }
+
+        .error {
+            text-align: center;
+            color: #ff4757;
+            font-size: 1.1rem;
+            padding: 2rem;
         }
 
         footer {
@@ -356,7 +326,7 @@
                 padding: 0 1rem;
             }
 
-            .services-grid, .status-grid {
+            .services-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -364,8 +334,13 @@
                 font-size: 2rem;
             }
 
-            .status-metrics {
-                grid-template-columns: repeat(2, 1fr);
+            .data-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .data-table {
+                font-size: 0.8rem;
             }
         }
 
@@ -381,10 +356,6 @@
             .cta-button {
                 padding: 0.8rem 1.5rem;
                 font-size: 0.9rem;
-            }
-
-            .status-metrics {
-                grid-template-columns: 1fr;
             }
         }
 
@@ -409,7 +380,7 @@
                     <ul>
                         <li><a href="#home">Home</a></li>
                         <li><a href="#services">Services</a></li>
-                        <li><a href="#status">Status</a></li>
+                        <li><a href="#orders">Orders</a></li>
                         <li><a href="#upload">File Review</a></li>
                         <li><a href="#contact">Contact</a></li>
                     </ul>
@@ -452,69 +423,20 @@
             </div>
         </section>
 
-        <section id="status" class="section">
+        <section id="orders" class="section">
             <div class="container">
-                <div class="status-section fade-in">
-                    <h3>System Status</h3>
-                    <div class="status-grid">
-                        <div class="status-card">
-                            <div class="status-header">
-                                <span class="status-title">Platform Services</span>
-                                <div class="status-indicator">
-                                    <div class="status-dot"></div>
-                                    <span class="status-text">Operational</span>
-                                </div>
-                            </div>
-                            <p class="status-details">All core platform services are running smoothly. No issues detected.</p>
-                        </div>
-                        <div class="status-card">
-                            <div class="status-header">
-                                <span class="status-title">File Processing</span>
-                                <div class="status-indicator">
-                                    <div class="status-dot"></div>
-                                    <span class="status-text">Operational</span>
-                                </div>
-                            </div>
-                            <p class="status-details">Document analysis and file upload services are functioning normally.</p>
-                        </div>
-                        <div class="status-card">
-                            <div class="status-header">
-                                <span class="status-title">API Services</span>
-                                <div class="status-indicator">
-                                    <div class="status-dot warning"></div>
-                                    <span class="status-text warning">Maintenance</span>
-                                </div>
-                            </div>
-                            <p class="status-details">Scheduled maintenance in progress. Some API endpoints may experience delays.</p>
-                        </div>
-                        <div class="status-card">
-                            <div class="status-header">
-                                <span class="status-title">Data Security</span>
-                                <div class="status-indicator">
-                                    <div class="status-dot"></div>
-                                    <span class="status-text">Operational</span>
-                                </div>
-                            </div>
-                            <p class="status-details">All security protocols are active and monitoring systems are operational.</p>
-                        </div>
+                <div class="orders-section fade-in">
+                    <h3>Orders & Submissions</h3>
+                    <p style="color: #cccccc; margin-bottom: 2rem; text-align: center;">Manage and view all orders and submissions from your Hostinger website.</p>
+                    
+                    <div class="data-controls">
+                        <button id="fetchOrders" onclick="fetchHostingerData('orders')">Fetch Orders</button>
+                        <button id="fetchSubmissions" onclick="fetchHostingerData('submissions')">Fetch Submissions</button>
+                        <button id="refreshData" onclick="refreshCurrentData()">Refresh Data</button>
                     </div>
-                    <div class="status-metrics">
-                        <div class="metric">
-                            <span class="metric-value">99.9%</span>
-                            <span class="metric-label">Uptime</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-value">24ms</span>
-                            <span class="metric-label">Response Time</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-value">2.1k</span>
-                            <span class="metric-label">Files Processed</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-value">156</span>
-                            <span class="metric-label">Active Users</span>
-                        </div>
+
+                    <div class="data-display" id="dataDisplay">
+                        <p style="color: #cccccc; text-align: center;">Click a button above to load data from your Hostinger website.</p>
                     </div>
                 </div>
             </div>
@@ -599,6 +521,194 @@
             }
         });
 
+        // Hostinger data management
+        let currentDataType = null;
+        let currentData = null;
+
+        // Configuration for Hostinger API (replace with actual endpoints and credentials)
+        const HOSTINGER_CONFIG = {
+            baseURL: 'https://api.hostinger.com/v1/', // Replace with actual Hostinger API endpoint
+            apiKey: 'your-api-key-here', // Replace with your actual API key
+            endpoints: {
+                orders: 'orders',
+                submissions: 'submissions'
+            }
+        };
+
+        async function fetchHostingerData(type) {
+            const dataDisplay = document.getElementById('dataDisplay');
+            const fetchButton = document.getElementById(`fetch${type.charAt(0).toUpperCase() + type.slice(1)}`);
+            
+            // Show loading state
+            dataDisplay.innerHTML = '<div class="loading">Loading data from Hostinger...</div>';
+            fetchButton.disabled = true;
+            
+            try {
+                // Simulate API call to Hostinger (replace with actual implementation)
+                const response = await simulateHostingerAPI(type);
+                
+                currentDataType = type;
+                currentData = response;
+                
+                displayData(response, type);
+                
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                dataDisplay.innerHTML = `<div class="error">Error loading ${type}: ${error.message}</div>`;
+            } finally {
+                fetchButton.disabled = false;
+            }
+        }
+
+        async function simulateHostingerAPI(type) {
+            // Simulate network delay
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            // Simulate different data types
+            if (type === 'orders') {
+                return {
+                    data: [
+                        {
+                            id: 'ORD-001',
+                            customer: 'John Smith',
+                            email: 'john.smith@email.com',
+                            product: 'Business Consultation',
+                            amount: '$500.00',
+                            status: 'Completed',
+                            date: '2024-01-15'
+                        },
+                        {
+                            id: 'ORD-002',
+                            customer: 'Sarah Johnson',
+                            email: 'sarah.j@company.com',
+                            product: 'Document Review',
+                            amount: '$250.00',
+                            status: 'Pending',
+                            date: '2024-01-14'
+                        },
+                        {
+                            id: 'ORD-003',
+                            customer: 'Michael Brown',
+                            email: 'mbrown@business.com',
+                            product: 'Strategic Planning',
+                            amount: '$750.00',
+                            status: 'In Progress',
+                            date: '2024-01-13'
+                        }
+                    ],
+                    total: 3
+                };
+            } else if (type === 'submissions') {
+                return {
+                    data: [
+                        {
+                            id: 'SUB-001',
+                            name: 'Alice Wilson',
+                            email: 'alice@example.com',
+                            subject: 'Partnership Inquiry',
+                            message: 'Interested in strategic partnership opportunities...',
+                            date: '2024-01-16',
+                            status: 'New'
+                        },
+                        {
+                            id: 'SUB-002',
+                            name: 'Robert Davis',
+                            email: 'robert.davis@corp.com',
+                            subject: 'Consultation Request',
+                            message: 'Need help with digital transformation project...',
+                            date: '2024-01-15',
+                            status: 'Responded'
+                        },
+                        {
+                            id: 'SUB-003',
+                            name: 'Emily Chen',
+                            email: 'emily.chen@startup.io',
+                            subject: 'Document Analysis',
+                            message: 'Would like to schedule document review service...',
+                            date: '2024-01-14',
+                            status: 'In Review'
+                        }
+                    ],
+                    total: 3
+                };
+            }
+        }
+
+        function displayData(response, type) {
+            const dataDisplay = document.getElementById('dataDisplay');
+            
+            if (!response.data || response.data.length === 0) {
+                dataDisplay.innerHTML = `<div class="error">No ${type} found.</div>`;
+                return;
+            }
+
+            let tableHTML = '<table class="data-table"><thead><tr>';
+            
+            if (type === 'orders') {
+                tableHTML += '<th>Order ID</th><th>Customer</th><th>Email</th><th>Product</th><th>Amount</th><th>Status</th><th>Date</th>';
+            } else if (type === 'submissions') {
+                tableHTML += '<th>ID</th><th>Name</th><th>Email</th><th>Subject</th><th>Status</th><th>Date</th>';
+            }
+            
+            tableHTML += '</tr></thead><tbody>';
+            
+            response.data.forEach(item => {
+                tableHTML += '<tr>';
+                if (type === 'orders') {
+                    tableHTML += `
+                        <td>${item.id}</td>
+                        <td>${item.customer}</td>
+                        <td>${item.email}</td>
+                        <td>${item.product}</td>
+                        <td>${item.amount}</td>
+                        <td>${item.status}</td>
+                        <td>${item.date}</td>
+                    `;
+                } else if (type === 'submissions') {
+                    tableHTML += `
+                        <td>${item.id}</td>
+                        <td>${item.name}</td>
+                        <td>${item.email}</td>
+                        <td>${item.subject}</td>
+                        <td>${item.status}</td>
+                        <td>${item.date}</td>
+                    `;
+                }
+                tableHTML += '</tr>';
+            });
+            
+            tableHTML += '</tbody></table>';
+            tableHTML += `<p style="color: #cccccc; text-align: center; margin-top: 1rem;">Total ${type}: ${response.total}</p>`;
+            
+            dataDisplay.innerHTML = tableHTML;
+        }
+
+        function refreshCurrentData() {
+            if (currentDataType) {
+                fetchHostingerData(currentDataType);
+            } else {
+                alert('Please select a data type first (Orders or Submissions).');
+            }
+        }
+
+        // For production use, replace simulateHostingerAPI with actual Hostinger API calls:
+        /*
+        async function fetchFromHostingerAPI(endpoint) {
+            const response = await fetch(`${HOSTINGER_CONFIG.baseURL}${endpoint}`, {
+                headers: {
+                    'Authorization': `Bearer ${HOSTINGER_CONFIG.apiKey}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            return await response.json();
+        }
+        */
+
         // Smooth scrolling
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -629,28 +739,6 @@
                 nav.style.padding = '1rem';
             }
         });
-
-        // Status updates simulation
-        function updateStatusMetrics() {
-            const uptime = document.querySelector('.metric-value');
-            const responseTime = document.querySelectorAll('.metric-value')[1];
-            const filesProcessed = document.querySelectorAll('.metric-value')[2];
-            const activeUsers = document.querySelectorAll('.metric-value')[3];
-
-            // Simulate real-time updates
-            setInterval(() => {
-                const newFiles = Math.floor(Math.random() * 5) + 2100;
-                const newUsers = Math.floor(Math.random() * 20) + 150;
-                const newResponseTime = Math.floor(Math.random() * 10) + 20;
-                
-                filesProcessed.textContent = newFiles.toLocaleString();
-                activeUsers.textContent = newUsers;
-                responseTime.textContent = newResponseTime + 'ms';
-            }, 5000);
-        }
-
-        // Initialize status updates
-        updateStatusMetrics();
     </script>
 </body>
 </html>
