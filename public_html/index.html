@@ -260,6 +260,23 @@
             }
         }
 
+        .validation-error {
+            color: #ff4757;
+            font-size: 0.95rem;
+            margin-top: 1rem;
+            padding: 0.8rem 1.2rem;
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid rgba(255, 71, 87, 0.3);
+            border-radius: 8px;
+            display: none;
+        }
+
+        .file-info {
+            color: #cccccc;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
         .fade-in {
             opacity: 0;
             transform: translateY(30px);
@@ -334,6 +351,7 @@
                         <p style="color: #cccccc;">Supported formats: PDF, DOC, DOCX, TXT (Max 10MB)</p>
                         <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt" />
                     </div>
+                    <div id="validationError" class="validation-error"></div>
                     <div style="margin-top: 2rem;">
                         <button class="cta-button" id="analyzeBtn" style="opacity: 0.5; cursor: not-allowed;" disabled>Analyze Document</button>
                     </div>
@@ -381,20 +399,83 @@
         const fileInput = document.getElementById('fileInput');
         const analyzeBtn = document.getElementById('analyzeBtn');
         const uploadArea = document.querySelector('.file-upload-area');
+        const validationError = document.getElementById('validationError');
 
-        fileInput.addEventListener('change', function(e) {
-            if (e.target.files.length > 0) {
-                const fileName = e.target.files[0].name;
-                uploadArea.innerHTML = `
-                    <div class="upload-icon">✅</div>
-                    <h4 style="color: #ff6b35; margin-bottom: 1rem;">File Selected</h4>
-                    <p style="color: #cccccc;">${fileName}</p>
-                `;
-                analyzeBtn.style.opacity = '1';
-                analyzeBtn.style.cursor = 'pointer';
-                analyzeBtn.disabled = false;
+        const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+        const ALLOWED_EXTENSIONS = ['.pdf', '.doc', '.docx', '.txt'];
+        const ALLOWED_MIME_TYPES = [
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'text/plain'
+        ];
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        function validateFile(file) {
+            const fileName = file.name.toLowerCase();
+            const fileExtension = '.' + fileName.split('.').pop();
+
+            if (!ALLOWED_EXTENSIONS.includes(fileExtension)) {
+                return `Invalid file type "${fileExtension}". Allowed formats: ${ALLOWED_EXTENSIONS.join(', ')}`;
             }
-        });
+
+            if (file.type && !ALLOWED_MIME_TYPES.includes(file.type)) {
+                return `Invalid file type. Allowed formats: PDF, DOC, DOCX, TXT`;
+            }
+
+            if (file.size > MAX_FILE_SIZE) {
+                return `File is too large (${formatFileSize(file.size)}). Maximum allowed size is 10 MB.`;
+            }
+
+            return null;
+        }
+
+        function resetUploadArea() {
+            uploadArea.innerHTML = `
+                <div class="upload-icon">📁</div>
+                <h4 style="color: #ff6b35; margin-bottom: 1rem;">Click to Upload File</h4>
+                <p style="color: #cccccc;">Supported formats: PDF, DOC, DOCX, TXT (Max 10MB)</p>
+                <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt" />
+            `;
+            const newFileInput = document.getElementById('fileInput');
+            newFileInput.addEventListener('change', handleFileSelect);
+            analyzeBtn.style.opacity = '0.5';
+            analyzeBtn.style.cursor = 'not-allowed';
+            analyzeBtn.disabled = true;
+        }
+
+        function handleFileSelect(e) {
+            validationError.style.display = 'none';
+
+            if (e.target.files.length === 0) return;
+
+            const file = e.target.files[0];
+            const error = validateFile(file);
+
+            if (error) {
+                validationError.textContent = error;
+                validationError.style.display = 'block';
+                resetUploadArea();
+                return;
+            }
+
+            uploadArea.innerHTML = `
+                <div class="upload-icon">✅</div>
+                <h4 style="color: #ff6b35; margin-bottom: 1rem;">File Selected</h4>
+                <p style="color: #cccccc;">${file.name}</p>
+                <p class="file-info">${formatFileSize(file.size)}</p>
+            `;
+            analyzeBtn.style.opacity = '1';
+            analyzeBtn.style.cursor = 'pointer';
+            analyzeBtn.disabled = false;
+        }
+
+        fileInput.addEventListener('change', handleFileSelect);
 
         analyzeBtn.addEventListener('click', function() {
             if (!this.disabled) {
