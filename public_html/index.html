@@ -3,516 +3,483 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IGNYTE Consulting</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-            color: #ffffff;
-            line-height: 1.6;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        header {
-            background: rgba(26, 26, 26, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 1rem 0;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-            border-bottom: 2px solid #ff6b35;
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #ff6b35;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        nav ul {
-            list-style: none;
-            display: flex;
-            gap: 2rem;
-        }
-
-        nav a {
-            color: #ffffff;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-            padding: 0.5rem 1rem;
-        }
-
-        nav a:hover {
-            color: #ff6b35;
-        }
-
-        main {
-            margin-top: 80px;
-            padding: 2rem 0;
-        }
-
-        .hero {
-            text-align: center;
-            padding: 4rem 0;
-            background: radial-gradient(circle at center, rgba(255, 107, 53, 0.1) 0%, transparent 70%);
-        }
-
-        .hero h1 {
-            font-size: 3.5rem;
-            margin-bottom: 1rem;
-            background: linear-gradient(45deg, #ffffff, #ff6b35);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hero p {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-            color: #cccccc;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .cta-button {
-            display: inline-block;
-            background: linear-gradient(45deg, #ff6b35, #ff8c42);
-            color: #ffffff;
-            padding: 1rem 2rem;
-            text-decoration: none;
-            border-radius: 50px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
-        }
-
-        .cta-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 25px rgba(255, 107, 53, 0.5);
-        }
-
-        .section {
-            padding: 4rem 0;
-        }
-
-        .section-title {
-            font-size: 2.5rem;
-            text-align: center;
-            margin-bottom: 3rem;
-            color: #ff6b35;
-        }
-
-        .services-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-
-        .service-card {
-            background: rgba(45, 45, 45, 0.8);
-            padding: 2rem;
-            border-radius: 15px;
-            border: 1px solid rgba(255, 107, 53, 0.2);
-            transition: transform 0.3s ease, border-color 0.3s ease;
-        }
-
-        .service-card:hover {
-            transform: translateY(-5px);
-            border-color: #ff6b35;
-        }
-
-        .service-card h3 {
-            color: #ff6b35;
-            margin-bottom: 1rem;
-            font-size: 1.5rem;
-        }
-
-        .service-card p {
-            color: #cccccc;
-            line-height: 1.8;
-        }
-
-        .file-upload-section {
-            background: rgba(26, 26, 26, 0.8);
-            padding: 3rem;
-            border-radius: 20px;
-            border: 2px dashed #ff6b35;
-            text-align: center;
-            margin: 2rem 0;
-        }
-
-        .file-upload-section h3 {
-            color: #ff6b35;
-            margin-bottom: 1.5rem;
-            font-size: 1.8rem;
-        }
-
-        .file-upload-area {
-            border: 2px dashed rgba(255, 107, 53, 0.5);
-            padding: 2rem;
-            border-radius: 10px;
-            background: rgba(45, 45, 45, 0.5);
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .file-upload-area:hover {
-            border-color: #ff6b35;
-            background: rgba(255, 107, 53, 0.1);
-        }
-
-        .file-upload-area input {
-            display: none;
-        }
-
-        .upload-icon {
-            font-size: 3rem;
-            color: #ff6b35;
-            margin-bottom: 1rem;
-        }
-
-        footer {
-            background: #1a1a1a;
-            padding: 2rem 0;
-            text-align: center;
-            border-top: 1px solid rgba(255, 107, 53, 0.3);
-        }
-
-        .mobile-menu {
-            display: none;
-            flex-direction: column;
-            cursor: pointer;
-        }
-
-        .mobile-menu span {
-            width: 25px;
-            height: 3px;
-            background: #ffffff;
-            margin: 3px 0;
-            transition: 0.3s;
-        }
-
-        @media (max-width: 768px) {
-            nav ul {
-                display: none;
-            }
-
-            .mobile-menu {
-                display: flex;
-            }
-
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-
-            .hero p {
-                font-size: 1rem;
-                padding: 0 1rem;
-            }
-
-            .services-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .section-title {
-                font-size: 2rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .logo {
-                font-size: 1.5rem;
-            }
-
-            .hero h1 {
-                font-size: 2rem;
-            }
-
-            .cta-button {
-                padding: 0.8rem 1.5rem;
-                font-size: 0.9rem;
-            }
-        }
-
-        .validation-error {
-            color: #ff4757;
-            font-size: 0.95rem;
-            margin-top: 1rem;
-            padding: 0.8rem 1.2rem;
-            background: rgba(255, 71, 87, 0.1);
-            border: 1px solid rgba(255, 71, 87, 0.3);
-            border-radius: 8px;
-            display: none;
-        }
-
-        .file-info {
-            color: #cccccc;
-            font-size: 0.85rem;
-            margin-top: 0.5rem;
-        }
-
-        .fade-in {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
-        }
-
-        .fade-in.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    </style>
+    <title>IGNYTE Consulting | Strategic IT &amp; Business Solutions</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">IGNYTE</div>
-                <nav>
-                    <ul>
-                        <li><a href="#home">Home</a></li>
-                        <li><a href="#services">Services</a></li>
-                        <li><a href="#upload">File Review</a></li>
-                        <li><a href="#contact">Contact</a></li>
-                    </ul>
-                </nav>
-                <div class="mobile-menu">
-                    <span></span>
-                    <span></span>
-                    <span></span>
+
+<!-- ===== NAVIGATION ===== -->
+<nav id="navbar">
+    <div class="container">
+        <div class="nav-flex">
+            <a href="#" style="font-family:'Syne',sans-serif; font-weight:800; font-size:1.6rem; color:var(--navy); letter-spacing:-0.02em;">IGNYTE</a>
+            <div class="nav-links" id="navLinks">
+                <a href="#services">Services</a>
+                <a href="#why">Why IGNYTE</a>
+                <a href="#process">Process</a>
+                <a href="#upload">File Review</a>
+                <a href="#contact" class="btn-nav">Contact Us</a>
+            </div>
+            <div class="mobile-menu-toggle" id="menuToggle" onclick="document.getElementById('navLinks').classList.toggle('open')">&#9776;</div>
+        </div>
+    </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+    <div class="hero-bg-grid"></div>
+    <div class="hero-orbs">
+        <div class="orb orb1"></div>
+        <div class="orb orb2"></div>
+        <div class="orb orb3"></div>
+    </div>
+    <div class="container">
+        <div class="hero-content">
+            <div class="pill-label">Strategic IT &amp; Business Consulting</div>
+            <h1>Transform Your Business<br>with <span class="text-gradient">IGNYTE Consulting</span></h1>
+            <p class="hero-sub">We help organizations navigate complex challenges through innovative strategies, document analysis, and digital transformation solutions.</p>
+            <div class="hero-btns">
+                <a href="#upload" class="btn-primary">Upload for Review &rarr;</a>
+                <a href="#services" class="btn-secondary">Our Services &darr;</a>
+            </div>
+            <div class="trust-badges">
+                <div class="trust-item"><span class="trust-dot"></span> Trusted by Small Businesses</div>
+                <div class="trust-item"><span class="trust-dot"></span> Expert Document Analysis</div>
+                <div class="trust-item"><span class="trust-dot"></span> Fast Turnaround</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== SERVICES ===== -->
+<section class="services" id="services">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-label">What We Do</div>
+            <h2>Our Services</h2>
+            <p>Comprehensive consulting solutions tailored to your business needs.</p>
+        </div>
+        <div class="service-grid">
+            <div class="service-card" data-color="blue">
+                <div class="card-accent"></div>
+                <div class="icon-box blue">&#128202;</div>
+                <h3>Strategic Consulting</h3>
+                <p>Comprehensive strategic planning and business transformation services.</p>
+                <ul class="service-list">
+                    <li>Business strategy development</li>
+                    <li>Market analysis &amp; positioning</li>
+                    <li>Growth roadmap planning</li>
+                </ul>
+                <a href="#contact" class="card-link">Learn more &rarr;</a>
+            </div>
+            <div class="service-card" data-color="orange">
+                <div class="card-accent"></div>
+                <div class="icon-box orange">&#128196;</div>
+                <h3>Document Analysis</h3>
+                <p>Expert review and analysis of your business documents and contracts.</p>
+                <ul class="service-list">
+                    <li>Contract review &amp; analysis</li>
+                    <li>Process documentation</li>
+                    <li>Compliance assessment</li>
+                </ul>
+                <a href="#upload" class="card-link">Upload a document &rarr;</a>
+            </div>
+            <div class="service-card" data-color="dark">
+                <div class="card-accent"></div>
+                <div class="icon-box dark">&#128187;</div>
+                <h3>Digital Transformation</h3>
+                <p>Modernize your business operations through technology integration.</p>
+                <ul class="service-list">
+                    <li>Technology integration</li>
+                    <li>Process automation</li>
+                    <li>Digital strategy</li>
+                </ul>
+                <a href="#contact" class="card-link">Learn more &rarr;</a>
+            </div>
+            <div class="service-card" data-color="green">
+                <div class="card-accent"></div>
+                <div class="icon-box green">&#128640;</div>
+                <h3>Project Management</h3>
+                <p>End-to-end project management to keep your initiatives on track.</p>
+                <ul class="service-list">
+                    <li>Agile &amp; waterfall delivery</li>
+                    <li>Risk management</li>
+                    <li>Stakeholder communication</li>
+                </ul>
+                <a href="#contact" class="card-link">Learn more &rarr;</a>
+            </div>
+            <div class="service-card" data-color="red">
+                <div class="card-accent"></div>
+                <div class="icon-box red">&#128737;</div>
+                <h3>Cybersecurity Advisory</h3>
+                <p>Protect your organization with expert security guidance.</p>
+                <ul class="service-list">
+                    <li>Security assessments</li>
+                    <li>Policy development</li>
+                    <li>Incident response planning</li>
+                </ul>
+                <a href="#contact" class="card-link">Learn more &rarr;</a>
+            </div>
+            <div class="service-card" data-color="purple">
+                <div class="card-accent"></div>
+                <div class="icon-box purple">&#127891;</div>
+                <h3>Training &amp; Development</h3>
+                <p>Upskill your team with tailored training programs.</p>
+                <ul class="service-list">
+                    <li>Leadership workshops</li>
+                    <li>Technical training</li>
+                    <li>Team development</li>
+                </ul>
+                <a href="#contact" class="card-link">Learn more &rarr;</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== WHY IGNYTE ===== -->
+<section class="why-ignyte" id="why">
+    <div class="container">
+        <div class="why-layout">
+            <div class="why-text">
+                <div class="section-label">Why Choose Us</div>
+                <h2>Results-Driven Consulting</h2>
+                <p class="why-intro">We combine deep industry expertise with a hands-on approach to deliver measurable outcomes for your business.</p>
+                <ul class="check-list">
+                    <li>
+                        <div class="check-icon">&#10003;</div>
+                        <div><strong>Expert Team</strong><br><span>Seasoned professionals with real-world industry experience.</span></div>
+                    </li>
+                    <li>
+                        <div class="check-icon">&#10003;</div>
+                        <div><strong>Tailored Solutions</strong><br><span>Every engagement is customized to your unique challenges.</span></div>
+                    </li>
+                    <li>
+                        <div class="check-icon">&#10003;</div>
+                        <div><strong>Measurable Impact</strong><br><span>Clear metrics and deliverables you can track and verify.</span></div>
+                    </li>
+                    <li>
+                        <div class="check-icon">&#10003;</div>
+                        <div><strong>Fast Turnaround</strong><br><span>Quick response times and efficient project delivery.</span></div>
+                    </li>
+                </ul>
+            </div>
+            <div class="why-visual">
+                <div class="stat-card primary">
+                    <span class="stat-num">50+</span>
+                    <span class="stat-label">Projects Delivered</span>
+                </div>
+                <div class="stat-card accent">
+                    <span class="stat-num">98%</span>
+                    <span class="stat-label">Client Satisfaction</span>
+                </div>
+                <div class="stat-card mid">
+                    <span class="stat-num">10+</span>
+                    <span class="stat-label">Years Experience</span>
+                </div>
+                <div class="stat-card light">
+                    <span class="stat-num">24/7</span>
+                    <span class="stat-label">Support Available</span>
                 </div>
             </div>
         </div>
-    </header>
+    </div>
+</section>
 
-    <main>
-        <section id="home" class="hero">
-            <div class="container">
-                <h1 class="fade-in">IGNYTE Consulting</h1>
-                <p class="fade-in">Transforming businesses through innovative strategies and cutting-edge solutions. We help you ignite your potential and achieve extraordinary results.</p>
-                <a href="#upload" class="cta-button fade-in">Upload File for Review</a>
-            </div>
-        </section>
-
-        <section id="services" class="section">
-            <div class="container">
-                <h2 class="section-title fade-in">Our Services</h2>
-                <div class="services-grid">
-                    <div class="service-card fade-in">
-                        <h3>Strategic Consulting</h3>
-                        <p>We provide comprehensive strategic planning and business transformation services to help your organization navigate complex challenges and achieve sustainable growth.</p>
-                    </div>
-                    <div class="service-card fade-in">
-                        <h3>Document Analysis</h3>
-                        <p>Our expert team reviews and analyzes your business documents, contracts, and processes to identify opportunities for improvement and optimization.</p>
-                    </div>
-                    <div class="service-card fade-in">
-                        <h3>Digital Transformation</h3>
-                        <p>We help modernize your business operations through technology integration, process automation, and digital strategy implementation.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="upload" class="section">
-            <div class="container">
-                <div class="file-upload-section fade-in">
-                    <h3>Upload Your File for Professional Review</h3>
-                    <p style="color: #cccccc; margin-bottom: 2rem;">Our experts will analyze your document and provide detailed insights and recommendations.</p>
-                    <div class="file-upload-area" onclick="document.getElementById('fileInput').click()">
-                        <div class="upload-icon">📁</div>
-                        <h4 style="color: #ff6b35; margin-bottom: 1rem;">Click to Upload File</h4>
-                        <p style="color: #cccccc;">Supported formats: PDF, DOC, DOCX, TXT (Max 10MB)</p>
-                        <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt" />
-                    </div>
-                    <div id="validationError" class="validation-error"></div>
-                    <div style="margin-top: 2rem;">
-                        <button class="cta-button" id="analyzeBtn" style="opacity: 0.5; cursor: not-allowed;" disabled>Analyze Document</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="contact" class="section">
-            <div class="container">
-                <h2 class="section-title fade-in">Get in Touch</h2>
-                <div style="text-align: center;">
-                    <p class="fade-in" style="font-size: 1.2rem; color: #cccccc; margin-bottom: 2rem;">Ready to ignite your business potential? Contact us today for a consultation.</p>
-                    <a href="mailto:contact@ignyteconsulting.com" class="cta-button fade-in">Contact Us</a>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <footer>
-        <div class="container">
-            <p>&copy; 2024 IGNYTE Consulting. All rights reserved.</p>
+<!-- ===== PROCESS ===== -->
+<section class="process" id="process">
+    <div class="container">
+        <div class="section-header light">
+            <div class="section-label light">How We Work</div>
+            <h2>Our Process</h2>
+            <p>A structured approach to delivering results.</p>
         </div>
-    </footer>
+        <div class="process-steps">
+            <div class="step">
+                <div class="step-num">Step 01</div>
+                <div class="step-icon">&#128172;</div>
+                <h4>Discovery</h4>
+                <p>We listen to understand your challenges, goals, and current state.</p>
+            </div>
+            <div class="step-arrow">&rarr;</div>
+            <div class="step">
+                <div class="step-num">Step 02</div>
+                <div class="step-icon">&#128270;</div>
+                <h4>Analysis</h4>
+                <p>Deep dive into your documents, processes, and systems.</p>
+            </div>
+            <div class="step-arrow">&rarr;</div>
+            <div class="step">
+                <div class="step-num">Step 03</div>
+                <div class="step-icon">&#128736;</div>
+                <h4>Strategy</h4>
+                <p>Develop a tailored action plan with clear milestones.</p>
+            </div>
+            <div class="step-arrow">&rarr;</div>
+            <div class="step">
+                <div class="step-num">Step 04</div>
+                <div class="step-icon">&#128640;</div>
+                <h4>Delivery</h4>
+                <p>Execute the plan with ongoing support and refinement.</p>
+            </div>
+        </div>
+    </div>
+</section>
 
-    <script>
-        // Fade in animation
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
+<!-- ===== FILE UPLOAD ===== -->
+<section class="services" id="upload" style="background: white;">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-label">Document Review</div>
+            <h2>Upload Your File for Professional Review</h2>
+            <p>Our experts will analyze your document and provide detailed insights and recommendations.</p>
+        </div>
+        <div style="max-width: 640px; margin: 0 auto; text-align: center;">
+            <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()" style="border: 2px dashed rgba(0,71,187,0.3); padding: 48px 32px; border-radius: 16px; background: var(--light-grey); cursor: pointer; transition: all 0.3s ease;">
+                <div style="font-size: 3rem; margin-bottom: 16px;">&#128193;</div>
+                <h4 style="color: var(--navy); margin-bottom: 8px; font-family: 'Syne', sans-serif;">Click to Upload File</h4>
+                <p style="color: var(--slate); font-size: 0.92rem;">Supported formats: PDF, DOC, DOCX, TXT (Max 10MB)</p>
+                <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt" style="display: none;" />
+            </div>
+            <div id="validationError" style="color: #dc2626; font-size: 0.92rem; margin-top: 16px; padding: 12px 16px; background: rgba(220,38,38,0.06); border: 1px solid rgba(220,38,38,0.2); border-radius: 8px; display: none;"></div>
+            <div style="margin-top: 24px;">
+                <button class="btn-primary" id="analyzeBtn" style="opacity: 0.5; cursor: not-allowed; border: none; font-family: 'DM Sans', sans-serif; margin: 0 auto;" disabled>Analyze Document</button>
+            </div>
+        </div>
+    </div>
+</section>
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, observerOptions);
+<!-- ===== CONTACT / FOOTER ===== -->
+<footer id="contact">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <div style="font-family:'Syne',sans-serif; font-weight:800; font-size:1.6rem; color:white; margin-bottom:16px; letter-spacing:-0.02em;">IGNYTE</div>
+                <p>Transforming businesses through innovative strategies and cutting-edge solutions. We help you ignite your potential.</p>
+                <div class="footer-social">
+                    <a href="https://wa.me/message" class="social-btn whatsapp">&#128172; WhatsApp</a>
+                    <a href="mailto:contact@ignyteconsulting.com" class="social-btn email">&#9993; Email</a>
+                </div>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#services">Services</a></li>
+                    <li><a href="#why">Why IGNYTE</a></li>
+                    <li><a href="#process">Our Process</a></li>
+                    <li><a href="#upload">File Review</a></li>
+                </ul>
+            </div>
+            <div class="footer-contact">
+                <h4>Contact</h4>
+                <div class="contact-item">&#9993; <a href="mailto:contact@ignyteconsulting.com">contact@ignyteconsulting.com</a></div>
+                <div class="contact-item">&#127760; <a href="https://www.ignyteconsulting.com">ignyteconsulting.com</a></div>
+            </div>
+        </div>
+        <div class="copyright">&copy; 2024 IGNYTE Consulting. All rights reserved.</div>
+    </div>
+</footer>
 
-        document.querySelectorAll('.fade-in').forEach(el => {
-            observer.observe(el);
+<!-- ===== CHAT LAUNCHER ===== -->
+<div class="chat-launcher" id="chatLauncher" onclick="toggleChat()">
+    <span class="chat-pulse"></span>
+    <span class="chat-icon">&#128172;</span>
+    <span class="chat-label">Chat with us</span>
+</div>
+
+<!-- ===== CHAT WINDOW ===== -->
+<div class="chat-window" id="chatWindow">
+    <div class="chat-header">
+        <div class="chat-header-info">
+            <div class="chat-avatar">&#128293;</div>
+            <div>
+                <div class="chat-name">IGNYTE Support</div>
+                <div class="chat-status"><span class="online-dot"></span> Online</div>
+            </div>
+        </div>
+        <div class="chat-header-actions">
+            <a href="https://wa.me/message" class="chat-whatsapp-btn" target="_blank">&#128172;</a>
+            <button class="chat-close" onclick="toggleChat()">&times;</button>
+        </div>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+        <div class="chat-msg bot">
+            <div class="msg-bubble">
+                Hi there! &#128075; Welcome to IGNYTE Consulting. How can we help you today?
+                <div class="chat-quick-replies">
+                    <button class="quick-reply" onclick="sendQuickReply('I need a consultation')">Consultation</button>
+                    <button class="quick-reply" onclick="sendQuickReply('Tell me about your services')">Services</button>
+                    <button class="quick-reply" onclick="sendQuickReply('I want to upload a document')">Upload Document</button>
+                </div>
+            </div>
+            <div class="msg-time">Just now</div>
+        </div>
+    </div>
+    <div class="chat-typing" id="chatTyping" style="display: none;">
+        <div class="typing-dots"><span></span><span></span><span></span></div>
+        IGNYTE is typing...
+    </div>
+    <div class="chat-input-area">
+        <input type="text" id="chatInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter')sendMessage()">
+        <button class="chat-send-btn" onclick="sendMessage()">&#10148;</button>
+    </div>
+    <div class="chat-footer-note">Powered by IGNYTE Consulting</div>
+</div>
+
+<script>
+    // Navbar scroll effect
+    window.addEventListener('scroll', function() {
+        document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
+    });
+
+    // Smooth scrolling
+    document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            var target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                document.getElementById('navLinks').classList.remove('open');
+            }
         });
+    });
 
-        // File upload handling
-        const fileInput = document.getElementById('fileInput');
-        const analyzeBtn = document.getElementById('analyzeBtn');
-        const uploadArea = document.querySelector('.file-upload-area');
-        const validationError = document.getElementById('validationError');
+    // ===== FILE UPLOAD VALIDATION =====
+    var fileInput = document.getElementById('fileInput');
+    var analyzeBtn = document.getElementById('analyzeBtn');
+    var uploadArea = document.getElementById('uploadArea');
+    var validationError = document.getElementById('validationError');
 
-        const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-        const ALLOWED_EXTENSIONS = ['.pdf', '.doc', '.docx', '.txt'];
-        const ALLOWED_MIME_TYPES = [
-            'application/pdf',
-            'application/msword',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'text/plain'
-        ];
+    var MAX_FILE_SIZE = 10 * 1024 * 1024;
+    var ALLOWED_EXTENSIONS = ['.pdf', '.doc', '.docx', '.txt'];
+    var ALLOWED_MIME_TYPES = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'text/plain'
+    ];
 
-        function formatFileSize(bytes) {
-            if (bytes < 1024) return bytes + ' B';
-            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    function formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function validateFile(file) {
+        var fileName = file.name.toLowerCase();
+        var fileExtension = '.' + fileName.split('.').pop();
+
+        if (ALLOWED_EXTENSIONS.indexOf(fileExtension) === -1) {
+            return 'Invalid file type "' + fileExtension + '". Allowed formats: ' + ALLOWED_EXTENSIONS.join(', ');
         }
 
-        function validateFile(file) {
-            const fileName = file.name.toLowerCase();
-            const fileExtension = '.' + fileName.split('.').pop();
-
-            if (!ALLOWED_EXTENSIONS.includes(fileExtension)) {
-                return `Invalid file type "${fileExtension}". Allowed formats: ${ALLOWED_EXTENSIONS.join(', ')}`;
-            }
-
-            if (file.type && !ALLOWED_MIME_TYPES.includes(file.type)) {
-                return `Invalid file type. Allowed formats: PDF, DOC, DOCX, TXT`;
-            }
-
-            if (file.size > MAX_FILE_SIZE) {
-                return `File is too large (${formatFileSize(file.size)}). Maximum allowed size is 10 MB.`;
-            }
-
-            return null;
+        if (file.type && ALLOWED_MIME_TYPES.indexOf(file.type) === -1) {
+            return 'Invalid file type. Allowed formats: PDF, DOC, DOCX, TXT';
         }
 
-        function resetUploadArea() {
-            uploadArea.innerHTML = `
-                <div class="upload-icon">📁</div>
-                <h4 style="color: #ff6b35; margin-bottom: 1rem;">Click to Upload File</h4>
-                <p style="color: #cccccc;">Supported formats: PDF, DOC, DOCX, TXT (Max 10MB)</p>
-                <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt" />
-            `;
-            const newFileInput = document.getElementById('fileInput');
-            newFileInput.addEventListener('change', handleFileSelect);
-            analyzeBtn.style.opacity = '0.5';
-            analyzeBtn.style.cursor = 'not-allowed';
-            analyzeBtn.disabled = true;
+        if (file.size > MAX_FILE_SIZE) {
+            return 'File is too large (' + formatFileSize(file.size) + '). Maximum allowed size is 10 MB.';
         }
 
-        function handleFileSelect(e) {
-            validationError.style.display = 'none';
+        return null;
+    }
 
-            if (e.target.files.length === 0) return;
+    function resetUploadArea() {
+        uploadArea.innerHTML = '<div style="font-size: 3rem; margin-bottom: 16px;">&#128193;</div>' +
+            '<h4 style="color: var(--navy); margin-bottom: 8px; font-family: \'Syne\', sans-serif;">Click to Upload File</h4>' +
+            '<p style="color: var(--slate); font-size: 0.92rem;">Supported formats: PDF, DOC, DOCX, TXT (Max 10MB)</p>' +
+            '<input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt" style="display: none;" />';
+        var newFileInput = document.getElementById('fileInput');
+        newFileInput.addEventListener('change', handleFileSelect);
+        analyzeBtn.style.opacity = '0.5';
+        analyzeBtn.style.cursor = 'not-allowed';
+        analyzeBtn.disabled = true;
+    }
 
-            const file = e.target.files[0];
-            const error = validateFile(file);
+    function handleFileSelect(e) {
+        validationError.style.display = 'none';
+        if (e.target.files.length === 0) return;
 
-            if (error) {
-                validationError.textContent = error;
-                validationError.style.display = 'block';
-                resetUploadArea();
-                return;
-            }
+        var file = e.target.files[0];
+        var error = validateFile(file);
 
-            uploadArea.innerHTML = `
-                <div class="upload-icon">✅</div>
-                <h4 style="color: #ff6b35; margin-bottom: 1rem;">File Selected</h4>
-                <p style="color: #cccccc;">${file.name}</p>
-                <p class="file-info">${formatFileSize(file.size)}</p>
-            `;
-            analyzeBtn.style.opacity = '1';
-            analyzeBtn.style.cursor = 'pointer';
-            analyzeBtn.disabled = false;
+        if (error) {
+            validationError.textContent = error;
+            validationError.style.display = 'block';
+            resetUploadArea();
+            return;
         }
 
-        fileInput.addEventListener('change', handleFileSelect);
+        uploadArea.innerHTML = '<div style="font-size: 3rem; margin-bottom: 16px;">&#9989;</div>' +
+            '<h4 style="color: var(--navy); margin-bottom: 8px; font-family: \'Syne\', sans-serif;">File Selected</h4>' +
+            '<p style="color: var(--slate); font-size: 0.92rem;">' + file.name + '</p>' +
+            '<p style="color: var(--slate); font-size: 0.82rem; margin-top: 4px;">' + formatFileSize(file.size) + '</p>';
+        analyzeBtn.style.opacity = '1';
+        analyzeBtn.style.cursor = 'pointer';
+        analyzeBtn.disabled = false;
+    }
 
-        analyzeBtn.addEventListener('click', function() {
-            if (!this.disabled) {
-                alert('File analysis feature will be implemented. Your document will be processed by our expert team.');
-            }
-        });
+    fileInput.addEventListener('change', handleFileSelect);
 
-        // Smooth scrolling
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
+    analyzeBtn.addEventListener('click', function() {
+        if (!this.disabled) {
+            alert('File analysis feature will be implemented. Your document will be processed by our expert team.');
+        }
+    });
 
-        // Mobile menu toggle
-        const mobileMenu = document.querySelector('.mobile-menu');
-        const nav = document.querySelector('nav ul');
+    // ===== CHAT =====
+    function toggleChat() {
+        var chatWindow = document.getElementById('chatWindow');
+        var chatLauncher = document.getElementById('chatLauncher');
+        chatWindow.classList.toggle('open');
+        chatLauncher.classList.toggle('hidden');
+    }
 
-        mobileMenu.addEventListener('click', function() {
-            nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';
-            if (nav.style.display === 'flex') {
-                nav.style.flexDirection = 'column';
-                nav.style.position = 'absolute';
-                nav.style.top = '100%';
-                nav.style.left = '0';
-                nav.style.width = '100%';
-                nav.style.background = '#1a1a1a';
-                nav.style.padding = '1rem';
-            }
-        });
-    </script>
+    function sendMessage() {
+        var input = document.getElementById('chatInput');
+        var msg = input.value.trim();
+        if (!msg) return;
+        appendMessage(msg, 'user');
+        input.value = '';
+        showTyping();
+        setTimeout(function() {
+            hideTyping();
+            appendMessage(getBotReply(msg), 'bot');
+        }, 1200);
+    }
+
+    function sendQuickReply(msg) {
+        appendMessage(msg, 'user');
+        showTyping();
+        setTimeout(function() {
+            hideTyping();
+            appendMessage(getBotReply(msg), 'bot');
+        }, 1200);
+    }
+
+    function appendMessage(text, sender) {
+        var container = document.getElementById('chatMessages');
+        var div = document.createElement('div');
+        div.className = 'chat-msg ' + sender;
+        div.innerHTML = '<div class="msg-bubble">' + text + '</div><div class="msg-time">Just now</div>';
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function showTyping() { document.getElementById('chatTyping').style.display = 'flex'; }
+    function hideTyping() { document.getElementById('chatTyping').style.display = 'none'; }
+
+    function getBotReply(msg) {
+        var lower = msg.toLowerCase();
+        if (lower.indexOf('consult') !== -1) return 'We\'d love to discuss your needs! Please email us at <a href="mailto:contact@ignyteconsulting.com">contact@ignyteconsulting.com</a> or describe your project here.';
+        if (lower.indexOf('service') !== -1) return 'We offer Strategic Consulting, Document Analysis, Digital Transformation, Project Management, Cybersecurity Advisory, and Training. Which interests you?';
+        if (lower.indexOf('upload') !== -1 || lower.indexOf('document') !== -1) return 'You can upload your document in the <a href="#upload">File Review</a> section above. We support PDF, DOC, DOCX, and TXT files up to 10MB.';
+        if (lower.indexOf('price') !== -1 || lower.indexOf('cost') !== -1) return 'Our pricing depends on the scope of work. Please reach out at <a href="mailto:contact@ignyteconsulting.com">contact@ignyteconsulting.com</a> for a custom quote.';
+        return 'Thanks for your message! Our team will get back to you soon. You can also reach us at <a href="mailto:contact@ignyteconsulting.com">contact@ignyteconsulting.com</a>.';
+    }
+</script>
+
 </body>
 </html>
