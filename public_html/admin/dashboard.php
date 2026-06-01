@@ -293,9 +293,12 @@ if (isset($_GET['edit'])) {
     </div>
     <div class="topbar-right">
         <span>Welcome, <?php echo $adminName; ?></span>
+        <a href="dashboard.php" style="background:rgba(255,255,255,0.15);color:white;">Blog</a>
+        <a href="crm.php">CRM</a>
+        <a href="projects.php">Projects</a>
+        <a href="tools.php">Tools</a>
+        <a href="#clients-section">Portal Users</a>
         <a href="../index.html">View Site</a>
-        <a href="../blog.php">View Blog</a>
-        <a href="#clients-section">Clients</a>
         <a href="change-password.php">Password</a>
         <a href="logout.php" class="logout-btn">Logout</a>
     </div>
