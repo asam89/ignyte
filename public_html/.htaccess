@@ -1,0 +1,9 @@
+# Serve index.html as the default directory page
+DirectoryIndex index.html
+
+# Enable URL rewriting
+RewriteEngine On
+
+# Force www
+RewriteCond %{HTTP_HOST} ^ignyteconsulting\.com [NC]
+RewriteRule ^(.*)$ https://www.ignyteconsulting.com/$1 [L,R=301]
