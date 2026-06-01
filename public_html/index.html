@@ -66,7 +66,44 @@
             <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
                 <a href="mailto:contact@ignyteconsulting.com?subject=Free%20Consultation%20Request" class="btn-primary" style="box-shadow: 0 4px 18px rgba(238,90,36,0.5);">Schedule a Call &rarr;</a>
                 <a href="https://wa.me/message" target="_blank" rel="noopener" style="background: rgba(255,255,255,0.1); border: 1.5px solid rgba(255,255,255,0.25); color: white; padding: 15px 30px; border-radius: 8px; font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; transition: 0.2s ease;">&#128172; WhatsApp Us</a>
+                <button onclick="document.getElementById('ai-consult-window').style.display='block';this.style.display='none';" style="background: linear-gradient(135deg, #007BFF, #00c6ff); border: none; color: white; padding: 15px 30px; border-radius: 8px; font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: 0.2s ease; box-shadow: 0 4px 18px rgba(0,123,255,0.4);">&#9889; AI Consultation</button>
             </div>
+
+            <!-- AI Consultation Window -->
+            <div id="ai-consult-window" style="display:none; margin-top:32px; text-align:left; max-width:600px; margin-left:auto; margin-right:auto;">
+                <div style="background: rgba(255,255,255,0.08); backdrop-filter: blur(10px); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 16px; padding: 28px; position: relative;">
+                    <button onclick="document.getElementById('ai-consult-window').style.display='none';" style="position:absolute;top:12px;right:16px;background:none;border:none;color:rgba(255,255,255,0.5);font-size:1.4rem;cursor:pointer;">&times;</button>
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+                        <div style="background:linear-gradient(135deg,#007BFF,#00c6ff);width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">&#9889;</div>
+                        <div>
+                            <div style="font-weight:700;font-size:1.05rem;">AI GNYTE</div>
+                            <div style="font-size:0.78rem;color:rgba(255,255,255,0.5);">Powered by IGNYTE Consulting</div>
+                        </div>
+                    </div>
+                    
+                    <div id="ai-chat-messages" style="min-height:60px;margin-bottom:16px;">
+                        <div style="background:rgba(0,123,255,0.15);padding:14px 18px;border-radius:12px;border-top-left-radius:4px;margin-bottom:12px;font-size:0.92rem;line-height:1.7;color:rgba(255,255,255,0.9);">
+                            Please describe your business problem in natural language. I'll analyze it and our team will follow up with tailored solutions.
+                        </div>
+                    </div>
+
+                    <form id="ai-consult-form" onsubmit="submitAIConsult(event)">
+                        <div style="margin-bottom:12px;">
+                            <input type="text" id="ai-name" placeholder="Your Name" required style="width:100%;padding:12px 16px;border:1.5px solid rgba(255,255,255,0.15);border-radius:10px;background:rgba(255,255,255,0.06);color:white;font-size:0.92rem;font-family:'DM Sans',sans-serif;outline:none;box-sizing:border-box;">
+                        </div>
+                        <div style="margin-bottom:12px;">
+                            <input type="email" id="ai-email" placeholder="your@email.com" required style="width:100%;padding:12px 16px;border:1.5px solid rgba(255,255,255,0.15);border-radius:10px;background:rgba(255,255,255,0.06);color:white;font-size:0.92rem;font-family:'DM Sans',sans-serif;outline:none;box-sizing:border-box;">
+                        </div>
+                        <div style="margin-bottom:14px;">
+                            <textarea id="ai-problem" placeholder="Describe your business problem... (e.g., 'We're a 20-person law firm struggling with data security and need to modernize our IT infrastructure')" required rows="4" style="width:100%;padding:12px 16px;border:1.5px solid rgba(255,255,255,0.15);border-radius:10px;background:rgba(255,255,255,0.06);color:white;font-size:0.92rem;font-family:'DM Sans',sans-serif;resize:vertical;outline:none;line-height:1.6;box-sizing:border-box;"></textarea>
+                        </div>
+                        <button type="submit" id="ai-submit-btn" style="width:100%;padding:14px;background:linear-gradient(135deg,#EE5A24,#ff8c42);border:none;border-radius:10px;color:white;font-weight:700;font-size:0.95rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:0.2s ease;">Send to IGNYTE Team &rarr;</button>
+                    </form>
+
+                    <div id="ai-response" style="display:none;margin-top:16px;"></div>
+                </div>
+            </div>
+
             <div style="display: flex; gap: 32px; justify-content: center; margin-top: 40px; flex-wrap: wrap;">
                 <div style="font-size: 0.85rem; color: rgba(255,255,255,0.6);">&#10003; 30-minute session</div>
                 <div style="font-size: 0.85rem; color: rgba(255,255,255,0.6);">&#10003; No obligation</div>
@@ -655,6 +692,58 @@
         if (lower.indexOf('price') !== -1 || lower.indexOf('cost') !== -1) return 'Our pricing depends on the scope of work. Please reach out at <a href="mailto:contact@ignyteconsulting.com">contact@ignyteconsulting.com</a> for a custom quote.';
         return 'Thanks for your message! Our team will get back to you soon. You can also reach us at <a href="mailto:contact@ignyteconsulting.com">contact@ignyteconsulting.com</a>.';
     }
+</script>
+
+<script>
+function submitAIConsult(e) {
+    e.preventDefault();
+    var btn = document.getElementById('ai-submit-btn');
+    var name = document.getElementById('ai-name').value.trim();
+    var email = document.getElementById('ai-email').value.trim();
+    var problem = document.getElementById('ai-problem').value.trim();
+    
+    btn.disabled = true;
+    btn.textContent = 'Analyzing your problem...';
+    btn.style.opacity = '0.7';
+
+    // Show user's message in chat
+    var msgs = document.getElementById('ai-chat-messages');
+    msgs.innerHTML += '<div style="background:rgba(238,90,36,0.15);padding:14px 18px;border-radius:12px;border-top-right-radius:4px;margin-bottom:12px;font-size:0.92rem;line-height:1.7;color:rgba(255,255,255,0.9);text-align:right;">' + problem.replace(/</g, '&lt;') + '</div>';
+
+    fetch('/ai-consult.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name, email: email, problem: problem })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        document.getElementById('ai-consult-form').style.display = 'none';
+        var resp = document.getElementById('ai-response');
+        resp.style.display = 'block';
+        
+        if (data.success) {
+            var questionsHtml = '';
+            if (data.follow_up_questions && data.follow_up_questions.length) {
+                questionsHtml = '<div style="background:rgba(0,123,255,0.1);padding:14px 18px;border-radius:12px;margin-top:12px;"><p style="font-weight:700;margin-bottom:8px;font-size:0.88rem;color:rgba(255,255,255,0.9);">To prepare for our call, consider these questions:</p><ol style="padding-left:20px;margin:0;font-size:0.85rem;line-height:1.8;color:rgba(255,255,255,0.75);">';
+                for (var i = 0; i < data.follow_up_questions.length; i++) {
+                    questionsHtml += '<li>' + data.follow_up_questions[i] + '</li>';
+                }
+                questionsHtml += '</ol></div>';
+            }
+            msgs.innerHTML += '<div style="background:rgba(0,123,255,0.15);padding:14px 18px;border-radius:12px;border-top-left-radius:4px;font-size:0.92rem;line-height:1.7;color:rgba(255,255,255,0.9);">' + data.message + questionsHtml + '</div>';
+            resp.innerHTML = '<p style="text-align:center;font-size:0.85rem;color:rgba(255,255,255,0.5);margin-top:12px;">Our team has been notified and will reach out to <strong>' + email.replace(/</g, '&lt;') + '</strong> shortly.</p>';
+        } else {
+            msgs.innerHTML += '<div style="background:rgba(220,38,38,0.15);padding:14px 18px;border-radius:12px;font-size:0.92rem;color:#ff8c8c;">Sorry, something went wrong. Please try emailing us at <a href="mailto:asam@ignyteconsulting.com" style="color:#ff8c8c;">asam@ignyteconsulting.com</a></div>';
+        }
+    })
+    .catch(function() {
+        document.getElementById('ai-consult-form').style.display = 'none';
+        var msgs2 = document.getElementById('ai-chat-messages');
+        msgs2.innerHTML += '<div style="background:rgba(220,38,38,0.15);padding:14px 18px;border-radius:12px;font-size:0.92rem;color:#ff8c8c;">Connection error. Please email us directly at <a href="mailto:asam@ignyteconsulting.com" style="color:#ff8c8c;">asam@ignyteconsulting.com</a></div>';
+        document.getElementById('ai-response').style.display = 'block';
+        document.getElementById('ai-response').innerHTML = '<p style="text-align:center;font-size:0.85rem;color:rgba(255,255,255,0.5);">You can also call or WhatsApp us for immediate assistance.</p>';
+    });
+}
 </script>
 
 </body>
