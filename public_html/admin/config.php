@@ -1,0 +1,43 @@
+<?php
+/**
+ * IGNYTE Consulting - Database Configuration
+ * 
+ * IMPORTANT: Update these values with your Hostinger MySQL credentials.
+ * Find them in hPanel -> Databases -> MySQL Databases.
+ * 
+ * For security, after deployment you can edit this file directly
+ * on Hostinger via File Manager so credentials aren't in Git.
+ */
+
+define('DB_HOST', 'localhost');
+define('DB_NAME', 'your_database_name');
+define('DB_USER', 'your_database_user');
+define('DB_PASS', 'your_database_password');
+
+define('SITE_URL', 'https://www.ignyteconsulting.com');
+define('ADMIN_URL', SITE_URL . '/admin');
+
+// Session configuration
+ini_set('session.cookie_httponly', 1);
+ini_set('session.use_strict_mode', 1);
+
+function getDB() {
+    static $pdo = null;
+    if ($pdo === null) {
+        try {
+            $pdo = new PDO(
+                'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4',
+                DB_USER,
+                DB_PASS,
+                [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                    PDO::ATTR_EMULATE_PREPARES => false,
+                ]
+            );
+        } catch (PDOException $e) {
+            die('Database connection failed. Please check your config.php credentials.');
+        }
+    }
+    return $pdo;
+}
