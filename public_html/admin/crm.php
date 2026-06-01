@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/mailchimp.php';
 
 if (!isset($_SESSION['admin_id'])) {
     header('Location: login.php');
@@ -9,6 +10,8 @@ if (!isset($_SESSION['admin_id'])) {
 
 $pdo = getDB();
 $adminName = htmlspecialchars($_SESSION['admin_name']);
+$mailchimp = new MailchimpAPI();
+$mcConfigured = $mailchimp->isConfigured();
 
 // Handle add/edit CRM client
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['crm_action'])) {
@@ -26,11 +29,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['crm_action'])) {
         if ($action === 'add') {
             $stmt = $pdo->prepare('INSERT INTO crm_clients (full_name, email, phone, company_name, industry, address, notes, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
             $stmt->execute([$fullName, $email, $phone, $company, $industry, $address, $notes, $clientStatus]);
+            $newId = $pdo->lastInsertId();
+            // Auto-sync to Mailchimp
+            if ($mcConfigured) {
+                $syncResult = $mailchimp->syncClient(['full_name' => $fullName, 'email' => $email, 'phone' => $phone, 'company_name' => $company, 'status' => $clientStatus]);
+                if ($syncResult['success']) {
+                    $pdo->prepare('UPDATE crm_clients SET mailchimp_synced = NOW() WHERE id = ?')->execute([$newId]);
+                }
+            }
             header('Location: crm.php?added=1');
             exit;
         } elseif ($action === 'update' && isset($_POST['client_id'])) {
             $stmt = $pdo->prepare('UPDATE crm_clients SET full_name=?, email=?, phone=?, company_name=?, industry=?, address=?, notes=?, status=? WHERE id=?');
             $stmt->execute([$fullName, $email, $phone, $company, $industry, $address, $notes, $clientStatus, $_POST['client_id']]);
+            // Auto-sync to Mailchimp
+            if ($mcConfigured) {
+                $syncResult = $mailchimp->syncClient(['full_name' => $fullName, 'email' => $email, 'phone' => $phone, 'company_name' => $company, 'status' => $clientStatus]);
+                if ($syncResult['success']) {
+                    $pdo->prepare('UPDATE crm_clients SET mailchimp_synced = NOW() WHERE id = ?')->execute([$_POST['client_id']]);
+                }
+            }
             header('Location: crm.php?updated=1');
             exit;
         }
@@ -39,9 +57,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['crm_action'])) {
 
 // Handle delete
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_client'])) {
+    // Remove from Mailchimp too
+    if ($mcConfigured) {
+        $delClient = $pdo->prepare('SELECT email FROM crm_clients WHERE id = ?');
+        $delClient->execute([$_POST['delete_client']]);
+        $delEmail = $delClient->fetchColumn();
+        if ($delEmail) $mailchimp->removeClient($delEmail);
+    }
     $pdo->prepare('DELETE FROM crm_clients WHERE id = ?')->execute([$_POST['delete_client']]);
     header('Location: crm.php?deleted=1');
     exit;
+}
+
+// Handle bulk Mailchimp sync
+$syncMessage = '';
+$syncError = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mailchimp_bulk_sync'])) {
+    if ($mcConfigured) {
+        $result = $mailchimp->syncAllClients($pdo);
+        if ($result['success']) {
+            $syncMessage = "Mailchimp sync complete: {$result['synced']} synced, {$result['failed']} failed, {$result['skipped']} skipped.";
+            if (!empty($result['errors'])) {
+                $syncError = implode('; ', array_slice($result['errors'], 0, 5));
+            }
+        } else {
+            $syncError = $result['error'] ?? 'Sync failed';
+        }
+        // Re-fetch clients to show updated sync times
+        $allClients = $pdo->query('SELECT * FROM crm_clients ORDER BY full_name ASC')->fetchAll();
+        $activeClients = array_filter($allClients, function($c) { return $c['status'] === 'active'; });
+    } else {
+        $syncError = 'Mailchimp is not configured. Edit config.php on Hostinger with your API Key and Audience ID.';
+    }
+}
+
+// Handle single client sync
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['sync_client_id'])) {
+    if ($mcConfigured) {
+        $stmt = $pdo->prepare('SELECT * FROM crm_clients WHERE id = ?');
+        $stmt->execute([$_POST['sync_client_id']]);
+        $syncClient = $stmt->fetch();
+        if ($syncClient) {
+            $result = $mailchimp->syncClient($syncClient);
+            if ($result['success']) {
+                $pdo->prepare('UPDATE crm_clients SET mailchimp_synced = NOW() WHERE id = ?')->execute([$syncClient['id']]);
+                $syncMessage = htmlspecialchars($syncClient['full_name']) . ' synced to Mailchimp.';
+            } else {
+                $syncError = 'Failed to sync ' . htmlspecialchars($syncClient['full_name']) . ': ' . ($result['detail'] ?? $result['error'] ?? 'Unknown error');
+            }
+        }
+    }
 }
 
 // Handle CSV import
@@ -367,6 +432,12 @@ if ($filterStatus !== 'all') {
     <?php if ($importError): ?>
         <div class="alert" style="background:rgba(220,38,38,0.08);color:#dc2626;border:1px solid rgba(220,38,38,0.2);"><?php echo htmlspecialchars($importError); ?></div>
     <?php endif; ?>
+    <?php if ($syncMessage): ?>
+        <div class="alert alert-success"><?php echo htmlspecialchars($syncMessage); ?></div>
+    <?php endif; ?>
+    <?php if ($syncError): ?>
+        <div class="alert" style="background:rgba(220,38,38,0.08);color:#dc2626;border:1px solid rgba(220,38,38,0.2);"><?php echo htmlspecialchars($syncError); ?></div>
+    <?php endif; ?>
 
     <!-- Stats -->
     <?php
@@ -374,12 +445,51 @@ if ($filterStatus !== 'all') {
     $activeCRM = count($activeClients);
     $inactiveCRM = count(array_filter($allClients, function($c) { return $c['status'] === 'inactive'; }));
     $prospectCRM = count(array_filter($allClients, function($c) { return $c['status'] === 'prospect'; }));
+    $syncedCount = count(array_filter($allClients, function($c) { return !empty($c['mailchimp_synced']); }));
     ?>
     <div class="stats-row">
         <div class="stat-box"><div class="num"><?php echo $totalCRM; ?></div><div class="label">Total Clients</div></div>
         <div class="stat-box"><div class="num"><?php echo $activeCRM; ?></div><div class="label">Active</div></div>
         <div class="stat-box"><div class="num"><?php echo $prospectCRM; ?></div><div class="label">Prospects</div></div>
-        <div class="stat-box"><div class="num"><?php echo $inactiveCRM; ?></div><div class="label">Inactive</div></div>
+        <div class="stat-box">
+            <div class="num" style="<?php echo $mcConfigured ? 'color:#16a34a' : 'color:var(--slate)'; ?>"><?php echo $syncedCount; ?>/<?php echo $totalCRM; ?></div>
+            <div class="label">Synced to Mailchimp</div>
+        </div>
+    </div>
+
+    <!-- Mailchimp Integration -->
+    <div class="card" style="border-left:4px solid <?php echo $mcConfigured ? '#16a34a' : '#f59e0b'; ?>;">
+        <div class="card-header">
+            <h3>Mailchimp Integration</h3>
+            <?php if ($mcConfigured): ?>
+                <span class="badge badge-active">Connected</span>
+            <?php else: ?>
+                <span class="badge" style="background:rgba(245,158,11,0.1);color:#f59e0b;">Not Configured</span>
+            <?php endif; ?>
+        </div>
+        <?php if ($mcConfigured): ?>
+            <p style="font-size:0.88rem;color:var(--slate);margin-bottom:16px;">
+                Clients are auto-synced to Mailchimp when you add or edit them. Use "Sync All" to push everyone, or sync individual clients from the table below.
+            </p>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                <form method="POST" style="display:inline;">
+                    <input type="hidden" name="mailchimp_bulk_sync" value="1">
+                    <button type="submit" class="btn btn-save" onclick="this.disabled=true;this.innerText='Syncing...';this.form.submit();">Sync All Clients to Mailchimp</button>
+                </form>
+                <a href="crm.php?export=mailchimp" class="btn btn-export">Export CSV for Mailchimp</a>
+            </div>
+        <?php else: ?>
+            <p style="font-size:0.88rem;color:var(--slate);margin-bottom:12px;">
+                To enable direct Mailchimp sync, add your API Key and Audience ID to <code>config.php</code> on Hostinger:
+            </p>
+            <pre style="background:var(--light-grey);padding:14px;border-radius:8px;font-size:0.82rem;overflow-x:auto;">define('MAILCHIMP_API_KEY', 'your-api-key-here');
+define('MAILCHIMP_AUDIENCE_ID', 'your-audience-id');</pre>
+            <p style="font-size:0.82rem;color:var(--slate);margin-top:12px;">
+                Get your API key: Mailchimp &rarr; Account &rarr; Extras &rarr; API Keys<br>
+                Get your Audience ID: Mailchimp &rarr; Audience &rarr; Settings &rarr; Audience name and defaults
+            </p>
+            <a href="crm.php?export=mailchimp" class="btn btn-export" style="margin-top:12px;">Export CSV for Mailchimp (manual)</a>
+        <?php endif; ?>
     </div>
 
     <!-- Add / Edit Client -->
@@ -505,6 +615,7 @@ if ($filterStatus !== 'all') {
                         <th>Phone</th>
                         <th>Company</th>
                         <th>Status</th>
+                        <?php if ($mcConfigured): ?><th>Mailchimp</th><?php endif; ?>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -521,6 +632,18 @@ if ($filterStatus !== 'all') {
                         <td><?php echo htmlspecialchars($c['phone'] ?: '-'); ?></td>
                         <td><?php echo htmlspecialchars($c['company_name'] ?: '-'); ?></td>
                         <td><span class="badge badge-<?php echo $c['status']; ?>"><?php echo ucfirst($c['status']); ?></span></td>
+                        <?php if ($mcConfigured): ?>
+                        <td>
+                            <?php if (!empty($c['mailchimp_synced'])): ?>
+                                <span style="color:#16a34a;font-size:0.8rem;font-weight:600;" title="Synced <?php echo $c['mailchimp_synced']; ?>">Synced</span>
+                            <?php else: ?>
+                                <form method="POST" style="display:inline;">
+                                    <input type="hidden" name="sync_client_id" value="<?php echo $c['id']; ?>">
+                                    <button type="submit" style="padding:3px 10px;border-radius:6px;font-size:0.75rem;font-weight:600;border:1px solid rgba(0,71,187,0.2);background:rgba(0,71,187,0.06);color:var(--brand-blue);cursor:pointer;">Sync</button>
+                                </form>
+                            <?php endif; ?>
+                        </td>
+                        <?php endif; ?>
                         <td>
                             <div class="action-btns">
                                 <a href="crm.php?edit=<?php echo $c['id']; ?>" class="btn-edit">Edit</a>

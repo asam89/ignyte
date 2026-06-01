@@ -35,6 +35,13 @@ try {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     ");
 
+    // Add mailchimp_synced column if not exists
+    try {
+        $pdo->exec("ALTER TABLE crm_clients ADD COLUMN mailchimp_synced DATETIME DEFAULT NULL");
+    } catch (PDOException $e) {
+        // Column already exists, ignore
+    }
+
     // Create CRM projects table
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS crm_projects (
