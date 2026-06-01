@@ -14,6 +14,12 @@ define('DB_NAME', 'your_database_name');
 define('DB_USER', 'your_database_user');
 define('DB_PASS', 'your_database_password');
 
+// Mailchimp API integration
+// Get your API key: Mailchimp -> Account -> Extras -> API Keys
+// Get your Audience ID: Mailchimp -> Audience -> Settings -> Audience name and defaults
+define('MAILCHIMP_API_KEY', '');  // e.g. 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-us21'
+define('MAILCHIMP_AUDIENCE_ID', '');  // e.g. 'a1b2c3d4e5'
+
 define('SITE_URL', 'https://www.ignyteconsulting.com');
 define('ADMIN_URL', SITE_URL . '/admin');
 
