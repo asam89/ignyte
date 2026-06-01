@@ -48,7 +48,7 @@ foreach ($invoices as $i) {
     <title>Client Dashboard | IGNYTE Consulting</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --navy: #002366;
@@ -80,7 +80,7 @@ foreach ($invoices as $i) {
         }
         .top-bar-left { display: flex; align-items: center; gap: 16px; }
         .top-bar-left img { height: 36px; filter: brightness(0) invert(1); }
-        .top-bar-left span { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem; opacity: 0.7; }
+        .top-bar-left span { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 0.95rem; opacity: 0.7; }
         .top-bar-right { display: flex; align-items: center; gap: 20px; }
         .top-bar-right .user-info { font-size: 0.88rem; }
         .top-bar-right .user-name { font-weight: 700; }
@@ -115,7 +115,7 @@ foreach ($invoices as $i) {
             box-shadow: 0 2px 12px rgba(0,0,0,0.04);
         }
         .welcome-banner h1 {
-            font-family: 'Syne', sans-serif;
+            font-family: 'Inter', sans-serif;
             font-size: 1.8rem;
             font-weight: 700;
             margin-bottom: 6px;
@@ -147,7 +147,7 @@ foreach ($invoices as $i) {
         .stat-box .stat-icon.green { background: rgba(34,197,94,0.1); }
         .stat-box .stat-icon.purple { background: rgba(124,58,237,0.1); }
         .stat-box .stat-value {
-            font-family: 'Syne', sans-serif;
+            font-family: 'Inter', sans-serif;
             font-size: 1.8rem;
             font-weight: 700;
             margin-bottom: 4px;
@@ -176,7 +176,7 @@ foreach ($invoices as $i) {
             align-items: center;
         }
         .section-card-header h2 {
-            font-family: 'Syne', sans-serif;
+            font-family: 'Inter', sans-serif;
             font-size: 1.15rem;
             font-weight: 700;
         }
@@ -252,7 +252,7 @@ foreach ($invoices as $i) {
             border-color: var(--brand-blue);
         }
         .action-card .action-icon { font-size: 2rem; margin-bottom: 12px; }
-        .action-card h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
+        .action-card h3 { font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
         .action-card p { color: var(--slate); font-size: 0.82rem; }
 
         /* Responsive */

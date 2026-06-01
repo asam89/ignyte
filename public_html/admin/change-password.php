@@ -40,13 +40,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Change Password | IGNYTE Admin</title>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@600;700;800&display=swap" rel="stylesheet">
     <style>
         :root { --navy: #002366; --brand-blue: #0047BB; --flame-orange: #EE5A24; --slate: #4A5568; --light-grey: #F4F7FA; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'DM Sans', sans-serif; background: var(--light-grey); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .card { background: white; border-radius: 20px; box-shadow: 0 8px 40px rgba(0,35,102,0.1); padding: 48px 40px; width: 100%; max-width: 460px; }
-        .card h2 { font-family: 'Syne', sans-serif; font-size: 1.5rem; color: var(--navy); margin-bottom: 24px; }
+        .card h2 { font-family: 'Inter', sans-serif; font-size: 1.5rem; color: var(--navy); margin-bottom: 24px; }
         .form-group { margin-bottom: 18px; }
         .form-group label { display: block; font-weight: 600; font-size: 0.85rem; color: var(--navy); margin-bottom: 6px; }
         .form-group input { width: 100%; padding: 11px 14px; border: 1.5px solid rgba(0,0,0,0.1); border-radius: 8px; font-size: 0.92rem; font-family: 'DM Sans', sans-serif; outline: none; }

@@ -85,7 +85,7 @@ if (isset($_GET['edit'])) {
     <title>Admin Dashboard | IGNYTE Consulting</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --navy: #002366;
@@ -112,7 +112,7 @@ if (isset($_GET['edit'])) {
         }
         .topbar-left { display: flex; align-items: center; gap: 16px; }
         .topbar-left img { height: 36px; filter: brightness(0) invert(1); }
-        .topbar-left h2 { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800; }
+        .topbar-left h2 { font-family: 'Inter', sans-serif; font-size: 1.1rem; font-weight: 800; }
         .topbar-right { display: flex; align-items: center; gap: 16px; font-size: 0.9rem; }
         .topbar-right a {
             color: rgba(255,255,255,0.7);
@@ -138,7 +138,7 @@ if (isset($_GET['edit'])) {
             box-shadow: 0 2px 12px rgba(0,0,0,0.04);
         }
         .stat-box .num {
-            font-family: 'Syne', sans-serif;
+            font-family: 'Inter', sans-serif;
             font-size: 2rem;
             font-weight: 800;
             color: var(--navy);
@@ -164,7 +164,7 @@ if (isset($_GET['edit'])) {
             margin-bottom: 32px;
         }
         .card h3 {
-            font-family: 'Syne', sans-serif;
+            font-family: 'Inter', sans-serif;
             font-size: 1.3rem;
             margin-bottom: 24px;
             color: var(--navy);
