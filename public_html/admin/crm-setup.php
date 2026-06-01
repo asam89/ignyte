@@ -7,13 +7,7 @@
  * After running, DELETE this file from the server for security.
  */
 
-session_start();
 require_once __DIR__ . '/config.php';
-
-if (!isset($_SESSION['admin_id'])) {
-    header('Location: login.php');
-    exit;
-}
 
 try {
     $pdo = getDB();
@@ -105,5 +99,13 @@ try {
     </div></body></html>";
 
 } catch (Exception $e) {
-    echo "CRM Setup failed: " . htmlspecialchars($e->getMessage());
+    echo "<!DOCTYPE html><html><head><title>CRM Setup Error</title>
+    <style>body{font-family:'DM Sans',sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#f4f7fa;margin:0;}
+    .box{background:white;padding:48px;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);max-width:500px;text-align:center;}
+    h2{color:#dc2626;margin-bottom:16px;} p{color:#4a5568;}</style></head>
+    <body><div class='box'>
+    <h2>CRM Setup Error</h2>
+    <p>" . htmlspecialchars($e->getMessage()) . "</p>
+    <p style='margin-top:16px;font-size:0.85rem;color:#888;'>Check that config.php has the correct DB credentials.</p>
+    </div></body></html>";
 }
