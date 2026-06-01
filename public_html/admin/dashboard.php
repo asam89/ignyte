@@ -10,6 +10,21 @@ if (!isset($_SESSION['admin_id'])) {
 $pdo = getDB();
 $adminName = htmlspecialchars($_SESSION['admin_name']);
 
+// Handle client status change
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['client_action'])) {
+    $clientId = (int)$_POST['client_id'];
+    $action = $_POST['client_action'];
+    if ($action === 'approve') {
+        $pdo->prepare('UPDATE clients SET status = ? WHERE id = ?')->execute(['active', $clientId]);
+    } elseif ($action === 'suspend') {
+        $pdo->prepare('UPDATE clients SET status = ? WHERE id = ?')->execute(['suspended', $clientId]);
+    } elseif ($action === 'delete') {
+        $pdo->prepare('DELETE FROM clients WHERE id = ?')->execute([$clientId]);
+    }
+    header('Location: dashboard.php?client_updated=1');
+    exit;
+}
+
 // Handle post deletion
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id'])) {
     $stmt = $pdo->prepare('DELETE FROM blog_posts WHERE id = ?');
@@ -224,8 +239,10 @@ if (isset($_GET['edit'])) {
             font-weight: 700;
             text-transform: uppercase;
         }
-        .badge-published { background: rgba(34,197,94,0.1); color: #16a34a; }
+        .badge-published, .badge-active { background: rgba(34,197,94,0.1); color: #16a34a; }
         .badge-draft { background: rgba(234,179,8,0.15); color: #ca8a04; }
+        .badge-pending { background: rgba(238,90,36,0.1); color: var(--flame-orange); }
+        .badge-suspended { background: rgba(220,38,38,0.08); color: #dc2626; }
         .action-btns { display: flex; gap: 8px; }
         .action-btns a, .action-btns button {
             padding: 5px 12px;
@@ -278,6 +295,7 @@ if (isset($_GET['edit'])) {
         <span>Welcome, <?php echo $adminName; ?></span>
         <a href="../index.html">View Site</a>
         <a href="../blog.php">View Blog</a>
+        <a href="#clients-section">Clients</a>
         <a href="change-password.php">Password</a>
         <a href="logout.php" class="logout-btn">Logout</a>
     </div>
@@ -292,6 +310,8 @@ if (isset($_GET['edit'])) {
         <div class="alert alert-success">Blog post updated successfully!</div>
     <?php elseif (isset($_GET['deleted'])): ?>
         <div class="alert alert-success">Blog post deleted.</div>
+    <?php elseif (isset($_GET['client_updated'])): ?>
+        <div class="alert alert-success">Client status updated.</div>
     <?php endif; ?>
 
     <!-- Stats -->
@@ -409,6 +429,86 @@ if (isset($_GET['edit'])) {
                                 <a href="../blog-post.php?slug=<?php echo urlencode($post['slug']); ?>" target="_blank" class="btn-view">View</a>
                                 <form method="POST" style="display:inline;" onsubmit="return confirm('Delete this post?');">
                                     <input type="hidden" name="delete_id" value="<?php echo $post['id']; ?>">
+                                    <button type="submit" class="btn-delete">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php endif; ?>
+    </div>
+
+    <!-- Client Management -->
+    <?php
+    try {
+        $clientsResult = $pdo->query('SELECT * FROM clients ORDER BY created_at DESC');
+        $allClients = $clientsResult->fetchAll();
+        $pendingClients = array_filter($allClients, function($c) { return $c['status'] === 'pending'; });
+    } catch (Exception $e) {
+        $allClients = [];
+        $pendingClients = [];
+    }
+    ?>
+    <div class="card" id="clients-section">
+        <h3>Client Management <?php if (count($pendingClients) > 0): ?><span style="background:rgba(238,90,36,0.15);color:var(--flame-orange);padding:2px 10px;border-radius:50px;font-size:0.75rem;margin-left:8px;"><?php echo count($pendingClients); ?> pending</span><?php endif; ?></h3>
+        <?php if (empty($allClients)): ?>
+            <div class="empty-state">
+                <span>&#128100;</span>
+                <p>No client accounts yet</p>
+                <p style="font-size:0.9rem;">Clients can register at <code>/client/register.php</code></p>
+            </div>
+        <?php else: ?>
+            <table class="posts-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Company</th>
+                        <th>Status</th>
+                        <th>Joined</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($allClients as $cl): ?>
+                    <tr>
+                        <td class="post-title-cell"><?php echo htmlspecialchars($cl['full_name']); ?></td>
+                        <td><?php echo htmlspecialchars($cl['email']); ?></td>
+                        <td><?php echo htmlspecialchars($cl['company_name'] ?? '-'); ?></td>
+                        <td>
+                            <span class="badge badge-<?php echo $cl['status']; ?>">
+                                <?php echo ucfirst($cl['status']); ?>
+                            </span>
+                        </td>
+                        <td><?php echo date('M j, Y', strtotime($cl['created_at'])); ?></td>
+                        <td>
+                            <div class="action-btns">
+                                <?php if ($cl['status'] === 'pending'): ?>
+                                    <form method="POST" style="display:inline;">
+                                        <input type="hidden" name="client_id" value="<?php echo $cl['id']; ?>">
+                                        <input type="hidden" name="client_action" value="approve">
+                                        <button type="submit" class="btn-edit">Approve</button>
+                                    </form>
+                                <?php endif; ?>
+                                <?php if ($cl['status'] === 'active'): ?>
+                                    <form method="POST" style="display:inline;">
+                                        <input type="hidden" name="client_id" value="<?php echo $cl['id']; ?>">
+                                        <input type="hidden" name="client_action" value="suspend">
+                                        <button type="submit" class="btn-view">Suspend</button>
+                                    </form>
+                                <?php endif; ?>
+                                <?php if ($cl['status'] === 'suspended'): ?>
+                                    <form method="POST" style="display:inline;">
+                                        <input type="hidden" name="client_id" value="<?php echo $cl['id']; ?>">
+                                        <input type="hidden" name="client_action" value="approve">
+                                        <button type="submit" class="btn-edit">Reactivate</button>
+                                    </form>
+                                <?php endif; ?>
+                                <form method="POST" style="display:inline;" onsubmit="return confirm('Delete this client?');">
+                                    <input type="hidden" name="client_id" value="<?php echo $cl['id']; ?>">
+                                    <input type="hidden" name="client_action" value="delete">
                                     <button type="submit" class="btn-delete">Delete</button>
                                 </form>
                             </div>
