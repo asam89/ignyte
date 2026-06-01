@@ -1,0 +1,11 @@
+# Protect config.php from direct access
+<Files "config.php">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# Protect setup.php after initial setup (uncomment after running setup)
+# <Files "setup.php">
+#     Order Allow,Deny
+#     Deny from all
+# </Files>
