@@ -1,0 +1,6 @@
+# Protect the client directory
+<Files "*.php">
+    # Allow PHP access but ensure session security
+    php_flag session.cookie_httponly On
+    php_flag session.use_strict_mode On
+</Files>
