@@ -15,3 +15,4 @@ jobs:
           password: ${{ secrets.FTP_PASS }}
           local-dir: ./public_html/
           server-dir: /public_html/
+          timeout: 60000
