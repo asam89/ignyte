@@ -6,7 +6,7 @@
     <title>IGNYTE Consulting | Strategic IT &amp; Business Solutions</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -409,7 +409,7 @@
         <div style="max-width: 640px; margin: 0 auto; text-align: center;">
             <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()" style="border: 2px dashed rgba(0,71,187,0.3); padding: 48px 32px; border-radius: 16px; background: var(--light-grey); cursor: pointer; transition: all 0.3s ease;">
                 <div style="font-size: 3rem; margin-bottom: 16px;">&#128193;</div>
-                <h4 style="color: var(--navy); margin-bottom: 8px; font-family: 'Syne', sans-serif;">Click to Upload File</h4>
+                <h4 style="color: var(--navy); margin-bottom: 8px; font-family: 'Inter', sans-serif;">Click to Upload File</h4>
                 <p style="color: var(--slate); font-size: 0.92rem;">Supported formats: PDF, DOC, DOCX, TXT (Max 10MB)</p>
                 <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt" style="display: none;" />
             </div>
@@ -564,7 +564,7 @@
 
     function resetUploadArea() {
         uploadArea.innerHTML = '<div style="font-size: 3rem; margin-bottom: 16px;">&#128193;</div>' +
-            '<h4 style="color: var(--navy); margin-bottom: 8px; font-family: \'Syne\', sans-serif;">Click to Upload File</h4>' +
+            '<h4 style="color: var(--navy); margin-bottom: 8px; font-family: \'Inter\', sans-serif;">Click to Upload File</h4>' +
             '<p style="color: var(--slate); font-size: 0.92rem;">Supported formats: PDF, DOC, DOCX, TXT (Max 10MB)</p>' +
             '<input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt" style="display: none;" />';
         var newFileInput = document.getElementById('fileInput');
@@ -589,7 +589,7 @@
         }
 
         uploadArea.innerHTML = '<div style="font-size: 3rem; margin-bottom: 16px;">&#9989;</div>' +
-            '<h4 style="color: var(--navy); margin-bottom: 8px; font-family: \'Syne\', sans-serif;">File Selected</h4>' +
+            '<h4 style="color: var(--navy); margin-bottom: 8px; font-family: \'Inter\', sans-serif;">File Selected</h4>' +
             '<p style="color: var(--slate); font-size: 0.92rem;">' + file.name + '</p>' +
             '<p style="color: var(--slate); font-size: 0.82rem; margin-top: 4px;">' + formatFileSize(file.size) + '</p>';
         analyzeBtn.style.opacity = '1';
