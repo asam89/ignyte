@@ -44,6 +44,107 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_client'])) {
     exit;
 }
 
+// Handle CSV import
+$importMessage = '';
+$importError = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['import_csv'])) {
+    if (isset($_FILES['csv_file']) && $_FILES['csv_file']['error'] === UPLOAD_ERR_OK) {
+        $file = fopen($_FILES['csv_file']['tmp_name'], 'r');
+        $header = fgetcsv($file);
+        if (!$header) {
+            $importError = 'CSV file is empty or invalid.';
+        } else {
+            // Normalize headers (lowercase, trim)
+            $header = array_map(function($h) { return strtolower(trim($h)); }, $header);
+
+            // Map common CSV column names to our DB fields
+            $colMap = [
+                'full_name' => ['full_name', 'full name', 'name', 'contact name', 'client name'],
+                'email' => ['email', 'email address', 'e-mail', 'mail'],
+                'phone' => ['phone', 'phone number', 'telephone', 'mobile', 'cell'],
+                'company_name' => ['company', 'company_name', 'company name', 'organization', 'org'],
+                'industry' => ['industry', 'sector', 'field'],
+                'address' => ['address', 'location', 'city', 'full address'],
+                'notes' => ['notes', 'note', 'comments', 'description'],
+                'first_name' => ['first name', 'first_name', 'firstname', 'given name'],
+                'last_name' => ['last name', 'last_name', 'lastname', 'surname', 'family name'],
+            ];
+
+            $indexes = [];
+            foreach ($colMap as $field => $aliases) {
+                foreach ($aliases as $alias) {
+                    $idx = array_search($alias, $header);
+                    if ($idx !== false) {
+                        $indexes[$field] = $idx;
+                        break;
+                    }
+                }
+            }
+
+            if (!isset($indexes['email']) && !isset($indexes['full_name'])) {
+                $importError = 'CSV must have at least an "Email" or "Name" column. Found columns: ' . implode(', ', $header);
+            } else {
+                $imported = 0;
+                $skipped = 0;
+                $defaultStatus = $_POST['import_status'] ?? 'active';
+
+                $stmt = $pdo->prepare('INSERT INTO crm_clients (full_name, email, phone, company_name, industry, address, notes, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+
+                while (($row = fgetcsv($file)) !== false) {
+                    if (empty(array_filter($row))) continue; // skip empty rows
+
+                    // Build full name from first+last if no full_name column
+                    $fullName = '';
+                    if (isset($indexes['full_name'])) {
+                        $fullName = trim($row[$indexes['full_name']] ?? '');
+                    }
+                    if (!$fullName && (isset($indexes['first_name']) || isset($indexes['last_name']))) {
+                        $first = trim($row[$indexes['first_name'] ?? -1] ?? '');
+                        $last = trim($row[$indexes['last_name'] ?? -1] ?? '');
+                        $fullName = trim("$first $last");
+                    }
+
+                    $email = trim($row[$indexes['email'] ?? -1] ?? '');
+
+                    if (!$fullName && !$email) {
+                        $skipped++;
+                        continue;
+                    }
+                    if (!$fullName) $fullName = explode('@', $email)[0];
+
+                    // Skip duplicates by email
+                    if ($email) {
+                        $check = $pdo->prepare('SELECT id FROM crm_clients WHERE email = ?');
+                        $check->execute([$email]);
+                        if ($check->fetch()) {
+                            $skipped++;
+                            continue;
+                        }
+                    }
+
+                    $phone = trim($row[$indexes['phone'] ?? -1] ?? '');
+                    $company = trim($row[$indexes['company_name'] ?? -1] ?? '');
+                    $industry = trim($row[$indexes['industry'] ?? -1] ?? '');
+                    $address = trim($row[$indexes['address'] ?? -1] ?? '');
+                    $notes = trim($row[$indexes['notes'] ?? -1] ?? '');
+
+                    $stmt->execute([$fullName, $email, $phone, $company, $industry, $address, $notes, $defaultStatus]);
+                    $imported++;
+                }
+
+                $importMessage = "Imported $imported client(s).";
+                if ($skipped > 0) $importMessage .= " Skipped $skipped (duplicates or missing data).";
+            }
+        }
+        fclose($file);
+    } else {
+        $importError = 'Please select a CSV file to import.';
+    }
+    // Re-fetch clients after import
+    $allClients = $pdo->query('SELECT * FROM crm_clients ORDER BY full_name ASC')->fetchAll();
+    $activeClients = array_filter($allClients, function($c) { return $c['status'] === 'active'; });
+}
+
 // Handle CSV export for Mailchimp
 if (isset($_GET['export']) && $_GET['export'] === 'mailchimp') {
     $clients = $pdo->query('SELECT full_name, email, phone, company_name, industry, address FROM crm_clients WHERE status = "active" ORDER BY full_name ASC')->fetchAll();
@@ -260,6 +361,12 @@ if ($filterStatus !== 'all') {
     <?php elseif (isset($_GET['deleted'])): ?>
         <div class="alert alert-success">Client deleted.</div>
     <?php endif; ?>
+    <?php if ($importMessage): ?>
+        <div class="alert alert-success"><?php echo htmlspecialchars($importMessage); ?></div>
+    <?php endif; ?>
+    <?php if ($importError): ?>
+        <div class="alert" style="background:rgba(220,38,38,0.08);color:#dc2626;border:1px solid rgba(220,38,38,0.2);"><?php echo htmlspecialchars($importError); ?></div>
+    <?php endif; ?>
 
     <!-- Stats -->
     <?php
@@ -329,6 +436,42 @@ if ($filterStatus !== 'all') {
                     <a href="crm.php" class="btn btn-cancel">Cancel</a>
                 <?php endif; ?>
             </div>
+        </form>
+    </div>
+
+    <!-- Import Clients -->
+    <div class="card">
+        <h3>Import Clients from CSV</h3>
+        <p style="font-size:0.88rem;color:var(--slate);margin-bottom:16px;">
+            Upload a CSV file to bulk-import clients. Works with exports from <strong>Gmail Contacts</strong>, <strong>Mailchimp</strong>, <strong>Outlook</strong>, or any spreadsheet.
+            The importer auto-detects columns like Email, Name, First Name, Last Name, Phone, Company, etc. Duplicate emails are skipped.
+        </p>
+        <details style="margin-bottom:12px;">
+            <summary style="font-size:0.85rem;font-weight:600;color:var(--brand-blue);cursor:pointer;">How to export contacts from Gmail</summary>
+            <ol style="font-size:0.85rem;color:var(--slate);padding-left:20px;margin-top:8px;line-height:1.8;">
+                <li>Go to <a href="https://contacts.google.com" target="_blank" style="color:var(--brand-blue);">contacts.google.com</a></li>
+                <li>Select the contacts you want to export (or select all)</li>
+                <li>Click the <strong>Export</strong> icon (or Menu → Export)</li>
+                <li>Choose <strong>"Google CSV"</strong> format</li>
+                <li>Click <strong>Export</strong> and save the file</li>
+                <li>Upload that file here</li>
+            </ol>
+        </details>
+        <form method="POST" enctype="multipart/form-data" style="display:flex;gap:12px;align-items:end;flex-wrap:wrap;">
+            <input type="hidden" name="import_csv" value="1">
+            <div class="form-group" style="margin-bottom:0;flex:1;min-width:200px;">
+                <label>CSV File</label>
+                <input type="file" name="csv_file" accept=".csv,.txt" required style="padding:8px;">
+            </div>
+            <div class="form-group" style="margin-bottom:0;min-width:140px;">
+                <label>Default Status</label>
+                <select name="import_status">
+                    <option value="active">Active</option>
+                    <option value="prospect" selected>Prospect</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-save" style="margin-bottom:0;">Import CSV</button>
         </form>
     </div>
 
