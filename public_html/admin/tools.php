@@ -216,7 +216,8 @@ if ($filterView === 'expiring') {
     <div class="topbar-right">
         <span>Welcome, <?php echo $adminName; ?></span>
         <a href="dashboard.php">Blog</a>
-        <a href="crm.php">Clients</a>
+        <a href="clients.php">Clients</a>
+        <a href="crm.php">Contacts</a>
         <a href="projects.php">Projects</a>
         <a href="tools.php" class="active-nav">Tools/Licenses</a>
         <a href="../index.html">View Site</a>
