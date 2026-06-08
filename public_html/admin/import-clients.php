@@ -51,25 +51,29 @@ try {
         ['name' => 'United Glass', 'code' => 'UG', 'contact' => '', 'phone' => '', 'email' => '', 'env' => '', 'services' => ''],
     ];
 
-    $stmt = $pdo->prepare('INSERT INTO crm_clients (full_name, email, phone, company_name, industry, address, notes, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+    $stmt = $pdo->prepare('INSERT INTO crm_clients (full_name, email, phone, company_name, industry, address, notes, status, is_client, client_code, environment, key_services) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)');
     $checkStmt = $pdo->prepare('SELECT id FROM crm_clients WHERE company_name = ?');
+    $updateStmt = $pdo->prepare('UPDATE crm_clients SET is_client = 1, client_code = COALESCE(NULLIF(client_code, \'\'), ?), environment = COALESCE(NULLIF(environment, \'\'), ?), key_services = COALESCE(NULLIF(key_services, \'\'), ?) WHERE id = ?');
 
     $imported = 0;
     $skipped = 0;
+    $updated = 0;
     $results = [];
 
     foreach ($clients as $c) {
-        // Skip if company already exists
+        // Check if company already exists
         $checkStmt->execute([$c['name']]);
-        if ($checkStmt->fetch()) {
-            $skipped++;
-            $results[] = ['name' => $c['name'], 'status' => 'skipped (already exists)'];
+        $existing = $checkStmt->fetch();
+        if ($existing) {
+            // Update existing record to mark as client and fill in missing fields
+            $updateStmt->execute([$c['code'], $c['env'], $c['services'], $existing['id']]);
+            $updated++;
+            $results[] = ['name' => $c['name'], 'status' => 'updated (marked as client)'];
             continue;
         }
 
         // Build notes from available info
         $notesParts = [];
-        $notesParts[] = "Client Code: {$c['code']}";
         if ($c['contact']) $notesParts[] = "Primary Contact: {$c['contact']}";
         if ($c['env']) $notesParts[] = "Environment: {$c['env']}";
         if ($c['services']) $notesParts[] = "Key Services: {$c['services']}";
@@ -86,10 +90,13 @@ try {
             '',          // industry
             '',          // address
             $notes,
-            'active'
+            'active',
+            $c['code'],
+            $c['env'],
+            $c['services']
         ]);
         $imported++;
-        $results[] = ['name' => $c['name'], 'status' => 'imported'];
+        $results[] = ['name' => $c['name'], 'status' => 'imported as client'];
     }
 
     // Output results
@@ -99,20 +106,20 @@ try {
         .box{background:white;padding:48px;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);max-width:700px;width:100%;}
         h2{color:#002366;margin-bottom:8px;} .summary{color:#4a5568;margin-bottom:20px;font-size:1.05rem;}
         table{width:100%;border-collapse:collapse;margin:16px 0;} th,td{text-align:left;padding:8px 12px;border-bottom:1px solid #e8ecf1;font-size:0.9rem;}
-        th{background:#f4f7fa;color:#002366;font-weight:600;} .imported{color:#059669;font-weight:600;} .skipped{color:#d97706;font-weight:600;}
+        th{background:#f4f7fa;color:#002366;font-weight:600;} .imported{color:#059669;font-weight:600;} .skipped{color:#d97706;font-weight:600;} .updated{color:#0047BB;font-weight:600;}
         .warn{color:#dc2626;font-weight:700;margin-top:20px;text-align:center;} a{color:#0047BB;font-weight:700;text-decoration:none;}
     </style></head><body><div class='box'>
     <h2>Client Import Complete</h2>
-    <p class='summary'>Imported <strong>{$imported}</strong> client(s). Skipped <strong>{$skipped}</strong> (already in database).</p>
+    <p class='summary'>Imported <strong>{$imported}</strong> new client(s). Updated <strong>{$updated}</strong> existing record(s). Skipped <strong>{$skipped}</strong>.</p>
     <table><thead><tr><th>#</th><th>Client</th><th>Result</th></tr></thead><tbody>";
 
     foreach ($results as $i => $r) {
-        $statusClass = $r['status'] === 'imported' ? 'imported' : 'skipped';
+        $statusClass = strpos($r['status'], 'imported') !== false ? 'imported' : (strpos($r['status'], 'updated') !== false ? 'updated' : 'skipped');
         echo "<tr><td>" . ($i + 1) . "</td><td>" . htmlspecialchars($r['name']) . "</td><td class='{$statusClass}'>" . htmlspecialchars($r['status']) . "</td></tr>";
     }
 
     echo "</tbody></table>
-    <p style='text-align:center;margin-top:20px;'><a href='crm.php'>View CRM &rarr;</a></p>
+    <p style='text-align:center;margin-top:20px;'><a href='clients.php'>View Clients &rarr;</a> &nbsp;|&nbsp; <a href='crm.php'>View Contacts &rarr;</a></p>
     <p class='warn'>DELETE this import-clients.php file after running!</p>
     </div></body></html>";
 
