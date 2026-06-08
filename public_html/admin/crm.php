@@ -639,7 +639,7 @@ if ($filterStatus !== 'all') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRM - Client Management | IGNYTE Consulting</title>
+    <title>CRM - Contacts | IGNYTE Consulting</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@600;700;800&display=swap" rel="stylesheet">
@@ -792,12 +792,13 @@ if ($filterStatus !== 'all') {
 <div class="topbar">
     <div class="topbar-left">
         <img src="../logo.png" alt="IGNYTE">
-        <h2>CRM - Clients</h2>
+        <h2>CRM - Contacts</h2>
     </div>
     <div class="topbar-right">
         <span>Welcome, <?php echo $adminName; ?></span>
         <a href="dashboard.php">Blog</a>
-        <a href="crm.php" class="active-nav">Clients</a>
+        <a href="clients.php">Clients</a>
+        <a href="crm.php" class="active-nav">Contacts</a>
         <a href="projects.php">Projects</a>
         <a href="tools.php">Tools/Licenses</a>
         <a href="../index.html">View Site</a>
@@ -808,11 +809,11 @@ if ($filterStatus !== 'all') {
 <div class="dashboard">
 
     <?php if (isset($_GET['added'])): ?>
-        <div class="alert alert-success">Client added successfully!</div>
+        <div class="alert alert-success">Contact added successfully!</div>
     <?php elseif (isset($_GET['updated'])): ?>
-        <div class="alert alert-success">Client updated successfully!</div>
+        <div class="alert alert-success">Contact updated successfully!</div>
     <?php elseif (isset($_GET['deleted'])): ?>
-        <div class="alert alert-success">Client deleted.</div>
+        <div class="alert alert-success">Contact deleted.</div>
     <?php endif; ?>
     <?php if ($importMessage): ?>
         <div class="alert alert-success"><?php echo htmlspecialchars($importMessage); ?></div>
@@ -836,7 +837,7 @@ if ($filterStatus !== 'all') {
     $syncedCount = count(array_filter($allClients, function($c) { return !empty($c['mailchimp_synced']); }));
     ?>
     <div class="stats-row">
-        <div class="stat-box"><div class="num"><?php echo $totalCRM; ?></div><div class="label">Total Clients</div></div>
+        <div class="stat-box"><div class="num"><?php echo $totalCRM; ?></div><div class="label">Total Contacts</div></div>
         <div class="stat-box"><div class="num"><?php echo $activeCRM; ?></div><div class="label">Active</div></div>
         <div class="stat-box"><div class="num"><?php echo $prospectCRM; ?></div><div class="label">Prospects</div></div>
         <div class="stat-box">
@@ -857,12 +858,12 @@ if ($filterStatus !== 'all') {
         </div>
         <?php if ($mcConfigured): ?>
             <p style="font-size:0.88rem;color:var(--slate);margin-bottom:16px;">
-                Clients are auto-synced to Mailchimp when you add or edit them. Use "Sync All" to push everyone, or sync individual clients from the table below.
+                Contacts are auto-synced to Mailchimp when you add or edit them. Use "Sync All" to push everyone, or sync individually from the table below.
             </p>
             <div style="display:flex;gap:12px;flex-wrap:wrap;">
                 <form method="POST" style="display:inline;">
                     <input type="hidden" name="mailchimp_bulk_sync" value="1">
-                    <button type="submit" class="btn btn-save" onclick="this.disabled=true;this.innerText='Syncing...';this.form.submit();">Sync All Clients to Mailchimp</button>
+                    <button type="submit" class="btn btn-save" onclick="this.disabled=true;this.innerText='Syncing...';this.form.submit();">Sync All Contacts to Mailchimp</button>
                 </form>
                 <a href="crm.php?export=mailchimp" class="btn btn-export">Export CSV for Mailchimp</a>
             </div>
@@ -882,7 +883,7 @@ define('MAILCHIMP_AUDIENCE_ID', 'your-audience-id');</pre>
 
     <!-- Add / Edit Client -->
     <div class="card">
-        <h3><?php echo $editClient ? 'Edit Client' : 'Add New Client'; ?></h3>
+        <h3><?php echo $editClient ? 'Edit Contact' : 'Add New Contact'; ?></h3>
         <form method="POST">
             <input type="hidden" name="crm_action" value="<?php echo $editClient ? 'update' : 'add'; ?>">
             <?php if ($editClient): ?>
@@ -929,7 +930,7 @@ define('MAILCHIMP_AUDIENCE_ID', 'your-audience-id');</pre>
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-save"><?php echo $editClient ? 'Update Client' : 'Add Client'; ?></button>
+                <button type="submit" class="btn btn-save"><?php echo $editClient ? 'Update Contact' : 'Add Contact'; ?></button>
                 <?php if ($editClient): ?>
                     <a href="crm.php" class="btn btn-cancel">Cancel</a>
                 <?php endif; ?>
@@ -939,9 +940,9 @@ define('MAILCHIMP_AUDIENCE_ID', 'your-audience-id');</pre>
 
     <!-- Import Clients -->
     <div class="card">
-        <h3>Import Clients from CSV</h3>
+        <h3>Import Contacts from CSV</h3>
         <p style="font-size:0.88rem;color:var(--slate);margin-bottom:16px;">
-            Upload a CSV file to bulk-import clients. Works with exports from <strong>Gmail Contacts</strong>, <strong>Mailchimp</strong>, <strong>Outlook</strong>, or any spreadsheet.
+            Upload a CSV file to bulk-import contacts. Works with exports from <strong>Gmail Contacts</strong>, <strong>Mailchimp</strong>, <strong>Outlook</strong>, or any spreadsheet.
             The importer auto-detects columns like Email, Name, First Name, Last Name, Phone, Company, etc. Duplicate emails are skipped.
         </p>
         <details style="margin-bottom:12px;">
@@ -1065,7 +1066,7 @@ The parser will figure it out." style="font-family:'DM Sans',monospace;font-size
     <!-- Client List -->
     <div class="card">
         <div class="card-header">
-            <h3>All Clients (<?php echo count($displayClients); ?>)</h3>
+            <h3>All Contacts (<?php echo count($displayClients); ?>)</h3>
             <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
                 <div class="filter-bar">
                     <a href="crm.php?status=all" class="filter-btn <?php echo $filterStatus === 'all' ? 'active' : ''; ?>">All</a>
@@ -1080,8 +1081,8 @@ The parser will figure it out." style="font-family:'DM Sans',monospace;font-size
         <?php if (empty($displayClients)): ?>
             <div class="empty-state">
                 <span>&#128101;</span>
-                <p>No clients found</p>
-                <p style="font-size:0.9rem;">Add your first client using the form above.</p>
+                <p>No contacts found</p>
+                <p style="font-size:0.9rem;">Add your first contact using the form above.</p>
             </div>
         <?php else: ?>
             <table class="clients-table">
@@ -1124,7 +1125,7 @@ The parser will figure it out." style="font-family:'DM Sans',monospace;font-size
                         <td>
                             <div class="action-btns">
                                 <a href="crm.php?edit=<?php echo $c['id']; ?>" class="btn-edit">Edit</a>
-                                <form method="POST" style="display:inline;" onsubmit="return confirm('Delete this client?');">
+                                <form method="POST" style="display:inline;" onsubmit="return confirm('Delete this contact?');">
                                     <input type="hidden" name="delete_client" value="<?php echo $c['id']; ?>">
                                     <button type="submit" class="btn-delete">Delete</button>
                                 </form>

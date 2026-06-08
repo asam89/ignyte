@@ -294,7 +294,8 @@ if (isset($_GET['edit'])) {
     <div class="topbar-right">
         <span>Welcome, <?php echo $adminName; ?></span>
         <a href="dashboard.php" style="background:rgba(255,255,255,0.15);color:white;">Blog</a>
-        <a href="crm.php">CRM</a>
+        <a href="clients.php">Clients</a>
+        <a href="crm.php">Contacts</a>
         <a href="projects.php">Projects</a>
         <a href="tools.php">Tools</a>
         <a href="#clients-section">Portal Users</a>
