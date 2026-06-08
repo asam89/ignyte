@@ -152,7 +152,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['import_csv'])) {
             } else {
                 $imported = 0;
                 $skipped = 0;
+                $cleaned = 0;
                 $defaultStatus = $_POST['import_status'] ?? 'active';
+                $seenEmails = []; // track duplicates within this import batch
 
                 $stmt = $pdo->prepare('INSERT INTO crm_clients (full_name, email, phone, company_name, industry, address, notes, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
 
@@ -170,7 +172,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['import_csv'])) {
                         $fullName = trim("$first $last");
                     }
 
-                    $email = trim($row[$indexes['email'] ?? -1] ?? '');
+                    $email = strtolower(trim($row[$indexes['email'] ?? -1] ?? ''));
+
+                    // Validate name
+                    if ($fullName && !isLegitimateName($fullName)) {
+                        $fullName = '';
+                    }
+
+                    // Validate email
+                    if ($email && !isLegitimateEmail($email)) {
+                        $cleaned++;
+                        $email = '';
+                    }
 
                     if (!$fullName && !$email) {
                         $skipped++;
@@ -178,10 +191,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['import_csv'])) {
                     }
                     if (!$fullName) $fullName = explode('@', $email)[0];
 
-                    // Skip duplicates by email
+                    // Skip duplicates within this batch
                     if ($email) {
-                        $check = $pdo->prepare('SELECT id FROM crm_clients WHERE email = ?');
-                        $check->execute([$email]);
+                        $emailLower = strtolower($email);
+                        if (isset($seenEmails[$emailLower])) {
+                            $cleaned++;
+                            continue;
+                        }
+                        $seenEmails[$emailLower] = true;
+                    }
+
+                    // Skip duplicates already in database
+                    if ($email) {
+                        $check = $pdo->prepare('SELECT id FROM crm_clients WHERE LOWER(email) = ?');
+                        $check->execute([strtolower($email)]);
                         if ($check->fetch()) {
                             $skipped++;
                             continue;
@@ -189,6 +212,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['import_csv'])) {
                     }
 
                     $phone = trim($row[$indexes['phone'] ?? -1] ?? '');
+                    if ($phone && !isLegitimatePhone($phone)) $phone = '';
+
                     $company = trim($row[$indexes['company_name'] ?? -1] ?? '');
                     $industry = trim($row[$indexes['industry'] ?? -1] ?? '');
                     $address = trim($row[$indexes['address'] ?? -1] ?? '');
@@ -199,7 +224,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['import_csv'])) {
                 }
 
                 $importMessage = "Imported $imported client(s).";
-                if ($skipped > 0) $importMessage .= " Skipped $skipped (duplicates or missing data).";
+                if ($skipped > 0) $importMessage .= " Skipped $skipped duplicate(s).";
+                if ($cleaned > 0) $importMessage .= " Cleaned $cleaned invalid/junk entries.";
             }
         }
         fclose($file);
@@ -226,11 +252,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['smart_paste'])) {
     } else {
         // Parse contacts from raw text
         if ($pasteAction === 'preview') {
-            $parsedContacts = parseContactsFromText($rawText);
+            $rawParsed = parseContactsFromText($rawText);
+            $cleanedCount = 0;
+
+            // Auto-clean: validate emails, names, phones + deduplicate
+            $seenEmails = [];
+            $parsedContacts = [];
+            foreach ($rawParsed as $c) {
+                $email = strtolower(trim($c['email'] ?? ''));
+                $name = trim($c['name'] ?? '');
+                $phone = trim($c['phone'] ?? '');
+
+                // Validate email
+                if ($email && !isLegitimateEmail($email)) {
+                    $email = '';
+                    $cleanedCount++;
+                }
+                // Validate name
+                if ($name && !isLegitimateName($name)) $name = '';
+                // Validate phone
+                if ($phone && !isLegitimatePhone($phone)) $phone = '';
+
+                // Must have at least a name or email
+                if (!$name && !$email) { $cleanedCount++; continue; }
+                if (!$name && $email) $name = explode('@', $email)[0];
+
+                // Deduplicate within batch
+                if ($email) {
+                    if (isset($seenEmails[$email])) { $cleanedCount++; continue; }
+                    $seenEmails[$email] = true;
+                }
+
+                $c['email'] = $email;
+                $c['name'] = $name;
+                $c['phone'] = $phone;
+                $parsedContacts[] = $c;
+            }
+
             if (empty($parsedContacts)) {
-                $pasteError = 'Could not detect any contacts. Try pasting data with emails, phone numbers, or names.';
+                $pasteError = 'Could not detect any valid contacts. Try pasting data with real emails, phone numbers, or names.';
+                if ($cleanedCount > 0) $pasteError .= " ($cleanedCount entries were filtered as invalid/duplicate.)";
             } else {
                 $pastePreview = true;
+                if ($cleanedCount > 0) {
+                    $pasteError = "Auto-cleaned: $cleanedCount invalid/duplicate entries were removed.";
+                }
             }
         } elseif ($pasteAction === 'confirm') {
             // Import confirmed contacts from hidden JSON
@@ -238,26 +304,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['smart_paste'])) {
             $defaultStatus = $_POST['paste_status'] ?? 'prospect';
             $imported = 0;
             $skipped = 0;
+            $cleaned = 0;
+            $seenEmails = [];
 
             $stmt = $pdo->prepare('INSERT INTO crm_clients (full_name, email, phone, company_name, industry, address, notes, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
 
             foreach ($contacts as $contact) {
-                $email = trim($contact['email'] ?? '');
+                $email = strtolower(trim($contact['email'] ?? ''));
                 $fullName = trim($contact['name'] ?? '');
+
+                // Re-validate on confirm (defense in depth)
+                if ($email && !isLegitimateEmail($email)) { $cleaned++; $email = ''; }
+                if ($fullName && !isLegitimateName($fullName)) $fullName = '';
 
                 if (!$fullName && !$email) { $skipped++; continue; }
                 if (!$fullName && $email) $fullName = explode('@', $email)[0];
 
-                // Skip duplicates
+                // Skip duplicates within batch
                 if ($email) {
-                    $check = $pdo->prepare('SELECT id FROM crm_clients WHERE email = ?');
-                    $check->execute([$email]);
+                    if (isset($seenEmails[$email])) { $cleaned++; continue; }
+                    $seenEmails[$email] = true;
+                }
+
+                // Skip duplicates already in database (case-insensitive)
+                if ($email) {
+                    $check = $pdo->prepare('SELECT id FROM crm_clients WHERE LOWER(email) = ?');
+                    $check->execute([strtolower($email)]);
                     if ($check->fetch()) { $skipped++; continue; }
                 }
 
+                $phone = trim($contact['phone'] ?? '');
+                if ($phone && !isLegitimatePhone($phone)) $phone = '';
+
                 $stmt->execute([
-                    $fullName, $email,
-                    trim($contact['phone'] ?? ''),
+                    $fullName, $email, $phone,
                     trim($contact['company'] ?? ''),
                     '', '', '', $defaultStatus
                 ]);
@@ -265,7 +345,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['smart_paste'])) {
             }
 
             $pasteMessage = "Imported $imported contact(s).";
-            if ($skipped > 0) $pasteMessage .= " Skipped $skipped (duplicates or missing data).";
+            if ($skipped > 0) $pasteMessage .= " Skipped $skipped duplicate(s).";
+            if ($cleaned > 0) $pasteMessage .= " Cleaned $cleaned invalid entries.";
 
             // Re-fetch
             $allClients = $pdo->query('SELECT * FROM crm_clients ORDER BY full_name ASC')->fetchAll();
@@ -445,6 +526,76 @@ function findHeaderIndex(array $headers, array $aliases) {
         if ($idx !== false) return $idx;
     }
     return false;
+}
+
+/**
+ * Validate an email address — checks format + filters junk/disposable/placeholder emails.
+ * Returns true if the email looks legitimate.
+ */
+function isLegitimateEmail(string $email): bool {
+    $email = strtolower(trim($email));
+    if (!$email) return false;
+
+    // Basic format check
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) return false;
+
+    // Must have a real TLD (at least 2 chars after last dot)
+    $parts = explode('.', $email);
+    if (strlen(end($parts)) < 2) return false;
+
+    // Reject common placeholder/test patterns
+    $junkPatterns = [
+        '/^(test|example|sample|demo|fake|none|noemail|no[-_.]?email|no[-_.]?reply|noreply|donotreply|null|void|xxx|yyy|zzz|asdf|qwerty|temp|tmp|delete|removed)@/i',
+        '/^[a-z]@/',  // single char before @
+        '/@(example|test|fake|invalid|placeholder|localhost|none)\./i',
+        '/@.*\.(test|example|invalid|localhost)$/i',
+        '/^[\d]+@/',  // all digits before @
+    ];
+    foreach ($junkPatterns as $pattern) {
+        if (preg_match($pattern, $email)) return false;
+    }
+
+    // Reject disposable/throwaway email domains
+    $disposableDomains = [
+        'mailinator.com', 'guerrillamail.com', 'tempmail.com', 'throwaway.email',
+        'yopmail.com', 'sharklasers.com', 'guerrillamailblock.com', 'grr.la',
+        'dispostable.com', 'trashmail.com', 'mailnesia.com', 'maildrop.cc',
+        'temp-mail.org', 'fakeinbox.com', 'tempail.com', 'emailondeck.com',
+        'getnada.com', 'mohmal.com', '10minutemail.com', 'minutemail.com',
+        'tempr.email', 'discard.email', 'mailsac.com',
+    ];
+    $domain = substr($email, strpos($email, '@') + 1);
+    if (in_array($domain, $disposableDomains)) return false;
+
+    // Reject if local part is too short or too long
+    $local = substr($email, 0, strpos($email, '@'));
+    if (strlen($local) < 2 || strlen($local) > 64) return false;
+
+    // Reject gibberish: local part has no vowels and is longer than 4 chars
+    if (strlen($local) > 4 && !preg_match('/[aeiouy]/i', $local)) return false;
+
+    return true;
+}
+
+/**
+ * Clean a phone number — returns empty string if it doesn't look real.
+ */
+function isLegitimatePhone(string $phone): bool {
+    $digits = preg_replace('/\D/', '', $phone);
+    return strlen($digits) >= 7 && strlen($digits) <= 15;
+}
+
+/**
+ * Check if a name looks legitimate (not gibberish or placeholder).
+ */
+function isLegitimateName(string $name): bool {
+    $name = trim($name);
+    if (strlen($name) < 2 || strlen($name) > 150) return false;
+    // Reject all-digit names
+    if (preg_match('/^\d+$/', $name)) return false;
+    // Reject obvious placeholders
+    if (preg_match('/^(test|example|sample|demo|n\/a|na|none|null|unknown|---|-|\.+)$/i', $name)) return false;
+    return true;
 }
 
 // Handle CSV export for Mailchimp
