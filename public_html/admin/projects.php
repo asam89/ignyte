@@ -194,6 +194,7 @@ if ($filterStatus !== 'all') {
         <a href="crm.php">Contacts</a>
         <a href="projects.php" class="active-nav">Projects</a>
         <a href="tools.php">Tools/Licenses</a>
+        <a href="atlassian.php">Atlassian</a>
         <a href="../index.html">View Site</a>
         <a href="logout.php" class="logout-btn">Logout</a>
     </div>

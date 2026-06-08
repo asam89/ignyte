@@ -20,6 +20,12 @@ define('DB_PASS', 'your_database_password');
 define('MAILCHIMP_API_KEY', '');  // e.g. 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-us21'
 define('MAILCHIMP_AUDIENCE_ID', '');  // e.g. 'a1b2c3d4e5'
 
+// Atlassian (Confluence + Jira) integration
+// Get your API token: https://id.atlassian.com/manage-profile/security/api-tokens
+define('ATLASSIAN_EMAIL', '');       // e.g. 'you@company.com'
+define('ATLASSIAN_API_TOKEN', '');   // e.g. 'xxxxxxxxxxxxxxxxxxxxxxxx'
+define('ATLASSIAN_DOMAIN', '');      // e.g. 'yourcompany.atlassian.net'
+
 define('SITE_URL', 'https://www.ignyteconsulting.com');
 define('ADMIN_URL', SITE_URL . '/admin');
 
