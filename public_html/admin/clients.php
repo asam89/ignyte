@@ -155,6 +155,126 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ai_parse_notes'])) {
     }
 }
 
+// Handle AI create client from pasted text
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ai_create_client'])) {
+    $rawText = trim($_POST['ai_client_text'] ?? '');
+    if ($rawText) {
+        $parsed = parseClientFromText($rawText);
+        $companyName = $parsed['company'] ?: 'New Client';
+        $contactName = $parsed['contact'] ?: $companyName;
+
+        // Check for duplicate by company name
+        $dup = $pdo->prepare('SELECT id FROM crm_clients WHERE company_name = ? AND is_client = 1 LIMIT 1');
+        $dup->execute([$companyName]);
+        if ($dup->fetch()) {
+            header('Location: clients.php?ai_dup=1&dup_name=' . urlencode($companyName));
+            exit;
+        }
+
+        $stmt = $pdo->prepare('INSERT INTO crm_clients (full_name, email, phone, company_name, industry, address, notes, status, is_client, client_code, environment, contract_start, contract_end, contract_terms, key_services) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?)');
+        $stmt->execute([
+            $contactName, $parsed['email'], $parsed['phone'], $companyName,
+            $parsed['industry'], $parsed['address'], $parsed['notes'], 'active',
+            $parsed['code'], $parsed['environment'],
+            $parsed['contract_start'] ?: null, $parsed['contract_end'] ?: null,
+            $parsed['contract_terms'], $parsed['services']
+        ]);
+        $newClientId = $pdo->lastInsertId();
+
+        // If there are leftover notes, save them to client_notes as well
+        if ($parsed['notes']) {
+            try {
+                $noteParsed = parseNotesFromText($parsed['notes']);
+                $noteStmt = $pdo->prepare('INSERT INTO client_notes (client_id, category, title, content, source) VALUES (?, ?, ?, ?, ?)');
+                foreach ($noteParsed as $note) {
+                    if (!empty($note['content'])) {
+                        $noteStmt->execute([$newClientId, $note['category'], $note['title'], $note['content'], 'ai-parsed']);
+                    }
+                }
+            } catch (PDOException $e) {}
+        }
+
+        header('Location: clients.php?ai_created=1&expand=' . $newClientId);
+        exit;
+    }
+}
+
+/**
+ * Parse unstructured text to extract client record fields.
+ * Extracts: company name, contact name, email, phone, code, environment, services, address, etc.
+ */
+function parseClientFromText(string $text): array {
+    $result = [
+        'company' => '', 'contact' => '', 'email' => '', 'phone' => '',
+        'code' => '', 'environment' => '', 'services' => '', 'industry' => '',
+        'address' => '', 'contract_start' => '', 'contract_end' => '',
+        'contract_terms' => '', 'notes' => ''
+    ];
+
+    $lines = preg_split('/\r?\n/', $text);
+    $unmatchedLines = [];
+
+    foreach ($lines as $line) {
+        $trimmed = trim($line);
+        if (empty($trimmed)) continue;
+
+        // Labeled fields: "Key: Value"
+        if (preg_match('/^(company|client|business|org|organization)\s*(?:name)?\s*[:\-]\s*(.+)/i', $trimmed, $m)) {
+            $result['company'] = trim($m[2]);
+        } elseif (preg_match('/^(contact|primary contact|name|person|rep|representative)\s*[:\-]\s*(.+)/i', $trimmed, $m)) {
+            $result['contact'] = trim($m[2]);
+        } elseif (preg_match('/^(email|e-mail|mail)\s*[:\-]\s*(.+)/i', $trimmed, $m)) {
+            $result['email'] = trim($m[2]);
+        } elseif (preg_match('/^(phone|tel|telephone|mobile|cell)\s*[:\-]\s*(.+)/i', $trimmed, $m)) {
+            $result['phone'] = trim($m[2]);
+        } elseif (preg_match('/^(code|client code|abbr|abbreviation)\s*[:\-]\s*(.+)/i', $trimmed, $m)) {
+            $result['code'] = strtoupper(trim($m[2]));
+        } elseif (preg_match('/^(environment|env|platform|os|operating system)\s*[:\-]\s*(.+)/i', $trimmed, $m)) {
+            $result['environment'] = trim($m[2]);
+        } elseif (preg_match('/^(services|key services|managed services|tools)\s*[:\-]\s*(.+)/i', $trimmed, $m)) {
+            $result['services'] = trim($m[2]);
+        } elseif (preg_match('/^(industry|sector|vertical|field)\s*[:\-]\s*(.+)/i', $trimmed, $m)) {
+            $result['industry'] = trim($m[2]);
+        } elseif (preg_match('/^(address|location|office|site)\s*[:\-]\s*(.+)/i', $trimmed, $m)) {
+            $result['address'] = trim($m[2]);
+        } elseif (preg_match('/^(contract start|start date|started)\s*[:\-]\s*(.+)/i', $trimmed, $m)) {
+            $d = strtotime(trim($m[2]));
+            if ($d) $result['contract_start'] = date('Y-m-d', $d);
+        } elseif (preg_match('/^(contract end|end date|expires|expiry|renewal)\s*[:\-]\s*(.+)/i', $trimmed, $m)) {
+            $d = strtotime(trim($m[2]));
+            if ($d) $result['contract_end'] = date('Y-m-d', $d);
+        } elseif (preg_match('/^(terms|contract terms|agreement)\s*[:\-]\s*(.+)/i', $trimmed, $m)) {
+            $result['contract_terms'] = trim($m[2]);
+        } else {
+            // Smart detection for unlabeled data
+            if (!$result['email'] && preg_match('/([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})/', $trimmed, $m)) {
+                $result['email'] = $m[1];
+                $trimmed = trim(str_replace($m[1], '', $trimmed));
+            }
+            if (!$result['phone'] && preg_match('/([\+]?[\d\-\(\)\s\.]{7,20})/', $trimmed, $m)) {
+                $candidate = preg_replace('/[^\d]/', '', $m[1]);
+                if (strlen($candidate) >= 7 && strlen($candidate) <= 15) {
+                    $result['phone'] = trim($m[1]);
+                    $trimmed = trim(str_replace($m[1], '', $trimmed));
+                }
+            }
+            if ($trimmed) $unmatchedLines[] = $trimmed;
+        }
+    }
+
+    // If no company was found, use the first unmatched line as company name
+    if (!$result['company'] && !empty($unmatchedLines)) {
+        $result['company'] = array_shift($unmatchedLines);
+    }
+
+    // Store remaining unmatched lines as notes for the Book of Truth
+    if (!empty($unmatchedLines)) {
+        $result['notes'] = implode("\n", $unmatchedLines);
+    }
+
+    return $result;
+}
+
 /**
  * Parse unstructured text into categorized notes.
  * Extracts: addresses, ISP info, infrastructure, credentials, contacts, and general notes.
@@ -556,7 +676,30 @@ $expandId = $_GET['expand'] ?? null;
         <div class="alert alert-success">Device <?php echo isset($_GET['device_added']) ? 'added' : 'removed'; ?>.</div>
     <?php elseif (isset($_GET['platform_added']) || isset($_GET['platform_deleted'])): ?>
         <div class="alert alert-success">Platform <?php echo isset($_GET['platform_added']) ? 'added' : 'removed'; ?>.</div>
+    <?php elseif (isset($_GET['ai_created'])): ?>
+        <div class="alert alert-success">&#129302; AI created a new client record! Scroll down to see it.</div>
+    <?php elseif (isset($_GET['ai_dup'])): ?>
+        <div class="alert" style="background:rgba(234,179,8,0.1);border-color:rgba(234,179,8,0.3);color:#a16207;">&#9888; A client named "<?php echo htmlspecialchars($_GET['dup_name'] ?? ''); ?>" already exists. Use the search below to find and edit them.</div>
     <?php endif; ?>
+
+    <!-- AI Create Client Box -->
+    <div class="card" style="background:linear-gradient(135deg,rgba(0,71,187,0.03),rgba(238,90,36,0.03));border:1.5px solid rgba(0,71,187,0.12);">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+            <span style="font-size:1.5rem;">&#129302;</span>
+            <div>
+                <h3 style="margin:0;font-size:1.05rem;">AI Client Creator</h3>
+                <p style="margin:0;font-size:0.82rem;color:var(--slate);">Paste messy notes, emails, or any text about a new client — the AI will extract company name, contact info, services, and more to create the record.</p>
+            </div>
+        </div>
+        <form method="POST">
+            <input type="hidden" name="ai_create_client" value="1">
+            <textarea name="ai_client_text" rows="6" required placeholder="Paste anything here...&#10;&#10;Examples:&#10;Company: Isaac Operations&#10;Contact: Daniel Power&#10;Code: ISC&#10;Environment: Windows&#10;Services: M365, Intune, Entra, Exchange, SharePoint&#10;Phone: 416-555-1234&#10;Email: daniel@isaacops.com&#10;Address: 100 King St W, Toronto ON M5X 1A9&#10;&#10;Or just paste a messy email or meeting notes — it will figure it out!" style="width:100%;padding:12px 16px;border:1.5px solid rgba(0,0,0,0.1);border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;resize:vertical;line-height:1.6;"></textarea>
+            <div style="display:flex;gap:12px;margin-top:10px;align-items:center;">
+                <button type="submit" class="btn btn-save" style="font-size:0.88rem;">&#129302; Create Client from Text</button>
+                <span style="font-size:0.78rem;color:var(--slate);">Extracts company, contact, email, phone, code, environment, services, address, contract dates &amp; more</span>
+            </div>
+        </form>
+    </div>
 
     <!-- Stats -->
     <div class="stats-row">
