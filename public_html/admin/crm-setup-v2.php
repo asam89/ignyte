@@ -82,7 +82,17 @@ try {
         } else { $errors[] = "key_services: " . $e->getMessage(); }
     }
 
-    // 5. Create client_devices table
+    // 5. Add linked_client_id column (links a contact to a client)
+    try {
+        $pdo->exec("ALTER TABLE crm_clients ADD COLUMN linked_client_id INT DEFAULT NULL");
+        $results[] = "Added linked_client_id column to crm_clients";
+    } catch (PDOException $e) {
+        if (strpos($e->getMessage(), 'Duplicate column') !== false) {
+            $results[] = "linked_client_id column already exists (skipped)";
+        } else { $errors[] = "linked_client_id: " . $e->getMessage(); }
+    }
+
+    // 6. Create client_devices table
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS client_devices (
             id INT AUTO_INCREMENT PRIMARY KEY,

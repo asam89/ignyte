@@ -107,6 +107,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_platform'])) {
 // Fetch all clients (is_client = 1)
 $allClients = $pdo->query('SELECT * FROM crm_clients WHERE is_client = 1 ORDER BY company_name ASC')->fetchAll();
 
+// Fetch linked contacts per client (contacts with linked_client_id pointing to this client)
+$contactsByClient = [];
+try {
+    $contactRows = $pdo->query('SELECT * FROM crm_clients WHERE linked_client_id IS NOT NULL ORDER BY full_name ASC')->fetchAll();
+    foreach ($contactRows as $ct) { $contactsByClient[$ct['linked_client_id']][] = $ct; }
+} catch (PDOException $e) {}
+
 // Fetch devices and platforms per client
 $devices = [];
 $platforms = [];
@@ -501,6 +508,7 @@ $expandId = $_GET['expand'] ?? null;
                 $cPlatforms = $platforms[$cId] ?? [];
                 $cProjects = $projectsByClient[$cId] ?? [];
                 $cTools = $toolsByClient[$cId] ?? [];
+                $cContacts = $contactsByClient[$cId] ?? [];
                 $isExpanded = ($expandId && (int)$expandId === (int)$cId);
             ?>
                 <div class="client-card <?php echo $isExpanded ? 'expanded' : ''; ?>"
@@ -530,6 +538,7 @@ $expandId = $_GET['expand'] ?? null;
                         <!-- Tabs -->
                         <div class="detail-tabs">
                             <button class="detail-tab active" onclick="switchTab(this, 'overview-<?php echo $cId; ?>')">Overview</button>
+                            <button class="detail-tab" onclick="switchTab(this, 'contacts-<?php echo $cId; ?>')">Contacts (<?php echo count($cContacts); ?>)</button>
                             <button class="detail-tab" onclick="switchTab(this, 'devices-<?php echo $cId; ?>')">Devices (<?php echo count($cDevices); ?>)</button>
                             <button class="detail-tab" onclick="switchTab(this, 'platforms-<?php echo $cId; ?>')">Platforms (<?php echo count($cPlatforms); ?>)</button>
                             <button class="detail-tab" onclick="switchTab(this, 'projects-<?php echo $cId; ?>')">Projects (<?php echo count($cProjects); ?>)</button>
@@ -592,6 +601,36 @@ $expandId = $_GET['expand'] ?? null;
                                     <button type="submit" class="btn-delete">Delete</button>
                                 </form>
                             </div>
+                        </div>
+
+                        <!-- Contacts Tab -->
+                        <div class="tab-content" id="contacts-<?php echo $cId; ?>">
+                            <?php if (empty($cContacts)): ?>
+                                <p style="color:var(--slate);font-size:0.9rem;padding:16px 0;">No contacts linked to this client yet. <a href="crm.php" style="color:var(--brand-blue);font-weight:600;">Link contacts from the Contacts page</a></p>
+                            <?php else: ?>
+                                <table class="sub-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th>Phone</th>
+                                            <th>Role / Notes</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php foreach ($cContacts as $ct): ?>
+                                        <tr>
+                                            <td><strong><?php echo htmlspecialchars($ct['full_name']); ?></strong></td>
+                                            <td><?php echo htmlspecialchars($ct['email'] ?: '—'); ?></td>
+                                            <td><?php echo htmlspecialchars($ct['phone'] ?: '—'); ?></td>
+                                            <td style="font-size:0.82rem;color:var(--slate);"><?php echo htmlspecialchars($ct['industry'] ?: ($ct['notes'] ? substr($ct['notes'], 0, 60) : '—')); ?></td>
+                                            <td><span class="badge badge-<?php echo $ct['status']; ?>"><?php echo ucfirst($ct['status']); ?></span></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            <?php endif; ?>
                         </div>
 
                         <!-- Devices Tab -->

@@ -69,6 +69,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_client'])) {
     exit;
 }
 
+// Handle promote contact to client
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['promote_to_client'])) {
+    $contactId = (int)$_POST['promote_to_client'];
+    $contact = $pdo->prepare('SELECT * FROM crm_clients WHERE id = ?');
+    $contact->execute([$contactId]);
+    $c = $contact->fetch();
+    if ($c) {
+        // Check if a client with this company already exists
+        $existingClient = null;
+        if ($c['company_name']) {
+            $check = $pdo->prepare('SELECT id FROM crm_clients WHERE company_name = ? AND is_client = 1 AND id != ? LIMIT 1');
+            $check->execute([$c['company_name'], $contactId]);
+            $existingClient = $check->fetch();
+        }
+        if ($existingClient) {
+            // Link contact to existing client
+            $pdo->prepare('UPDATE crm_clients SET linked_client_id = ? WHERE id = ?')->execute([$existingClient['id'], $contactId]);
+            header('Location: crm.php?linked=1');
+        } else {
+            // Promote this contact record to a client
+            $pdo->prepare('UPDATE crm_clients SET is_client = 1 WHERE id = ?')->execute([$contactId]);
+            header('Location: crm.php?promoted=1');
+        }
+        exit;
+    }
+}
+
+// Handle link contact to existing client
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['link_to_client'])) {
+    $contactId = (int)$_POST['link_contact_id'];
+    $clientId = (int)$_POST['link_to_client'];
+    if ($contactId && $clientId) {
+        $pdo->prepare('UPDATE crm_clients SET linked_client_id = ? WHERE id = ?')->execute([$clientId, $contactId]);
+        header('Location: crm.php?linked=1');
+        exit;
+    }
+}
+
+// Handle unlink contact from client
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['unlink_contact'])) {
+    $pdo->prepare('UPDATE crm_clients SET linked_client_id = NULL WHERE id = ?')->execute([$_POST['unlink_contact']]);
+    header('Location: crm.php?unlinked=1');
+    exit;
+}
+
 // Handle bulk Mailchimp sync
 $syncMessage = '';
 $syncError = '';
@@ -619,6 +664,9 @@ if (isset($_GET['export']) && $_GET['export'] === 'mailchimp') {
 $allClients = $pdo->query('SELECT * FROM crm_clients ORDER BY full_name ASC')->fetchAll();
 $activeClients = array_filter($allClients, function($c) { return $c['status'] === 'active'; });
 
+// Fetch all clients (is_client=1) for the "Link to Client" dropdown
+$clientsList = array_filter($allClients, function($c) { return !empty($c['is_client']); });
+
 // If editing
 $editClient = null;
 if (isset($_GET['edit'])) {
@@ -814,6 +862,12 @@ if ($filterStatus !== 'all') {
         <div class="alert alert-success">Contact updated successfully!</div>
     <?php elseif (isset($_GET['deleted'])): ?>
         <div class="alert alert-success">Contact deleted.</div>
+    <?php elseif (isset($_GET['promoted'])): ?>
+        <div class="alert alert-success">Contact promoted to Client! <a href="clients.php" style="color:inherit;font-weight:700;">View Clients &rarr;</a></div>
+    <?php elseif (isset($_GET['linked'])): ?>
+        <div class="alert alert-success">Contact linked to Client! <a href="clients.php" style="color:inherit;font-weight:700;">View Clients &rarr;</a></div>
+    <?php elseif (isset($_GET['unlinked'])): ?>
+        <div class="alert alert-success">Contact unlinked from Client.</div>
     <?php endif; ?>
     <?php if ($importMessage): ?>
         <div class="alert alert-success"><?php echo htmlspecialchars($importMessage); ?></div>
@@ -1125,6 +1179,23 @@ The parser will figure it out." style="font-family:'DM Sans',monospace;font-size
                         <td>
                             <div class="action-btns">
                                 <a href="crm.php?edit=<?php echo $c['id']; ?>" class="btn-edit">Edit</a>
+                                <?php if (empty($c['is_client'])): ?>
+                                    <?php if (!empty($c['linked_client_id'])): ?>
+                                        <span style="font-size:0.75rem;color:var(--green);font-weight:600;padding:3px 8px;">Linked</span>
+                                        <form method="POST" style="display:inline;">
+                                            <input type="hidden" name="unlink_contact" value="<?php echo $c['id']; ?>">
+                                            <button type="submit" style="padding:3px 8px;border-radius:6px;font-size:0.72rem;font-weight:600;border:1px solid rgba(220,38,38,0.2);background:rgba(220,38,38,0.06);color:#dc2626;cursor:pointer;">Unlink</button>
+                                        </form>
+                                    <?php else: ?>
+                                        <form method="POST" style="display:inline;">
+                                            <input type="hidden" name="promote_to_client" value="<?php echo $c['id']; ?>">
+                                            <button type="submit" style="padding:3px 10px;border-radius:6px;font-size:0.75rem;font-weight:600;border:1px solid rgba(34,197,94,0.3);background:rgba(34,197,94,0.08);color:#16a34a;cursor:pointer;" title="Promote to Client or link to existing client with same company">Promote</button>
+                                        </form>
+                                        <button onclick="openLinkModal(<?php echo $c['id']; ?>, '<?php echo htmlspecialchars(addslashes($c['full_name'])); ?>')" style="padding:3px 10px;border-radius:6px;font-size:0.75rem;font-weight:600;border:1px solid rgba(0,71,187,0.2);background:rgba(0,71,187,0.06);color:var(--brand-blue);cursor:pointer;" title="Link to an existing client">Link</button>
+                                    <?php endif; ?>
+                                <?php else: ?>
+                                    <span style="font-size:0.75rem;color:var(--brand-blue);font-weight:600;padding:3px 8px;">Client</span>
+                                <?php endif; ?>
                                 <form method="POST" style="display:inline;" onsubmit="return confirm('Delete this contact?');">
                                     <input type="hidden" name="delete_client" value="<?php echo $c['id']; ?>">
                                     <button type="submit" class="btn-delete">Delete</button>
@@ -1139,6 +1210,44 @@ The parser will figure it out." style="font-family:'DM Sans',monospace;font-size
     </div>
 
 </div>
+
+<!-- Link to Client Modal -->
+<div id="linkModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;">
+    <div style="background:white;border-radius:16px;padding:32px;max-width:440px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.2);">
+        <h3 style="font-family:'Inter',sans-serif;font-size:1.1rem;margin-bottom:6px;color:var(--navy);">Link Contact to Client</h3>
+        <p id="linkContactName" style="font-size:0.88rem;color:var(--slate);margin-bottom:20px;"></p>
+        <form method="POST">
+            <input type="hidden" name="link_contact_id" id="linkContactId">
+            <div style="margin-bottom:16px;">
+                <label style="display:block;font-weight:600;font-size:0.85rem;color:var(--navy);margin-bottom:6px;">Select Client</label>
+                <select name="link_to_client" required style="width:100%;padding:10px 14px;border:1.5px solid rgba(0,0,0,0.1);border-radius:8px;font-size:0.92rem;font-family:'DM Sans',sans-serif;">
+                    <option value="">Choose a client...</option>
+                    <?php foreach ($clientsList as $cl): ?>
+                        <option value="<?php echo $cl['id']; ?>"><?php echo htmlspecialchars($cl['company_name'] ?: $cl['full_name']); ?> <?php echo $cl['client_code'] ? '(' . htmlspecialchars($cl['client_code']) . ')' : ''; ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div style="display:flex;gap:12px;">
+                <button type="submit" class="btn btn-save">Link Contact</button>
+                <button type="button" onclick="closeLinkModal()" class="btn btn-cancel">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openLinkModal(contactId, contactName) {
+    document.getElementById('linkContactId').value = contactId;
+    document.getElementById('linkContactName').textContent = 'Linking: ' + contactName;
+    document.getElementById('linkModal').style.display = 'flex';
+}
+function closeLinkModal() {
+    document.getElementById('linkModal').style.display = 'none';
+}
+document.getElementById('linkModal').addEventListener('click', function(e) {
+    if (e.target === this) closeLinkModal();
+});
+</script>
 
 </body>
 </html>
