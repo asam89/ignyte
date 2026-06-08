@@ -123,16 +123,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['import_csv'])) {
             $header = array_map(function($h) { return strtolower(trim($h)); }, $header);
 
             // Map common CSV column names to our DB fields
+            // Includes Google Contacts, Outlook, Mailchimp, and generic formats
             $colMap = [
                 'full_name' => ['full_name', 'full name', 'name', 'contact name', 'client name'],
-                'email' => ['email', 'email address', 'e-mail', 'mail'],
-                'phone' => ['phone', 'phone number', 'telephone', 'mobile', 'cell'],
-                'company_name' => ['company', 'company_name', 'company name', 'organization', 'org'],
-                'industry' => ['industry', 'sector', 'field'],
+                'email' => ['email', 'email address', 'e-mail', 'mail', 'e-mail 1 - value', 'e-mail 2 - value', 'email 1 - value'],
+                'phone' => ['phone', 'phone number', 'telephone', 'mobile', 'cell', 'phone 1 - value', 'phone 2 - value'],
+                'company_name' => ['company', 'company_name', 'company name', 'organization', 'org', 'organization name'],
+                'industry' => ['industry', 'sector', 'field', 'organization department'],
                 'address' => ['address', 'location', 'city', 'full address'],
                 'notes' => ['notes', 'note', 'comments', 'description'],
-                'first_name' => ['first name', 'first_name', 'firstname', 'given name'],
-                'last_name' => ['last name', 'last_name', 'lastname', 'surname', 'family name'],
+                'first_name' => ['first name', 'first_name', 'firstname', 'given name', 'phonetic first name'],
+                'last_name' => ['last name', 'last_name', 'lastname', 'surname', 'family name', 'phonetic last name'],
             ];
 
             $indexes = [];
@@ -208,6 +209,242 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['import_csv'])) {
     // Re-fetch clients after import
     $allClients = $pdo->query('SELECT * FROM crm_clients ORDER BY full_name ASC')->fetchAll();
     $activeClients = array_filter($allClients, function($c) { return $c['status'] === 'active'; });
+}
+
+// Handle smart paste import
+$pasteMessage = '';
+$pasteError = '';
+$parsedContacts = [];
+$pastePreview = false;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['smart_paste'])) {
+    $rawText = trim($_POST['paste_data'] ?? '');
+    $pasteAction = $_POST['paste_action'] ?? 'preview';
+
+    if (!$rawText && $pasteAction === 'preview') {
+        $pasteError = 'Please paste some contact data.';
+    } else {
+        // Parse contacts from raw text
+        if ($pasteAction === 'preview') {
+            $parsedContacts = parseContactsFromText($rawText);
+            if (empty($parsedContacts)) {
+                $pasteError = 'Could not detect any contacts. Try pasting data with emails, phone numbers, or names.';
+            } else {
+                $pastePreview = true;
+            }
+        } elseif ($pasteAction === 'confirm') {
+            // Import confirmed contacts from hidden JSON
+            $contacts = json_decode($_POST['parsed_contacts'] ?? '[]', true);
+            $defaultStatus = $_POST['paste_status'] ?? 'prospect';
+            $imported = 0;
+            $skipped = 0;
+
+            $stmt = $pdo->prepare('INSERT INTO crm_clients (full_name, email, phone, company_name, industry, address, notes, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+
+            foreach ($contacts as $contact) {
+                $email = trim($contact['email'] ?? '');
+                $fullName = trim($contact['name'] ?? '');
+
+                if (!$fullName && !$email) { $skipped++; continue; }
+                if (!$fullName && $email) $fullName = explode('@', $email)[0];
+
+                // Skip duplicates
+                if ($email) {
+                    $check = $pdo->prepare('SELECT id FROM crm_clients WHERE email = ?');
+                    $check->execute([$email]);
+                    if ($check->fetch()) { $skipped++; continue; }
+                }
+
+                $stmt->execute([
+                    $fullName, $email,
+                    trim($contact['phone'] ?? ''),
+                    trim($contact['company'] ?? ''),
+                    '', '', '', $defaultStatus
+                ]);
+                $imported++;
+            }
+
+            $pasteMessage = "Imported $imported contact(s).";
+            if ($skipped > 0) $pasteMessage .= " Skipped $skipped (duplicates or missing data).";
+
+            // Re-fetch
+            $allClients = $pdo->query('SELECT * FROM crm_clients ORDER BY full_name ASC')->fetchAll();
+            $activeClients = array_filter($allClients, function($c) { return $c['status'] === 'active'; });
+        }
+    }
+}
+
+/**
+ * Smart contact parser — extracts contacts from unstructured text.
+ * Handles: pasted spreadsheet rows, vCard data, email signatures,
+ * comma/newline-separated lists, business card text, LinkedIn exports, etc.
+ */
+function parseContactsFromText(string $text): array {
+    $contacts = [];
+    $lines = preg_split('/\r?\n/', $text);
+
+    // Detect if it looks like tab/comma-separated tabular data
+    $firstLine = trim($lines[0] ?? '');
+    $isTabular = (substr_count($firstLine, "\t") >= 2) || (substr_count($firstLine, ',') >= 2 && preg_match('/(name|email|phone|company)/i', $firstLine));
+
+    if ($isTabular) {
+        // Parse as tabular data (spreadsheet paste or CSV-like)
+        $delimiter = substr_count($firstLine, "\t") >= 2 ? "\t" : ",";
+        $headers = array_map(function($h) { return strtolower(trim($h, " \t\n\r\0\x0B\"")); }, explode($delimiter, $firstLine));
+
+        // Map headers to fields
+        $emailIdx = findHeaderIndex($headers, ['email', 'email address', 'e-mail', 'mail', 'e-mail 1 - value', 'email 1 - value']);
+        $nameIdx = findHeaderIndex($headers, ['name', 'full name', 'full_name', 'contact name', 'client name']);
+        $firstIdx = findHeaderIndex($headers, ['first name', 'first_name', 'firstname', 'given name']);
+        $lastIdx = findHeaderIndex($headers, ['last name', 'last_name', 'lastname', 'surname', 'family name']);
+        $phoneIdx = findHeaderIndex($headers, ['phone', 'phone number', 'telephone', 'mobile', 'cell', 'phone 1 - value']);
+        $companyIdx = findHeaderIndex($headers, ['company', 'company name', 'organization', 'organization name', 'org']);
+
+        $hasAnyHeader = ($emailIdx !== false || $nameIdx !== false || $firstIdx !== false);
+
+        if ($hasAnyHeader) {
+            for ($i = 1; $i < count($lines); $i++) {
+                $line = trim($lines[$i]);
+                if (empty($line)) continue;
+                $cols = explode($delimiter, $line);
+                $cols = array_map(function($c) { return trim($c, " \t\n\r\0\x0B\""); }, $cols);
+
+                $name = '';
+                if ($nameIdx !== false) $name = $cols[$nameIdx] ?? '';
+                if (!$name && ($firstIdx !== false || $lastIdx !== false)) {
+                    $first = ($firstIdx !== false) ? ($cols[$firstIdx] ?? '') : '';
+                    $last = ($lastIdx !== false) ? ($cols[$lastIdx] ?? '') : '';
+                    $name = trim("$first $last");
+                }
+
+                $email = ($emailIdx !== false) ? ($cols[$emailIdx] ?? '') : '';
+                $phone = ($phoneIdx !== false) ? ($cols[$phoneIdx] ?? '') : '';
+                $company = ($companyIdx !== false) ? ($cols[$companyIdx] ?? '') : '';
+
+                if ($name || $email) {
+                    $contacts[] = ['name' => $name, 'email' => $email, 'phone' => $phone, 'company' => $company];
+                }
+            }
+            return $contacts;
+        }
+    }
+
+    // Non-tabular: scan text for contact patterns
+    // Strategy: group lines into contact blocks (separated by blank lines or detect per-line contacts)
+
+    // First, extract all emails from the entire text
+    preg_match_all('/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/', $text, $emailMatches);
+    $allEmails = array_unique($emailMatches[0]);
+
+    // Extract all phone numbers
+    preg_match_all('/(?:\+?1[-.\s]?)?(?:\(?\d{3}\)?[-.\s]?)?\d{3}[-.\s]?\d{4}/', $text, $phoneMatches);
+    $allPhones = array_unique($phoneMatches[0]);
+
+    if (!empty($allEmails)) {
+        // Try to associate names with emails
+        foreach ($allEmails as $email) {
+            $contact = ['name' => '', 'email' => $email, 'phone' => '', 'company' => ''];
+
+            // Look for a name near this email (on the same line or the line before)
+            foreach ($lines as $li => $line) {
+                if (stripos($line, $email) !== false) {
+                    // Check if there's a name on the same line before the email
+                    $beforeEmail = trim(preg_replace('/[<(]?' . preg_quote($email, '/') . '[>)]?/', '', $line));
+                    $beforeEmail = trim($beforeEmail, " \t,-;:|");
+                    if ($beforeEmail && !preg_match('/^(email|e-mail|mail|to|from|cc|bcc)\s*:?\s*$/i', $beforeEmail)) {
+                        // Check it looks like a name (2+ chars, not all digits)
+                        if (strlen($beforeEmail) >= 2 && !preg_match('/^\d+$/', $beforeEmail)) {
+                            $contact['name'] = $beforeEmail;
+                        }
+                    }
+
+                    // Check line above for a name
+                    if (!$contact['name'] && $li > 0) {
+                        $prevLine = trim($lines[$li - 1]);
+                        if ($prevLine && strlen($prevLine) < 80 && !preg_match('/[@\d{4,}]/', $prevLine)) {
+                            $contact['name'] = $prevLine;
+                        }
+                    }
+
+                    // Try to find a phone on nearby lines
+                    for ($j = max(0, $li - 2); $j <= min(count($lines) - 1, $li + 2); $j++) {
+                        if (preg_match('/(?:\+?1[-.\s]?)?(?:\(?\d{3}\)?[-.\s]?)?\d{3}[-.\s]?\d{4}/', $lines[$j], $pm)) {
+                            $contact['phone'] = $pm[0];
+                            break;
+                        }
+                    }
+
+                    // Try to extract company from email domain
+                    $domain = substr($email, strpos($email, '@') + 1);
+                    $domainParts = explode('.', $domain);
+                    if (count($domainParts) >= 2 && !in_array($domainParts[0], ['gmail', 'yahoo', 'hotmail', 'outlook', 'aol', 'icloud', 'mail', 'live', 'msn', 'proton', 'protonmail'])) {
+                        $contact['company'] = ucfirst($domainParts[0]);
+                    }
+
+                    break;
+                }
+            }
+
+            if (!$contact['name']) {
+                $contact['name'] = explode('@', $email)[0];
+            }
+
+            $contacts[] = $contact;
+        }
+    } elseif (!empty($allPhones)) {
+        // No emails found, try phone-based contacts
+        foreach ($allPhones as $phone) {
+            $contact = ['name' => '', 'email' => '', 'phone' => $phone, 'company' => ''];
+            foreach ($lines as $li => $line) {
+                if (strpos($line, $phone) !== false) {
+                    $beforePhone = trim(preg_replace('/' . preg_quote($phone, '/') . '/', '', $line));
+                    $beforePhone = trim($beforePhone, " \t,-;:|");
+                    if ($beforePhone && strlen($beforePhone) >= 2) {
+                        $contact['name'] = $beforePhone;
+                    }
+                    if (!$contact['name'] && $li > 0) {
+                        $prevLine = trim($lines[$li - 1]);
+                        if ($prevLine && strlen($prevLine) < 80) $contact['name'] = $prevLine;
+                    }
+                    break;
+                }
+            }
+            $contacts[] = $contact;
+        }
+    } else {
+        // No emails or phones — try line-by-line for "Name - Company" or similar patterns
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if (empty($line) || strlen($line) < 3) continue;
+            // Skip obvious headers/labels
+            if (preg_match('/^(name|email|phone|company|contact|#|---)/i', $line)) continue;
+
+            $contact = ['name' => $line, 'email' => '', 'phone' => '', 'company' => ''];
+
+            // Check for "Name - Company" or "Name | Company" or "Name, Company" patterns
+            if (preg_match('/^(.+?)\s*[-|]\s*(.+)$/', $line, $m)) {
+                $contact['name'] = trim($m[1]);
+                $contact['company'] = trim($m[2]);
+            } elseif (preg_match('/^(.+?),\s*(.+)$/', $line, $m) && !preg_match('/@/', $line)) {
+                $contact['name'] = trim($m[1]);
+                $contact['company'] = trim($m[2]);
+            }
+
+            if (strlen($contact['name']) >= 2 && strlen($contact['name']) <= 100) {
+                $contacts[] = $contact;
+            }
+        }
+    }
+
+    return $contacts;
+}
+
+function findHeaderIndex(array $headers, array $aliases) {
+    foreach ($aliases as $alias) {
+        $idx = array_search($alias, $headers);
+        if ($idx !== false) return $idx;
+    }
+    return false;
 }
 
 // Handle CSV export for Mailchimp
@@ -583,6 +820,95 @@ define('MAILCHIMP_AUDIENCE_ID', 'your-audience-id');</pre>
             </div>
             <button type="submit" class="btn btn-save" style="margin-bottom:0;">Import CSV</button>
         </form>
+    </div>
+
+    <!-- Smart Paste Import -->
+    <div class="card">
+        <h3>&#9889; Smart Paste Import</h3>
+        <p style="font-size:0.88rem;color:var(--slate);margin-bottom:16px;">
+            Paste contact data from <strong>any source</strong> — emails, spreadsheets, LinkedIn, business cards, CRM exports, or plain text.
+            The AI parser will detect names, emails, phone numbers, and companies automatically.
+        </p>
+
+        <?php if ($pasteMessage): ?>
+            <div class="alert alert-success"><?php echo htmlspecialchars($pasteMessage); ?></div>
+        <?php endif; ?>
+        <?php if ($pasteError): ?>
+            <div class="alert alert-error"><?php echo htmlspecialchars($pasteError); ?></div>
+        <?php endif; ?>
+
+        <?php if ($pastePreview && !empty($parsedContacts)): ?>
+            <!-- Preview parsed results -->
+            <div style="background:var(--bg-card, #f8fafc);border:2px solid var(--brand-blue, #0047BB);border-radius:12px;padding:20px;margin-bottom:16px;">
+                <h4 style="margin:0 0 12px;color:var(--brand-blue, #0047BB);">&#9989; Found <?php echo count($parsedContacts); ?> contact(s) — Review before importing:</h4>
+                <table class="clients-table" style="font-size:0.85rem;">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Company</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($parsedContacts as $idx => $pc): ?>
+                        <tr>
+                            <td><?php echo $idx + 1; ?></td>
+                            <td><?php echo htmlspecialchars($pc['name'] ?: '—'); ?></td>
+                            <td><?php echo htmlspecialchars($pc['email'] ?: '—'); ?></td>
+                            <td><?php echo htmlspecialchars($pc['phone'] ?: '—'); ?></td>
+                            <td><?php echo htmlspecialchars($pc['company'] ?: '—'); ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+                <form method="POST" style="display:flex;gap:12px;align-items:center;margin-top:16px;">
+                    <input type="hidden" name="smart_paste" value="1">
+                    <input type="hidden" name="paste_action" value="confirm">
+                    <input type="hidden" name="parsed_contacts" value="<?php echo htmlspecialchars(json_encode($parsedContacts)); ?>">
+                    <div class="form-group" style="margin-bottom:0;min-width:140px;">
+                        <label>Import as</label>
+                        <select name="paste_status">
+                            <option value="active">Active</option>
+                            <option value="prospect" selected>Prospect</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-save">Confirm Import (<?php echo count($parsedContacts); ?>)</button>
+                    <a href="crm.php" class="btn btn-cancel">Cancel</a>
+                </form>
+            </div>
+        <?php else: ?>
+            <form method="POST">
+                <input type="hidden" name="smart_paste" value="1">
+                <input type="hidden" name="paste_action" value="preview">
+                <div class="form-group">
+                    <label>Paste your contacts here</label>
+                    <textarea name="paste_data" rows="8" placeholder="Paste anything — examples:
+
+John Smith, john@acme.com, 555-123-4567, Acme Corp
+Jane Doe jane.doe@widgets.io (212) 555-0199
+
+Or paste spreadsheet rows, email threads, LinkedIn exports, vCard data...
+The parser will figure it out." style="font-family:'DM Sans',monospace;font-size:0.88rem;line-height:1.6;resize:vertical;"><?php echo htmlspecialchars($_POST['paste_data'] ?? ''); ?></textarea>
+                </div>
+                <button type="submit" class="btn btn-save">&#9889; Parse &amp; Preview Contacts</button>
+            </form>
+        <?php endif; ?>
+
+        <details style="margin-top:12px;">
+            <summary style="font-size:0.85rem;font-weight:600;color:var(--brand-blue);cursor:pointer;">What formats are supported?</summary>
+            <ul style="font-size:0.85rem;color:var(--slate);padding-left:20px;margin-top:8px;line-height:1.8;">
+                <li><strong>Spreadsheet paste</strong> — copy rows from Excel/Google Sheets (tab-separated)</li>
+                <li><strong>CSV text</strong> — comma-separated with headers</li>
+                <li><strong>Email lists</strong> — lines with emails (names auto-detected nearby)</li>
+                <li><strong>LinkedIn exports</strong> — paste exported connection data</li>
+                <li><strong>Plain text</strong> — "Name - Company" or "Name, Company" per line</li>
+                <li><strong>Email signatures</strong> — paste email footers with contact details</li>
+                <li><strong>Any mix</strong> — the parser extracts whatever it can find</li>
+            </ul>
+        </details>
     </div>
 
     <!-- Client List -->
