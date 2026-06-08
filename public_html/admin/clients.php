@@ -104,6 +104,157 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_platform'])) {
     exit;
 }
 
+// Handle add manual note
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_note'])) {
+    $stmt = $pdo->prepare('INSERT INTO client_notes (client_id, category, title, content, source) VALUES (?, ?, ?, ?, ?)');
+    $stmt->execute([
+        $_POST['note_client_id'],
+        trim($_POST['note_category'] ?? 'general'),
+        trim($_POST['note_title'] ?? ''),
+        trim($_POST['note_content'] ?? ''),
+        'manual'
+    ]);
+    header('Location: clients.php?note_added=1&expand=' . $_POST['note_client_id'] . '&tab=notes');
+    exit;
+}
+
+// Handle delete note
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_note'])) {
+    $cid = $_POST['note_owner_id'] ?? '';
+    $pdo->prepare('DELETE FROM client_notes WHERE id = ?')->execute([$_POST['delete_note']]);
+    header('Location: clients.php?note_deleted=1' . ($cid ? '&expand=' . $cid . '&tab=notes' : ''));
+    exit;
+}
+
+// Handle AI paste - parse notes
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ai_parse_notes'])) {
+    $rawText = trim($_POST['raw_notes_text'] ?? '');
+    $clientId = (int)$_POST['ai_client_id'];
+
+    if ($rawText && $clientId) {
+        $parsedNotes = parseNotesFromText($rawText);
+        $noteCount = 0;
+        $stmt = $pdo->prepare('INSERT INTO client_notes (client_id, category, title, content, source) VALUES (?, ?, ?, ?, ?)');
+        foreach ($parsedNotes as $note) {
+            if (!empty($note['content'])) {
+                $stmt->execute([$clientId, $note['category'], $note['title'], $note['content'], 'ai-parsed']);
+                $noteCount++;
+            }
+        }
+
+        // Also update client address field if extracted
+        foreach ($parsedNotes as $note) {
+            if ($note['category'] === 'address' && !empty($note['content'])) {
+                $pdo->prepare('UPDATE crm_clients SET address = ? WHERE id = ? AND (address IS NULL OR address = \'\')')->execute([$note['content'], $clientId]);
+                break;
+            }
+        }
+
+        header('Location: clients.php?ai_parsed=1&ai_count=' . $noteCount . '&expand=' . $clientId . '&tab=notes');
+        exit;
+    }
+}
+
+/**
+ * Parse unstructured text into categorized notes.
+ * Extracts: addresses, ISP info, infrastructure, credentials, contacts, and general notes.
+ */
+function parseNotesFromText(string $text): array {
+    $notes = [];
+    $lines = preg_split('/\r?\n/', $text);
+    $currentCategory = 'general';
+    $currentTitle = '';
+    $currentContent = [];
+
+    $categoryPatterns = [
+        'address' => '/^(address|location|office|site|building|street|city|postal|zip)\s*[:\-]/i',
+        'isp' => '/^(isp|internet|provider|bandwidth|connection|wan|circuit|ip address|static ip|gateway|dns|subnet)\s*[:\-]/i',
+        'infrastructure' => '/^(server|firewall|switch|router|network|domain controller|dc|ad|active directory|backup|nas|san|ups|rack|vpn|vlan|dhcp|wifi|wireless|access point|ap)\s*[:\-]/i',
+        'credentials' => '/^(login|password|credential|username|admin|portal|url|dashboard|tenant|account)\s*[:\-]/i',
+        'contact' => '/^(contact|primary|secondary|emergency|manager|it lead|technical|billing|owner|ceo|cto|cio)\s*[:\-]/i',
+        'contract' => '/^(contract|agreement|sla|support hours|retainer|billing cycle|payment|renewal)\s*[:\-]/i',
+        'software' => '/^(software|license|subscription|antivirus|email|365|office|microsoft|google workspace|adobe|saas)\s*[:\-]/i',
+    ];
+
+    foreach ($lines as $line) {
+        $trimmed = trim($line);
+        if (empty($trimmed)) {
+            if (!empty($currentContent)) {
+                $notes[] = [
+                    'category' => $currentCategory,
+                    'title' => $currentTitle ?: ucfirst($currentCategory),
+                    'content' => implode("\n", $currentContent),
+                ];
+                $currentContent = [];
+                $currentTitle = '';
+                $currentCategory = 'general';
+            }
+            continue;
+        }
+
+        $matched = false;
+        foreach ($categoryPatterns as $cat => $pattern) {
+            if (preg_match($pattern, $trimmed)) {
+                if (!empty($currentContent)) {
+                    $notes[] = [
+                        'category' => $currentCategory,
+                        'title' => $currentTitle ?: ucfirst($currentCategory),
+                        'content' => implode("\n", $currentContent),
+                    ];
+                    $currentContent = [];
+                }
+                $currentCategory = $cat;
+                $parts = preg_split('/[:\-]/', $trimmed, 2);
+                $currentTitle = ucfirst(trim($parts[0]));
+                $val = trim($parts[1] ?? '');
+                if ($val) $currentContent[] = $val;
+                $matched = true;
+                break;
+            }
+        }
+
+        if (!$matched) {
+            // Smart detection: addresses
+            if (preg_match('/\b\d{1,5}\s+[A-Z][a-z]+\s+(St|Ave|Blvd|Dr|Rd|Way|Lane|Ln|Ct|Pl|Cres|Road|Street|Avenue|Drive|Boulevard|Circle|Trail)\b/i', $trimmed) ||
+                preg_match('/\b[A-Z]\d[A-Z]\s*\d[A-Z]\d\b/', $trimmed) ||
+                preg_match('/\b\d{5}(-\d{4})?\b/', $trimmed)) {
+                if ($currentCategory !== 'address') {
+                    if (!empty($currentContent)) {
+                        $notes[] = ['category' => $currentCategory, 'title' => $currentTitle ?: ucfirst($currentCategory), 'content' => implode("\n", $currentContent)];
+                        $currentContent = [];
+                    }
+                    $currentCategory = 'address';
+                    $currentTitle = 'Address';
+                }
+            }
+            // Smart detection: IP addresses
+            if (preg_match('/\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\b/', $trimmed) && $currentCategory === 'general') {
+                if (!empty($currentContent)) {
+                    $notes[] = ['category' => $currentCategory, 'title' => $currentTitle ?: ucfirst($currentCategory), 'content' => implode("\n", $currentContent)];
+                    $currentContent = [];
+                }
+                $currentCategory = 'infrastructure';
+                $currentTitle = 'Network Info';
+            }
+            $currentContent[] = $trimmed;
+        }
+    }
+
+    if (!empty($currentContent)) {
+        $notes[] = [
+            'category' => $currentCategory,
+            'title' => $currentTitle ?: ucfirst($currentCategory),
+            'content' => implode("\n", $currentContent),
+        ];
+    }
+
+    if (empty($notes) && trim($text)) {
+        $notes[] = ['category' => 'general', 'title' => 'Imported Notes', 'content' => trim($text)];
+    }
+
+    return $notes;
+}
+
 // Fetch all clients (is_client = 1)
 $allClients = $pdo->query('SELECT * FROM crm_clients WHERE is_client = 1 ORDER BY company_name ASC')->fetchAll();
 
@@ -112,6 +263,13 @@ $contactsByClient = [];
 try {
     $contactRows = $pdo->query('SELECT * FROM crm_clients WHERE linked_client_id IS NOT NULL ORDER BY full_name ASC')->fetchAll();
     foreach ($contactRows as $ct) { $contactsByClient[$ct['linked_client_id']][] = $ct; }
+} catch (PDOException $e) {}
+
+// Fetch notes per client
+$notesByClient = [];
+try {
+    $noteRows = $pdo->query('SELECT * FROM client_notes ORDER BY created_at DESC')->fetchAll();
+    foreach ($noteRows as $n) { $notesByClient[$n['client_id']][] = $n; }
 } catch (PDOException $e) {}
 
 // Fetch devices and platforms per client
@@ -509,7 +667,9 @@ $expandId = $_GET['expand'] ?? null;
                 $cProjects = $projectsByClient[$cId] ?? [];
                 $cTools = $toolsByClient[$cId] ?? [];
                 $cContacts = $contactsByClient[$cId] ?? [];
+                $cNotes = $notesByClient[$cId] ?? [];
                 $isExpanded = ($expandId && (int)$expandId === (int)$cId);
+                $activeTab = (isset($_GET['tab']) && $_GET['tab'] === 'notes' && $isExpanded) ? 'notes' : 'overview';
             ?>
                 <div class="client-card <?php echo $isExpanded ? 'expanded' : ''; ?>"
                      data-search="<?php echo strtolower(htmlspecialchars($c['company_name'] . ' ' . ($c['client_code'] ?? '') . ' ' . $c['full_name'] . ' ' . $c['email'] . ' ' . ($c['key_services'] ?? '') . ' ' . ($c['environment'] ?? '') . ' ' . $c['industry'])); ?>">
@@ -537,7 +697,8 @@ $expandId = $_GET['expand'] ?? null;
                     <div class="client-details">
                         <!-- Tabs -->
                         <div class="detail-tabs">
-                            <button class="detail-tab active" onclick="switchTab(this, 'overview-<?php echo $cId; ?>')">Overview</button>
+                            <button class="detail-tab <?php echo $activeTab === 'overview' ? 'active' : ''; ?>" onclick="switchTab(this, 'overview-<?php echo $cId; ?>')">Overview</button>
+                            <button class="detail-tab <?php echo $activeTab === 'notes' ? 'active' : ''; ?>" onclick="switchTab(this, 'notes-<?php echo $cId; ?>')">Book of Truth (<?php echo count($cNotes); ?>)</button>
                             <button class="detail-tab" onclick="switchTab(this, 'contacts-<?php echo $cId; ?>')">Contacts (<?php echo count($cContacts); ?>)</button>
                             <button class="detail-tab" onclick="switchTab(this, 'devices-<?php echo $cId; ?>')">Devices (<?php echo count($cDevices); ?>)</button>
                             <button class="detail-tab" onclick="switchTab(this, 'platforms-<?php echo $cId; ?>')">Platforms (<?php echo count($cPlatforms); ?>)</button>
@@ -545,7 +706,7 @@ $expandId = $_GET['expand'] ?? null;
                         </div>
 
                         <!-- Overview Tab -->
-                        <div class="tab-content active" id="overview-<?php echo $cId; ?>">
+                        <div class="tab-content <?php echo $activeTab === 'overview' ? 'active' : ''; ?>" id="overview-<?php echo $cId; ?>">
                             <div class="detail-grid">
                                 <div class="detail-item">
                                     <div class="detail-label">Primary Contact</div>
@@ -601,6 +762,117 @@ $expandId = $_GET['expand'] ?? null;
                                     <button type="submit" class="btn-delete">Delete</button>
                                 </form>
                             </div>
+                        </div>
+
+                        <!-- Book of Truth / Notes Tab -->
+                        <div class="tab-content <?php echo $activeTab === 'notes' ? 'active' : ''; ?>" id="notes-<?php echo $cId; ?>">
+                            <!-- AI Paste Box -->
+                            <div style="background:linear-gradient(135deg,rgba(0,71,187,0.04),rgba(238,90,36,0.04));border:1.5px solid rgba(0,71,187,0.12);border-radius:12px;padding:20px;margin-bottom:20px;">
+                                <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+                                    <span style="font-size:1.3rem;">&#129302;</span>
+                                    <div>
+                                        <strong style="font-size:0.95rem;color:var(--navy);">AI Notes Parser</strong>
+                                        <div style="font-size:0.8rem;color:var(--slate);">Paste messy notes, meeting minutes, emails, or any text — it will extract and categorize key details automatically.</div>
+                                    </div>
+                                </div>
+                                <form method="POST">
+                                    <input type="hidden" name="ai_parse_notes" value="1">
+                                    <input type="hidden" name="ai_client_id" value="<?php echo $cId; ?>">
+                                    <textarea name="raw_notes_text" rows="6" required placeholder="Paste anything here...&#10;&#10;Examples:&#10;- Address: 123 Bay St, Toronto ON M5J 2T3&#10;- ISP: Bell Business, Circuit ID: BEL-12345, 500Mbps/100Mbps&#10;- Server: DC01, Windows Server 2022, 192.168.1.10&#10;- Firewall: Fortinet 60F, firmware 7.4.2&#10;- Contact: Sarah M, IT Manager, sarah@company.com" style="width:100%;padding:12px 16px;border:1.5px solid rgba(0,0,0,0.1);border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;resize:vertical;line-height:1.6;"></textarea>
+                                    <div style="display:flex;gap:12px;margin-top:10px;align-items:center;">
+                                        <button type="submit" class="btn btn-save" style="font-size:0.85rem;">&#129302; Parse &amp; Save Notes</button>
+                                        <span style="font-size:0.78rem;color:var(--slate);">Extracts addresses, ISP info, infrastructure, credentials, contacts, and more</span>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <?php if (isset($_GET['ai_parsed']) && $isExpanded): ?>
+                                <div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.88rem;color:#16a34a;font-weight:600;">&#129302; AI parsed and saved <?php echo (int)$_GET['ai_count']; ?> note(s) from your text.</div>
+                            <?php endif; ?>
+
+                            <?php
+                            $grouped = [];
+                            foreach ($cNotes as $n) { $grouped[$n['category']][] = $n; }
+                            $categoryIcons = [
+                                'address' => '&#128205;', 'isp' => '&#127760;', 'infrastructure' => '&#128421;',
+                                'credentials' => '&#128274;', 'contact' => '&#128100;', 'contract' => '&#128196;',
+                                'software' => '&#128190;', 'general' => '&#128221;'
+                            ];
+                            $categoryLabels = [
+                                'address' => 'Address &amp; Location', 'isp' => 'ISP &amp; Connectivity', 'infrastructure' => 'Infrastructure',
+                                'credentials' => 'Credentials &amp; Access', 'contact' => 'Key Contacts', 'contract' => 'Contract &amp; Billing',
+                                'software' => 'Software &amp; Licenses', 'general' => 'General Notes'
+                            ];
+                            ?>
+
+                            <?php if (empty($cNotes)): ?>
+                                <div style="text-align:center;padding:24px;color:var(--slate);">
+                                    <div style="font-size:2.4rem;margin-bottom:12px;opacity:0.4;">&#128214;</div>
+                                    <p>No notes yet. Use the AI parser above to paste client details, or add notes manually below.</p>
+                                </div>
+                            <?php else: ?>
+                                <?php foreach ($grouped as $cat => $catNotes): ?>
+                                    <div style="margin-bottom:20px;">
+                                        <h4 style="font-family:'Inter',sans-serif;font-size:0.9rem;color:var(--navy);margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+                                            <span><?php echo $categoryIcons[$cat] ?? '&#128221;'; ?></span>
+                                            <?php echo $categoryLabels[$cat] ?? ucfirst($cat); ?>
+                                            <span style="font-size:0.72rem;color:var(--slate);font-weight:400;">(<?php echo count($catNotes); ?>)</span>
+                                        </h4>
+                                        <?php foreach ($catNotes as $note): ?>
+                                            <div style="background:var(--light-grey);border-radius:10px;padding:14px 16px;margin-bottom:8px;position:relative;">
+                                                <?php if ($note['title']): ?>
+                                                    <div style="font-weight:700;font-size:0.88rem;margin-bottom:4px;"><?php echo htmlspecialchars($note['title']); ?></div>
+                                                <?php endif; ?>
+                                                <div style="font-size:0.88rem;line-height:1.6;white-space:pre-wrap;"><?php echo htmlspecialchars($note['content']); ?></div>
+                                                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+                                                    <span style="font-size:0.72rem;color:var(--slate);">
+                                                        <?php echo $note['source'] === 'ai-parsed' ? '&#129302; AI Parsed' : '&#9997; Manual'; ?>
+                                                        &middot; <?php echo date('M j, Y g:ia', strtotime($note['created_at'])); ?>
+                                                    </span>
+                                                    <form method="POST" style="display:inline;" onsubmit="return confirm('Delete this note?');">
+                                                        <input type="hidden" name="delete_note" value="<?php echo $note['id']; ?>">
+                                                        <input type="hidden" name="note_owner_id" value="<?php echo $cId; ?>">
+                                                        <button type="submit" style="padding:2px 8px;border-radius:4px;font-size:0.72rem;font-weight:600;border:1px solid rgba(220,38,38,0.2);background:rgba(220,38,38,0.06);color:#dc2626;cursor:pointer;">Delete</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+
+                            <!-- Manual Add Note -->
+                            <details style="margin-top:12px;">
+                                <summary style="font-size:0.85rem;font-weight:600;color:var(--brand-blue);cursor:pointer;">+ Add Note Manually</summary>
+                                <form method="POST" class="inline-form" style="flex-direction:column;align-items:stretch;margin-top:10px;">
+                                    <input type="hidden" name="add_note" value="1">
+                                    <input type="hidden" name="note_client_id" value="<?php echo $cId; ?>">
+                                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                                        <div class="form-group" style="flex:1;min-width:140px;">
+                                            <label>Category</label>
+                                            <select name="note_category">
+                                                <option value="general">General Notes</option>
+                                                <option value="address">Address &amp; Location</option>
+                                                <option value="isp">ISP &amp; Connectivity</option>
+                                                <option value="infrastructure">Infrastructure</option>
+                                                <option value="credentials">Credentials &amp; Access</option>
+                                                <option value="contact">Key Contacts</option>
+                                                <option value="contract">Contract &amp; Billing</option>
+                                                <option value="software">Software &amp; Licenses</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group" style="flex:2;min-width:200px;">
+                                            <label>Title</label>
+                                            <input type="text" name="note_title" placeholder="e.g. Office Address, Main Server, ISP Details...">
+                                        </div>
+                                    </div>
+                                    <div class="form-group" style="width:100%;">
+                                        <label>Content *</label>
+                                        <textarea name="note_content" required rows="3" placeholder="Enter note details..."></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-small btn-save">Add Note</button>
+                                </form>
+                            </details>
                         </div>
 
                         <!-- Contacts Tab -->

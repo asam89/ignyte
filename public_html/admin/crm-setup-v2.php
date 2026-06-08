@@ -129,7 +129,23 @@ try {
     ");
     $results[] = "Created client_platforms table";
 
-    // 7. Mark existing active clients with company_name as is_client = 1
+    // 7. Create client_notes table (Book of Truth)
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS client_notes (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            client_id INT NOT NULL,
+            category ENUM('general','address','isp','infrastructure','credentials','contact','contract','software') DEFAULT 'general',
+            title VARCHAR(200) DEFAULT NULL,
+            content TEXT NOT NULL,
+            source ENUM('manual','ai-parsed') DEFAULT 'manual',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            FOREIGN KEY (client_id) REFERENCES crm_clients(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    ");
+    $results[] = "Created client_notes table";
+
+    // 8. Mark existing active clients with company_name as is_client = 1
     // (the 36 imported IGNYTE clients all have company_name and status=active)
     $updated = $pdo->exec("UPDATE crm_clients SET is_client = 1 WHERE status = 'active' AND company_name IS NOT NULL AND company_name != '' AND is_client = 0");
     $results[] = "Marked $updated existing active client(s) as is_client = 1";
