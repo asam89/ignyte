@@ -5,6 +5,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  schemas  = ["site_manager"]
 }
 
 // ─── Multi-tenant core ───────────────────────────────────────────────────────
@@ -20,12 +21,16 @@ model Organization {
   sites          Site[]
   subscription   Subscription?
   auditLogs      AuditLog[]
+
+  @@schema("site_manager")
 }
 
 enum UserRole {
   client_admin
   client_editor
   ignyte_staff
+
+  @@schema("site_manager")
 }
 
 model User {
@@ -47,6 +52,7 @@ model User {
   approvedChanges  ChangeRequest[] @relation("ApprovedBy")
 
   @@index([organizationId])
+  @@schema("site_manager")
 }
 
 // ─── Auth.js / NextAuth models ───────────────────────────────────────────────
@@ -68,6 +74,7 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@schema("site_manager")
 }
 
 model Session {
@@ -76,6 +83,8 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@schema("site_manager")
 }
 
 model VerificationToken {
@@ -84,6 +93,7 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+  @@schema("site_manager")
 }
 
 // ─── Sites ───────────────────────────────────────────────────────────────────
@@ -92,6 +102,8 @@ enum SiteType {
   git_static
   nextjs
   wordpress
+
+  @@schema("site_manager")
 }
 
 model Site {
@@ -114,6 +126,7 @@ model Site {
   changeRequests ChangeRequest[]
 
   @@index([organizationId])
+  @@schema("site_manager")
 }
 
 // ─── Assets & Context Documents ──────────────────────────────────────────────
@@ -124,6 +137,8 @@ enum AssetType {
   pdf
   document
   other
+
+  @@schema("site_manager")
 }
 
 model Asset {
@@ -139,6 +154,7 @@ model Asset {
   createdAt DateTime  @default(now())
 
   @@index([siteId])
+  @@schema("site_manager")
 }
 
 model ContextDoc {
@@ -155,6 +171,7 @@ model ContextDoc {
   updatedAt     DateTime @updatedAt
 
   @@index([siteId])
+  @@schema("site_manager")
 }
 
 // ─── Change Requests (the heart) ─────────────────────────────────────────────
@@ -168,6 +185,8 @@ enum ChangeRequestStatus {
   merged
   reverted
   failed
+
+  @@schema("site_manager")
 }
 
 model ChangeRequest {
@@ -199,6 +218,7 @@ model ChangeRequest {
   @@index([siteId])
   @@index([requestedById])
   @@index([status])
+  @@schema("site_manager")
 }
 
 // ─── Billing ─────────────────────────────────────────────────────────────────
@@ -217,6 +237,8 @@ model Subscription {
   organization        Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
+
+  @@schema("site_manager")
 }
 
 // ─── Audit Log ───────────────────────────────────────────────────────────────
@@ -233,4 +255,5 @@ model AuditLog {
   @@index([organizationId])
   @@index([action])
   @@index([createdAt])
+  @@schema("site_manager")
 }
