@@ -1,12 +1,61 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { enqueueJob } from "@/lib/job-queue";
 import { z } from "zod";
+import "@/lib/pipeline"; // registers the handler
 
 const createRequestSchema = z.object({
   siteId: z.string().min(1),
   prompt: z.string().min(1).max(5000),
 });
+
+export async function GET(request: Request) {
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const user = session.user as { id: string; role: string; organizationId: string | null };
+  const isStaff = user.role === "ignyte_staff";
+
+  const { searchParams } = new URL(request.url);
+  const siteId = searchParams.get("siteId");
+  const status = searchParams.get("status");
+  const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100);
+  const offset = parseInt(searchParams.get("offset") || "0");
+
+  const where: Record<string, unknown> = {};
+
+  if (siteId) {
+    where.siteId = siteId;
+  }
+
+  if (status) {
+    where.status = status;
+  }
+
+  // Tenant isolation
+  if (!isStaff) {
+    where.site = { organizationId: user.organizationId };
+  }
+
+  const [requests, total] = await Promise.all([
+    prisma.changeRequest.findMany({
+      where,
+      include: {
+        site: { select: { name: true, organizationId: true } },
+        requestedBy: { select: { email: true, name: true } },
+      },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+      skip: offset,
+    }),
+    prisma.changeRequest.count({ where }),
+  ]);
+
+  return NextResponse.json({ requests, total, limit, offset });
+}
 
 export async function POST(request: Request) {
   const session = await auth();
@@ -52,6 +101,7 @@ export async function POST(request: Request) {
           error: "Monthly quota exceeded. Please upgrade your plan or wait for quota reset.",
           quota: subscription.monthlyQuota,
           usage: subscription.currentUsage,
+          resetDate: subscription.quotaResetDate,
         },
         { status: 429 }
       );
@@ -78,14 +128,13 @@ export async function POST(request: Request) {
     },
   });
 
-  // Trigger the async pipeline (in production this would use a queue)
-  // For now we'll trigger it via a separate API call
-  fetch(`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/change-requests/${changeRequest.id}/process`, {
-    method: "POST",
-    headers: { "x-internal-secret": process.env.INTERNAL_API_SECRET || "" },
-  }).catch(() => {
-    // Fire and forget - errors handled in the pipeline
+  // Enqueue for async processing
+  const jobId = await enqueueJob("process_change_request", {
+    requestId: changeRequest.id,
   });
 
-  return NextResponse.json(changeRequest, { status: 201 });
+  return NextResponse.json(
+    { ...changeRequest, jobId },
+    { status: 201 }
+  );
 }

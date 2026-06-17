@@ -43,6 +43,7 @@ export default async function RequestDetailPage({
     approved: "bg-green-100 text-green-800",
     rejected: "bg-red-100 text-red-800",
     merged: "bg-emerald-100 text-emerald-800",
+    reverted: "bg-gray-100 text-gray-800",
     failed: "bg-red-100 text-red-800",
   };
 
@@ -128,8 +129,8 @@ export default async function RequestDetailPage({
       )}
 
       {/* Actions */}
-      {canApprove && (
-        <RequestActions requestId={request.id} siteId={siteId} />
+      {(canApprove || request.status === "merged" || request.status === "failed" || request.status === "rejected") && (
+        <RequestActions requestId={request.id} status={request.status} />
       )}
 
       {/* Merge info */}
@@ -146,6 +147,18 @@ export default async function RequestDetailPage({
               Approved by {request.approvedBy.name || request.approvedBy.email}
             </p>
           )}
+        </Card>
+      )}
+
+      {/* Reverted info */}
+      {request.status === "reverted" && (
+        <Card className="border-gray-200 bg-gray-50">
+          <h2 className="mb-2 text-sm font-semibold text-gray-700">
+            Reverted
+          </h2>
+          <p className="text-sm text-gray-600">
+            This change was reverted from production.
+          </p>
         </Card>
       )}
     </div>

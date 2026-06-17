@@ -63,6 +63,22 @@ export default async function SiteDetailPage({
         )}
       </div>
 
+      {/* Quick links */}
+      <div className="mb-6 flex gap-3">
+        <Link
+          href={`/sites/${siteId}/assets`}
+          className="flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm hover:bg-gray-50 transition-colors"
+        >
+          <span>🖼️</span> Assets
+        </Link>
+        <Link
+          href={`/sites/${siteId}/documents`}
+          className="flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm hover:bg-gray-50 transition-colors"
+        >
+          <span>📄</span> Context Documents
+        </Link>
+      </div>
+
       {/* New request form */}
       <Card className="mb-8">
         <CardTitle className="mb-4">Submit a Change Request</CardTitle>

@@ -18,11 +18,14 @@ export function Sidebar({ user }: SidebarProps) {
 
   const navItems = [
     { href: "/sites", label: "Sites", icon: "🌐" },
+    { href: "/billing", label: "Billing", icon: "💳" },
     ...(isStaff
       ? [
-          { href: "/admin", label: "Admin", icon: "⚙️" },
+          { href: "/admin", label: "Dashboard", icon: "⚙️" },
+          { href: "/admin/organizations", label: "Organizations", icon: "🏢" },
           { href: "/admin/onboard", label: "Onboard Site", icon: "➕" },
           { href: "/admin/review", label: "Review Queue", icon: "📋" },
+          { href: "/admin/audit", label: "Audit Log", icon: "📜" },
         ]
       : []),
   ];
