@@ -18,6 +18,7 @@ export function Sidebar({ user }: SidebarProps) {
 
   const navItems = [
     { href: "/sites", label: "Sites", icon: "🌐" },
+    { href: "/billing", label: "Billing", icon: "💳" },
     ...(isStaff
       ? [
           { href: "/admin", label: "Dashboard", icon: "⚙️" },
