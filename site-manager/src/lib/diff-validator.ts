@@ -1,9 +1,14 @@
 import type { Site } from "@/generated/prisma/client";
 import type { FileEdit } from "@/adapters/types";
 
-interface ValidationResult {
+export interface ValidationResult {
   valid: boolean;
   reason?: string;
+  flagged?: boolean;
+}
+
+interface EditableRegions {
+  [filePath: string]: string[];
 }
 
 const FORBIDDEN_EXTENSIONS = [
@@ -87,6 +92,30 @@ export function validateDiff(site: Site, files: FileEdit[]): ValidationResult {
           valid: false,
           reason: `File "${file.path}" appears to contain structural changes (many imports/exports detected).`,
         };
+      }
+    }
+  }
+
+  // Validate editable regions (if configured)
+  const editableRegions = (site.editableRegions as EditableRegions | null) || {};
+  if (Object.keys(editableRegions).length > 0) {
+    for (const file of files) {
+      const regions = editableRegions[file.path];
+      if (regions && regions.length > 0) {
+        // Verify that changes are within declared editable regions
+        const hasRegionMarkers = regions.some((region) => {
+          const openTag = `<!-- editable:${region} -->`;
+          const closeTag = `<!-- /editable -->`;
+          return file.content.includes(openTag) && file.content.includes(closeTag);
+        });
+
+        if (!hasRegionMarkers) {
+          return {
+            valid: false,
+            flagged: true,
+            reason: `File "${file.path}" is missing required editable region markers. Routing to staff review.`,
+          };
+        }
       }
     }
   }
