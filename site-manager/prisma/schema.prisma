@@ -1,0 +1,235 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Multi-tenant core ───────────────────────────────────────────────────────
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users          User[]
+  sites          Site[]
+  subscription   Subscription?
+  auditLogs      AuditLog[]
+}
+
+enum UserRole {
+  client_admin
+  client_editor
+  ignyte_staff
+}
+
+model User {
+  id             String       @id @default(cuid())
+  email          String       @unique
+  name           String?
+  passwordHash   String?
+  emailVerified  DateTime?
+  image          String?
+  role           UserRole     @default(client_editor)
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  accounts       Account[]
+  sessions       Session[]
+  requestedChanges ChangeRequest[] @relation("RequestedBy")
+  approvedChanges  ChangeRequest[] @relation("ApprovedBy")
+
+  @@index([organizationId])
+}
+
+// ─── Auth.js / NextAuth models ───────────────────────────────────────────────
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─── Sites ───────────────────────────────────────────────────────────────────
+
+enum SiteType {
+  git_static
+  nextjs
+  wordpress
+}
+
+model Site {
+  id              String       @id @default(cuid())
+  name            String
+  siteType        SiteType
+  repoOwner       String?
+  repoName        String?
+  productionUrl   String?
+  hostInfo        String?
+  editablePaths   String[]     // allowlist of file paths/globs
+  editableRegions Json?        // { "file": ["region1", "region2"] }
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  assets         Asset[]
+  contextDocs    ContextDoc[]
+  changeRequests ChangeRequest[]
+
+  @@index([organizationId])
+}
+
+// ─── Assets & Context Documents ──────────────────────────────────────────────
+
+enum AssetType {
+  logo
+  image
+  pdf
+  document
+  other
+}
+
+model Asset {
+  id        String    @id @default(cuid())
+  name      String
+  type      AssetType
+  mimeType  String
+  sizeBytes Int
+  r2Key     String    // R2 object key: orgId/siteId/filename
+  cdnUrl    String    // public CDN URL
+  siteId    String
+  site      Site      @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+
+  @@index([siteId])
+}
+
+model ContextDoc {
+  id            String   @id @default(cuid())
+  name          String
+  fileName      String
+  mimeType      String
+  sizeBytes     Int
+  r2Key         String
+  extractedText String?  @db.Text // extracted text content for AI context
+  siteId        String
+  site          Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([siteId])
+}
+
+// ─── Change Requests (the heart) ─────────────────────────────────────────────
+
+enum ChangeRequestStatus {
+  pending
+  generating
+  preview_ready
+  approved
+  rejected
+  merged
+  failed
+}
+
+model ChangeRequest {
+  id            String              @id @default(cuid())
+  prompt        String              @db.Text
+  status        ChangeRequestStatus @default(pending)
+  branchName    String?
+  prUrl         String?
+  prNumber      Int?
+  previewUrl    String?
+  generatedDiff String?             @db.Text
+  commitSha     String?
+  errorMessage  String?             @db.Text
+  flagged       Boolean             @default(false) // routed to staff review
+  flagReason    String?
+
+  siteId        String
+  site          Site                @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  requestedById String
+  requestedBy   User                @relation("RequestedBy", fields: [requestedById], references: [id])
+
+  approvedById  String?
+  approvedBy    User?               @relation("ApprovedBy", fields: [approvedById], references: [id])
+
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@index([siteId])
+  @@index([requestedById])
+  @@index([status])
+}
+
+// ─── Billing ─────────────────────────────────────────────────────────────────
+
+model Subscription {
+  id                  String       @id @default(cuid())
+  stripeCustomerId    String?      @unique
+  stripeSubscriptionId String?     @unique
+  plan                String       @default("starter")
+  monthlyQuota        Int          @default(10)
+  currentUsage        Int          @default(0)
+  quotaResetDate      DateTime?
+  countOnMerge        Boolean      @default(true) // count usage on merge vs on submit
+  status              String       @default("active") // active, past_due, canceled
+  organizationId      String       @unique
+  organization        Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+}
+
+// ─── Audit Log ───────────────────────────────────────────────────────────────
+
+model AuditLog {
+  id             String       @id @default(cuid())
+  action         String       // e.g. "change_request.created", "change_request.merged"
+  details        Json?
+  userId         String?
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+
+  @@index([organizationId])
+  @@index([action])
+  @@index([createdAt])
+}
