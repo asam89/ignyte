@@ -219,6 +219,7 @@ if ($filterView === 'expiring') {
         <a href="clients.php">Clients</a>
         <a href="crm.php">Contacts</a>
         <a href="projects.php">Projects</a>
+        <a href="quotes.php">Quotes</a>
         <a href="tools.php" class="active-nav">Tools/Licenses</a>
         <a href="../index.html">View Site</a>
         <a href="logout.php" class="logout-btn">Logout</a>

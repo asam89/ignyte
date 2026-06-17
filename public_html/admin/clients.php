@@ -658,6 +658,7 @@ $expandId = $_GET['expand'] ?? null;
         <a href="clients.php" class="active-nav">Clients</a>
         <a href="crm.php">Contacts</a>
         <a href="projects.php">Projects</a>
+        <a href="quotes.php">Quotes</a>
         <a href="tools.php">Tools/Licenses</a>
         <a href="../index.html">View Site</a>
         <a href="logout.php" class="logout-btn">Logout</a>

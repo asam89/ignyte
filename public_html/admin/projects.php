@@ -193,6 +193,7 @@ if ($filterStatus !== 'all') {
         <a href="clients.php">Clients</a>
         <a href="crm.php">Contacts</a>
         <a href="projects.php" class="active-nav">Projects</a>
+        <a href="quotes.php">Quotes</a>
         <a href="tools.php">Tools/Licenses</a>
         <a href="../index.html">View Site</a>
         <a href="logout.php" class="logout-btn">Logout</a>
