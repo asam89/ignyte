@@ -166,6 +166,7 @@ enum ChangeRequestStatus {
   approved
   rejected
   merged
+  reverted
   failed
 }
 
