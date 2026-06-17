@@ -38,6 +38,20 @@ export async function POST(
     return NextResponse.json({ error: "Flagged requests require Ignyte staff approval" }, { status: 403 });
   }
 
+  // Check quota if counting on merge
+  const sub = changeRequest.site.organization.subscription;
+  if (sub?.countOnMerge && sub.currentUsage >= sub.monthlyQuota) {
+    return NextResponse.json(
+      {
+        error: "Monthly quota exceeded. Please upgrade your plan or wait for quota reset.",
+        quota: sub.monthlyQuota,
+        usage: sub.currentUsage,
+        resetDate: sub.quotaResetDate,
+      },
+      { status: 429 }
+    );
+  }
+
   try {
     const adapter = getAdapter(changeRequest.site);
 

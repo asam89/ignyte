@@ -55,6 +55,7 @@ export async function generateEdit(
   // Gather context
   const repoContext = await getRepoFileContents(site);
   const contextDocs = await getContextDocs(site);
+  const availableAssets = await getAvailableAssets(site);
 
   const userMessage = `## Current File Contents (editable files only)
 
@@ -63,6 +64,10 @@ ${repoContext}
 ## Context Documents (brand/guidelines)
 
 ${contextDocs}
+
+## Available Assets (use these URLs for image/file swaps)
+
+${availableAssets}
 
 ## Change Request
 
@@ -152,4 +157,17 @@ async function getContextDocs(site: Site): Promise<string> {
     .filter((d) => d.extractedText)
     .map((d) => `### ${d.name}\n${d.extractedText}`)
     .join("\n\n");
+}
+
+async function getAvailableAssets(site: Site): Promise<string> {
+  const assets = await prisma.asset.findMany({
+    where: { siteId: site.id },
+    select: { name: true, type: true, cdnUrl: true },
+  });
+
+  if (assets.length === 0) return "(no assets uploaded)";
+
+  return assets
+    .map((a) => `- ${a.name} (${a.type}): ${a.cdnUrl}`)
+    .join("\n");
 }
