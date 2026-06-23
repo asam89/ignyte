@@ -23,6 +23,11 @@ define('MAILCHIMP_AUDIENCE_ID', '');  // e.g. 'a1b2c3d4e5'
 define('SITE_URL', 'https://www.ignyteconsulting.com');
 define('ADMIN_URL', SITE_URL . '/admin');
 
+// Site Manager embed integration
+// Set these to enable the "Website Updates" feature in the client portal
+define('SITE_MANAGER_URL', '');  // e.g. 'https://site-manager-ebon.vercel.app'
+define('SITE_MANAGER_API_SECRET', '');  // matches INTERNAL_API_SECRET in Site Manager .env
+
 // Session configuration
 ini_set('session.cookie_httponly', 1);
 ini_set('session.use_strict_mode', 1);
@@ -42,7 +47,7 @@ function getDB() {
                 ]
             );
         } catch (PDOException $e) {
-            die('Database connection failed. Please check your config.php credentials.');
+            throw new Exception('Database connection failed. Please check your config.php credentials.');
         }
     }
     return $pdo;
