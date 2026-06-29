@@ -298,6 +298,7 @@ if (isset($_GET['edit'])) {
         <a href="crm.php">Contacts</a>
         <a href="projects.php">Projects</a>
         <a href="quotes.php">Quotes</a>
+        <a href="newsletters.php">Newsletters</a>
         <a href="tools.php">Tools</a>
         <a href="#clients-section">Portal Users</a>
         <a href="../index.html">View Site</a>

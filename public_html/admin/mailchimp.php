@@ -193,4 +193,162 @@ class MailchimpAPI {
         $subscriberHash = md5(strtolower(trim($email)));
         return $this->request('DELETE', "/lists/{$this->audienceId}/members/{$subscriberHash}");
     }
+
+    // ========================================================
+    // Campaign (Newsletter) Methods
+    // ========================================================
+
+    /**
+     * Create a new campaign (newsletter).
+     */
+    public function createCampaign(string $subject, string $previewText, string $fromName, string $replyTo): array {
+        if (!$this->isConfigured()) {
+            return ['success' => false, 'error' => 'Mailchimp not configured'];
+        }
+
+        $data = [
+            'type' => 'regular',
+            'recipients' => [
+                'list_id' => $this->audienceId,
+            ],
+            'settings' => [
+                'subject_line' => $subject,
+                'preview_text' => $previewText,
+                'from_name' => $fromName,
+                'reply_to' => $replyTo,
+            ],
+        ];
+
+        return $this->request('POST', '/campaigns', $data);
+    }
+
+    /**
+     * Set the HTML content for a campaign.
+     */
+    public function setCampaignContent(string $campaignId, string $html): array {
+        if (!$this->isConfigured()) {
+            return ['success' => false, 'error' => 'Mailchimp not configured'];
+        }
+
+        return $this->request('PUT', "/campaigns/{$campaignId}/content", [
+            'html' => $html,
+        ]);
+    }
+
+    /**
+     * Send a campaign immediately.
+     */
+    public function sendCampaign(string $campaignId): array {
+        if (!$this->isConfigured()) {
+            return ['success' => false, 'error' => 'Mailchimp not configured'];
+        }
+
+        return $this->request('POST', "/campaigns/{$campaignId}/actions/send");
+    }
+
+    /**
+     * Schedule a campaign for later.
+     */
+    public function scheduleCampaign(string $campaignId, string $scheduleTime): array {
+        if (!$this->isConfigured()) {
+            return ['success' => false, 'error' => 'Mailchimp not configured'];
+        }
+
+        return $this->request('POST', "/campaigns/{$campaignId}/actions/schedule", [
+            'schedule_time' => $scheduleTime,
+        ]);
+    }
+
+    /**
+     * Send a test email for a campaign.
+     */
+    public function sendTestEmail(string $campaignId, array $testEmails): array {
+        if (!$this->isConfigured()) {
+            return ['success' => false, 'error' => 'Mailchimp not configured'];
+        }
+
+        return $this->request('POST', "/campaigns/{$campaignId}/actions/test", [
+            'test_emails' => $testEmails,
+            'send_type' => 'html',
+        ]);
+    }
+
+    /**
+     * Get a list of campaigns with stats.
+     */
+    public function getCampaigns(int $count = 20, int $offset = 0): array {
+        if (!$this->isConfigured()) {
+            return ['success' => false, 'error' => 'Mailchimp not configured'];
+        }
+
+        return $this->request('GET', "/campaigns?count={$count}&offset={$offset}&sort_field=send_time&sort_dir=DESC");
+    }
+
+    /**
+     * Get a single campaign's details.
+     */
+    public function getCampaign(string $campaignId): array {
+        if (!$this->isConfigured()) {
+            return ['success' => false, 'error' => 'Mailchimp not configured'];
+        }
+
+        return $this->request('GET', "/campaigns/{$campaignId}");
+    }
+
+    /**
+     * Get campaign report (opens, clicks, etc).
+     */
+    public function getCampaignReport(string $campaignId): array {
+        if (!$this->isConfigured()) {
+            return ['success' => false, 'error' => 'Mailchimp not configured'];
+        }
+
+        return $this->request('GET', "/reports/{$campaignId}");
+    }
+
+    /**
+     * Delete a campaign (only if not sent).
+     */
+    public function deleteCampaign(string $campaignId): array {
+        if (!$this->isConfigured()) {
+            return ['success' => false, 'error' => 'Mailchimp not configured'];
+        }
+
+        return $this->request('DELETE', "/campaigns/{$campaignId}");
+    }
+
+    /**
+     * Get audience segments/tags for targeting.
+     */
+    public function getSegments(): array {
+        if (!$this->isConfigured()) {
+            return ['success' => false, 'error' => 'Mailchimp not configured'];
+        }
+
+        return $this->request('GET', "/lists/{$this->audienceId}/segments");
+    }
+
+    /**
+     * Get audience member count.
+     */
+    public function getAudienceStats(): array {
+        if (!$this->isConfigured()) {
+            return ['success' => false, 'error' => 'Mailchimp not configured'];
+        }
+
+        $result = $this->request('GET', "/lists/{$this->audienceId}");
+        if ($result['success']) {
+            return [
+                'success' => true,
+                'name' => $result['name'] ?? 'Unknown',
+                'member_count' => $result['stats']['member_count'] ?? 0,
+                'unsubscribe_count' => $result['stats']['unsubscribe_count'] ?? 0,
+                'open_rate' => $result['stats']['open_rate'] ?? 0,
+                'click_rate' => $result['stats']['click_rate'] ?? 0,
+                'campaign_count' => $result['stats']['campaign_count'] ?? 0,
+            ];
+        }
+
+        return $result;
+    }
 }

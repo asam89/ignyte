@@ -17,8 +17,8 @@ define('DB_PASS', 'your_database_password');
 // Mailchimp API integration
 // Get your API key: Mailchimp -> Account -> Extras -> API Keys
 // Get your Audience ID: Mailchimp -> Audience -> Settings -> Audience name and defaults
-define('MAILCHIMP_API_KEY', '');  // e.g. 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-us21'
-define('MAILCHIMP_AUDIENCE_ID', '');  // e.g. 'a1b2c3d4e5'
+define('MAILCHIMP_API_KEY', '');  // Set on Hostinger: your Mailchimp API key (e.g. 'xxxxx-us4')
+define('MAILCHIMP_AUDIENCE_ID', '');  // Set on Hostinger: Mailchimp -> Audience -> Settings -> Audience ID
 
 define('SITE_URL', 'https://www.ignyteconsulting.com');
 define('ADMIN_URL', SITE_URL . '/admin');
