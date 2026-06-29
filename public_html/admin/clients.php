@@ -424,6 +424,14 @@ $activeClients = count(array_filter($allClients, function($c) { return $c['statu
 $totalDevices = array_sum(array_map('count', $devices));
 $totalPlatforms = array_sum(array_map('count', $platforms));
 
+// Fetch Jira ticket counts per client
+$jiraCountsByClient = [];
+try {
+    $jiraRows = $pdo->query("SELECT client_id, COUNT(*) as cnt FROM crm_projects WHERE notes LIKE '%[Jira:%' GROUP BY client_id")->fetchAll();
+    foreach ($jiraRows as $jr) { $jiraCountsByClient[$jr['client_id']] = $jr['cnt']; }
+} catch (PDOException $e) {}
+$totalJiraTickets = array_sum($jiraCountsByClient);
+
 // Editing?
 $editClient = null;
 if (isset($_GET['edit'])) {
@@ -661,6 +669,7 @@ $expandId = $_GET['expand'] ?? null;
         <a href="quotes.php">Quotes</a>
         <a href="newsletters.php">Newsletters</a>
         <a href="tools.php">Tools/Licenses</a>
+        <a href="atlassian.php">Atlassian</a>
         <a href="../index.html">View Site</a>
         <a href="logout.php" class="logout-btn">Logout</a>
     </div>
@@ -709,6 +718,9 @@ $expandId = $_GET['expand'] ?? null;
         <div class="stat-box"><div class="num"><?php echo $activeClients; ?></div><div class="label">Active</div></div>
         <div class="stat-box"><div class="num"><?php echo $totalDevices; ?></div><div class="label">Devices Managed</div></div>
         <div class="stat-box"><div class="num"><?php echo $totalPlatforms; ?></div><div class="label">Platforms Managed</div></div>
+        <?php if ($totalJiraTickets > 0): ?>
+        <div class="stat-box"><div class="num"><?php echo $totalJiraTickets; ?></div><div class="label">Jira Tickets</div></div>
+        <?php endif; ?>
     </div>
 
     <!-- Add / Edit Client -->
@@ -809,6 +821,7 @@ $expandId = $_GET['expand'] ?? null;
                 $code = htmlspecialchars($c['client_code'] ?? '');
                 $cDevices = $devices[$cId] ?? [];
                 $cPlatforms = $platforms[$cId] ?? [];
+                $cJiraCount = $jiraCountsByClient[$cId] ?? 0;
                 $cProjects = $projectsByClient[$cId] ?? [];
                 $cTools = $toolsByClient[$cId] ?? [];
                 $cContacts = $contactsByClient[$cId] ?? [];
@@ -830,6 +843,7 @@ $expandId = $_GET['expand'] ?? null;
                                     <?php if ($c['phone']): ?><span><?php echo htmlspecialchars($c['phone']); ?></span><?php endif; ?>
                                     <span><?php echo count($cDevices); ?> device(s)</span>
                                     <span><?php echo count($cPlatforms); ?> platform(s)</span>
+                                    <?php if ($cJiraCount > 0): ?><span style="color:var(--brand-blue);"><?php echo $cJiraCount; ?> Jira ticket(s)</span><?php endif; ?>
                                 </div>
                             </div>
                         </div>
