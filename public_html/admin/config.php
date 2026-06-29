@@ -14,11 +14,16 @@ define('DB_NAME', 'your_database_name');
 define('DB_USER', 'your_database_user');
 define('DB_PASS', 'your_database_password');
 
-// Mailchimp API integration
-// Get your API key: Mailchimp -> Account -> Extras -> API Keys
-// Get your Audience ID: Mailchimp -> Audience -> Settings -> Audience name and defaults
-define('MAILCHIMP_API_KEY', '');  // Set on Hostinger: your Mailchimp API key (e.g. 'xxxxx-us4')
-define('MAILCHIMP_AUDIENCE_ID', '');  // Set on Hostinger: Mailchimp -> Audience -> Settings -> Audience ID
+// Mailchimp API integration (legacy — used by CRM sync only)
+define('MAILCHIMP_API_KEY', '');  // Set on Hostinger if using Mailchimp CRM sync
+define('MAILCHIMP_AUDIENCE_ID', '');  // Set on Hostinger if using Mailchimp CRM sync
+
+// Resend API integration (newsletter sending)
+// Get your API key at: https://resend.com/api-keys
+// Verify ignyteconsulting.com in Resend domains first
+define('RESEND_API_KEY', '');  // Set on Hostinger: your Resend API key (e.g. 're_xxxxxxxxxxxx')
+define('RESEND_FROM_EMAIL', 'newsletter@ignyteconsulting.com');  // Must be from a verified domain
+define('RESEND_FROM_NAME', 'IGNYTE Consulting');
 
 define('SITE_URL', 'https://www.ignyteconsulting.com');
 define('ADMIN_URL', SITE_URL . '/admin');
