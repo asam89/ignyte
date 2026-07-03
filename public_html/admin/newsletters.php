@@ -3,11 +3,11 @@
  * IGNYTE Consulting - Newsletter Campaign Manager
  * 
  * Create, preview, and send email newsletters directly from the admin panel.
- * Uses Mailchimp Campaigns API v3 under the hood.
+ * Uses Resend API for delivery. Recipients pulled from CRM contacts.
  */
 session_start();
 require_once __DIR__ . '/config.php';
-require_once __DIR__ . '/mailchimp.php';
+require_once __DIR__ . '/resend.php';
 
 if (!isset($_SESSION['admin_id'])) {
     header('Location: login.php');
@@ -16,15 +16,33 @@ if (!isset($_SESSION['admin_id'])) {
 
 $pdo = getDB();
 $adminName = htmlspecialchars($_SESSION['admin_name']);
-$mailchimp = new MailchimpAPI();
-$mcConfigured = $mailchimp->isConfigured();
+$resend = new ResendAPI();
+$configured = $resend->isConfigured();
 
 $message = '';
 $error = '';
 $activeTab = $_GET['tab'] ?? 'compose';
 
+// Get recipient counts from CRM
+$recipientCounts = [];
+try {
+    $recipientCounts['all'] = (int)$pdo->query("SELECT COUNT(*) FROM crm_clients WHERE email IS NOT NULL AND email != ''")->fetchColumn();
+    $recipientCounts['active'] = (int)$pdo->query("SELECT COUNT(*) FROM crm_clients WHERE email IS NOT NULL AND email != '' AND status = 'active'")->fetchColumn();
+    $recipientCounts['prospect'] = (int)$pdo->query("SELECT COUNT(*) FROM crm_clients WHERE email IS NOT NULL AND email != '' AND status = 'prospect'")->fetchColumn();
+} catch (Exception $e) {
+    $recipientCounts = ['all' => 0, 'active' => 0, 'prospect' => 0];
+}
+
+// Get campaign history from local DB
+$campaigns = [];
+try {
+    $campaigns = $pdo->query("SELECT * FROM newsletter_campaigns ORDER BY created_at DESC LIMIT 20")->fetchAll();
+} catch (Exception $e) {
+    // Table might not exist yet
+}
+
 // Handle campaign creation and sending
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && $mcConfigured) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $configured) {
     $action = $_POST['campaign_action'] ?? '';
 
     if ($action === 'create_and_send' || $action === 'create_draft' || $action === 'send_test') {
@@ -38,6 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $mcConfigured) {
         $ctaText = trim($_POST['cta_text'] ?? '');
         $ctaUrl = trim($_POST['cta_url'] ?? '');
         $footerText = trim($_POST['footer_text'] ?? '');
+        $recipients = $_POST['recipients'] ?? 'active';
 
         if (!$subject || !$bodyContent) {
             $error = 'Subject line and body content are required.';
@@ -50,85 +69,169 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $mcConfigured) {
                 'cta_url' => $ctaUrl,
                 'footer' => $footerText,
                 'subject' => $subject,
+                'preview_text' => $previewText,
             ]);
 
-            // Create the campaign in Mailchimp
-            $campaign = $mailchimp->createCampaign($subject, $previewText, $fromName, $replyTo);
-
-            if (!$campaign['success']) {
-                $error = 'Failed to create campaign: ' . ($campaign['detail'] ?? $campaign['error'] ?? 'Unknown error');
-            } else {
-                $campaignId = $campaign['id'];
-
-                // Set the content
-                $contentResult = $mailchimp->setCampaignContent($campaignId, $html);
-                if (!$contentResult['success']) {
-                    $error = 'Campaign created but failed to set content: ' . ($contentResult['detail'] ?? $contentResult['error'] ?? 'Unknown error');
+            if ($action === 'send_test') {
+                $testEmail = trim($_POST['test_email'] ?? '');
+                if (!$testEmail) $testEmail = $replyTo;
+                $sendResult = $resend->sendTestEmail($testEmail, $subject, $html, $fromName, $replyTo);
+                if ($sendResult['success']) {
+                    $message = "Test email sent to {$testEmail}! Check your inbox.";
                 } else {
-                    if ($action === 'send_test') {
-                        $testEmail = trim($_POST['test_email'] ?? '');
-                        if (!$testEmail) $testEmail = $replyTo;
-                        $sendResult = $mailchimp->sendTestEmail($campaignId, [$testEmail]);
-                        if ($sendResult['success']) {
-                            $message = "Test email sent to {$testEmail}! Check your inbox.";
-                        } else {
-                            $error = 'Failed to send test: ' . ($sendResult['detail'] ?? $sendResult['error'] ?? 'Unknown error');
-                        }
-                        $activeTab = 'compose';
-                    } elseif ($action === 'create_and_send') {
-                        $sendResult = $mailchimp->sendCampaign($campaignId);
-                        if ($sendResult['success']) {
-                            $message = "Newsletter \"{$subject}\" sent successfully to your entire audience!";
-                            $activeTab = 'history';
-                        } else {
-                            $error = 'Campaign created but failed to send: ' . ($sendResult['detail'] ?? $sendResult['error'] ?? 'Unknown error');
-                        }
-                    } else {
-                        // Draft saved
-                        $message = "Campaign \"{$subject}\" saved as draft in Mailchimp. You can send it later from the History tab.";
-                        $activeTab = 'history';
-                    }
+                    $error = 'Failed to send test: ' . ($sendResult['message'] ?? $sendResult['error'] ?? 'Unknown error');
                 }
+                $activeTab = 'compose';
+            } elseif ($action === 'create_and_send') {
+                // Get recipients from CRM
+                $recipientList = getRecipients($pdo, $recipients);
+
+                if (empty($recipientList)) {
+                    $error = 'No recipients found for the selected group.';
+                } else {
+                    $sendResult = $resend->sendNewsletter($recipientList, $subject, $html, $fromName, $replyTo);
+
+                    // Save campaign to local DB
+                    saveCampaign($pdo, [
+                        'subject' => $subject,
+                        'preview_text' => $previewText,
+                        'from_name' => $fromName,
+                        'reply_to' => $replyTo,
+                        'template' => $template,
+                        'headline' => $headline,
+                        'body_content' => $bodyContent,
+                        'cta_text' => $ctaText,
+                        'cta_url' => $ctaUrl,
+                        'footer_text' => $footerText,
+                        'recipients_group' => $recipients,
+                        'recipients_count' => count($recipientList),
+                        'sent_count' => $sendResult['sent'] ?? 0,
+                        'failed_count' => $sendResult['failed'] ?? 0,
+                        'status' => $sendResult['success'] ? 'sent' : 'partial',
+                    ]);
+
+                    if ($sendResult['success']) {
+                        $message = "Newsletter \"{$subject}\" sent to {$sendResult['sent']} recipients!";
+                    } else {
+                        $error = "Sent to {$sendResult['sent']} of " . count($recipientList) . " recipients. Errors: " . implode(', ', $sendResult['errors']);
+                    }
+                    $activeTab = 'history';
+                }
+            } else {
+                // Save as draft
+                saveCampaign($pdo, [
+                    'subject' => $subject,
+                    'preview_text' => $previewText,
+                    'from_name' => $fromName,
+                    'reply_to' => $replyTo,
+                    'template' => $template,
+                    'headline' => $headline,
+                    'body_content' => $bodyContent,
+                    'cta_text' => $ctaText,
+                    'cta_url' => $ctaUrl,
+                    'footer_text' => $footerText,
+                    'recipients_group' => $recipients,
+                    'recipients_count' => 0,
+                    'sent_count' => 0,
+                    'failed_count' => 0,
+                    'status' => 'draft',
+                ]);
+                $message = "Campaign \"{$subject}\" saved as draft.";
+                $activeTab = 'history';
             }
         }
     }
 
-    if ($action === 'send_existing') {
-        $campaignId = $_POST['campaign_id'] ?? '';
+    if ($action === 'send_draft') {
+        $campaignId = (int)($_POST['campaign_id'] ?? 0);
         if ($campaignId) {
-            $sendResult = $mailchimp->sendCampaign($campaignId);
-            if ($sendResult['success']) {
-                $message = 'Campaign sent successfully!';
-            } else {
-                $error = 'Failed to send: ' . ($sendResult['detail'] ?? $sendResult['error'] ?? 'Unknown error');
+            $stmt = $pdo->prepare("SELECT * FROM newsletter_campaigns WHERE id = ?");
+            $stmt->execute([$campaignId]);
+            $campaign = $stmt->fetch();
+
+            if ($campaign && $campaign['status'] === 'draft') {
+                $html = buildEmailHtml($campaign['template'], [
+                    'headline' => $campaign['headline'],
+                    'body' => $campaign['body_content'],
+                    'cta_text' => $campaign['cta_text'],
+                    'cta_url' => $campaign['cta_url'],
+                    'footer' => $campaign['footer_text'],
+                    'subject' => $campaign['subject'],
+                    'preview_text' => $campaign['preview_text'],
+                ]);
+
+                $recipientList = getRecipients($pdo, $campaign['recipients_group']);
+                $sendResult = $resend->sendNewsletter($recipientList, $campaign['subject'], $html, $campaign['from_name'], $campaign['reply_to']);
+
+                $stmt = $pdo->prepare("UPDATE newsletter_campaigns SET status = ?, sent_count = ?, failed_count = ?, recipients_count = ?, sent_at = NOW() WHERE id = ?");
+                $stmt->execute([
+                    $sendResult['success'] ? 'sent' : 'partial',
+                    $sendResult['sent'],
+                    $sendResult['failed'],
+                    count($recipientList),
+                    $campaignId
+                ]);
+
+                if ($sendResult['success']) {
+                    $message = "Newsletter sent to {$sendResult['sent']} recipients!";
+                } else {
+                    $error = "Partially sent: {$sendResult['sent']} of " . count($recipientList);
+                }
             }
         }
         $activeTab = 'history';
     }
 
     if ($action === 'delete_campaign') {
-        $campaignId = $_POST['campaign_id'] ?? '';
+        $campaignId = (int)($_POST['campaign_id'] ?? 0);
         if ($campaignId) {
-            $delResult = $mailchimp->deleteCampaign($campaignId);
-            if ($delResult['success']) {
-                $message = 'Draft campaign deleted.';
-            } else {
-                $error = 'Failed to delete: ' . ($delResult['detail'] ?? $delResult['error'] ?? 'Unknown error');
-            }
+            $stmt = $pdo->prepare("DELETE FROM newsletter_campaigns WHERE id = ? AND status = 'draft'");
+            $stmt->execute([$campaignId]);
+            $message = 'Draft deleted.';
         }
         $activeTab = 'history';
     }
+
+    // Refresh campaigns after action
+    try {
+        $campaigns = $pdo->query("SELECT * FROM newsletter_campaigns ORDER BY created_at DESC LIMIT 20")->fetchAll();
+    } catch (Exception $e) {}
 }
 
-// Fetch campaigns for history tab
-$campaigns = [];
-$audienceStats = null;
-if ($mcConfigured) {
-    $campaignsResult = $mailchimp->getCampaigns(20);
-    if ($campaignsResult['success'] && isset($campaignsResult['campaigns'])) {
-        $campaigns = $campaignsResult['campaigns'];
+function getRecipients(PDO $pdo, string $group): array {
+    $sql = "SELECT email, full_name FROM crm_clients WHERE email IS NOT NULL AND email != ''";
+    if ($group === 'active') {
+        $sql .= " AND status = 'active'";
+    } elseif ($group === 'prospect') {
+        $sql .= " AND status = 'prospect'";
     }
-    $audienceStats = $mailchimp->getAudienceStats();
+    return $pdo->query($sql)->fetchAll();
+}
+
+function saveCampaign(PDO $pdo, array $data): void {
+    try {
+        $stmt = $pdo->prepare("INSERT INTO newsletter_campaigns (subject, preview_text, from_name, reply_to, template, headline, body_content, cta_text, cta_url, footer_text, recipients_group, recipients_count, sent_count, failed_count, status, sent_at, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+        $stmt->execute([
+            $data['subject'],
+            $data['preview_text'],
+            $data['from_name'],
+            $data['reply_to'],
+            $data['template'],
+            $data['headline'],
+            $data['body_content'],
+            $data['cta_text'],
+            $data['cta_url'],
+            $data['footer_text'],
+            $data['recipients_group'],
+            $data['recipients_count'],
+            $data['sent_count'],
+            $data['failed_count'],
+            $data['status'],
+            $data['status'] === 'sent' || $data['status'] === 'partial' ? date('Y-m-d H:i:s') : null,
+        ]);
+    } catch (Exception $e) {
+        // Table might not exist — silently fail for history tracking
+    }
 }
 
 /**
@@ -140,7 +243,7 @@ function buildEmailHtml(string $template, array $data): string {
     $ctaText = htmlspecialchars($data['cta_text']);
     $ctaUrl = htmlspecialchars($data['cta_url']);
     $footer = htmlspecialchars($data['footer'] ?: 'IGNYTE Consulting | Managed IT Services');
-    $subject = htmlspecialchars($data['subject']);
+    $previewText = htmlspecialchars($data['preview_text'] ?? '');
 
     $ctaBlock = '';
     if ($ctaText && $ctaUrl) {
@@ -154,15 +257,16 @@ function buildEmailHtml(string $template, array $data): string {
         </table>";
     }
 
+    $previewBlock = $previewText ? "<span style=\"display:none;max-height:0;overflow:hidden;\">{$previewText}</span>" : '';
+
     if ($template === 'minimal') {
-        return buildMinimalTemplate($headline, $body, $ctaBlock, $footer);
+        return buildMinimalTemplate($headline, $body, $ctaBlock, $footer, $previewBlock);
     }
 
-    // Default: modern template
-    return buildModernTemplate($headline, $body, $ctaBlock, $footer);
+    return buildModernTemplate($headline, $body, $ctaBlock, $footer, $previewBlock);
 }
 
-function buildModernTemplate(string $headline, string $body, string $ctaBlock, string $footer): string {
+function buildModernTemplate(string $headline, string $body, string $ctaBlock, string $footer, string $previewBlock): string {
     return <<<HTML
 <!DOCTYPE html>
 <html lang="en">
@@ -172,6 +276,7 @@ function buildModernTemplate(string $headline, string $body, string $ctaBlock, s
     <title>Newsletter</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #f4f7fa; font-family: 'Helvetica Neue', Arial, sans-serif;">
+    {$previewBlock}
     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f4f7fa;">
         <tr>
             <td style="padding: 40px 20px;">
@@ -200,7 +305,7 @@ function buildModernTemplate(string $headline, string $body, string $ctaBlock, s
                                 <a href="https://www.ignyteconsulting.com" style="color: #0047BB; text-decoration: none;">www.ignyteconsulting.com</a>
                             </p>
                             <p style="font-size: 11px; color: #a0aec0; margin: 12px 0 0 0; text-align: center;">
-                                <a href="*|UNSUB|*" style="color: #a0aec0;">Unsubscribe</a> | <a href="*|UPDATE_PROFILE|*" style="color: #a0aec0;">Update preferences</a>
+                                If you no longer wish to receive these emails, please reply with "unsubscribe".
                             </p>
                         </td>
                     </tr>
@@ -213,7 +318,7 @@ function buildModernTemplate(string $headline, string $body, string $ctaBlock, s
 HTML;
 }
 
-function buildMinimalTemplate(string $headline, string $body, string $ctaBlock, string $footer): string {
+function buildMinimalTemplate(string $headline, string $body, string $ctaBlock, string $footer, string $previewBlock): string {
     return <<<HTML
 <!DOCTYPE html>
 <html lang="en">
@@ -223,6 +328,7 @@ function buildMinimalTemplate(string $headline, string $body, string $ctaBlock, 
     <title>Newsletter</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #ffffff; font-family: 'Helvetica Neue', Arial, sans-serif;">
+    {$previewBlock}
     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #ffffff;">
         <tr>
             <td style="padding: 40px 20px;">
@@ -248,7 +354,7 @@ function buildMinimalTemplate(string $headline, string $body, string $ctaBlock, 
                         <td style="padding-top: 24px; border-top: 1px solid #e2e8f0;">
                             <p style="font-size: 12px; color: #718096; margin: 0; line-height: 1.6;">
                                 {$footer}<br>
-                                <a href="*|UNSUB|*" style="color: #718096;">Unsubscribe</a> | <a href="*|UPDATE_PROFILE|*" style="color: #718096;">Update preferences</a>
+                                If you no longer wish to receive these emails, please reply with "unsubscribe".
                             </p>
                         </td>
                     </tr>
@@ -406,12 +512,7 @@ HTML;
         }
         .badge-sent { background: rgba(34,197,94,0.1); color: #16a34a; }
         .badge-draft { background: rgba(245,158,11,0.1); color: #f59e0b; }
-        .badge-scheduled { background: rgba(0,71,187,0.1); color: var(--brand-blue); }
-
-        .preview-frame {
-            border: 1px solid rgba(0,0,0,0.1); border-radius: 8px;
-            width: 100%; height: 500px; margin-top: 16px;
-        }
+        .badge-partial { background: rgba(220,38,38,0.08); color: #dc2626; }
 
         .empty-state { text-align: center; padding: 60px 20px; color: var(--slate); }
         .empty-state p { font-size: 1.1rem; margin-bottom: 8px; }
@@ -462,46 +563,45 @@ HTML;
         <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
     <?php endif; ?>
 
-    <?php if (!$mcConfigured): ?>
+    <?php if (!$configured): ?>
         <div class="not-configured">
-            <h3>Mailchimp Not Connected</h3>
-            <p>To send newsletters, add your Mailchimp API Key and Audience ID to <code>config.php</code> on Hostinger.</p>
-            <pre style="background:var(--light-grey);padding:14px;border-radius:8px;font-size:0.82rem;text-align:left;max-width:500px;margin:0 auto;overflow-x:auto;">define('MAILCHIMP_API_KEY', 'your-api-key-here');
-define('MAILCHIMP_AUDIENCE_ID', 'your-audience-id');</pre>
+            <h3>Resend Not Connected</h3>
+            <p>To send newsletters, add your Resend API Key to <code>config.php</code> on Hostinger.</p>
+            <pre style="background:var(--light-grey);padding:14px;border-radius:8px;font-size:0.82rem;text-align:left;max-width:500px;margin:0 auto;overflow-x:auto;">define('RESEND_API_KEY', 're_xxxxxxxxxxxx');
+define('RESEND_FROM_EMAIL', 'newsletter@faezsports.com');
+define('RESEND_FROM_NAME', 'IGNYTE Consulting');</pre>
             <p style="margin-top:16px;font-size:0.85rem;">
-                Get your API key: Mailchimp &rarr; Account &rarr; Extras &rarr; API Keys<br>
-                Get your Audience ID: Mailchimp &rarr; Audience &rarr; Settings &rarr; Audience name and defaults
+                Get your API key at <a href="https://resend.com/api-keys" target="_blank">resend.com/api-keys</a><br>
+                Sends from your verified Resend domain (faezsports.com).
             </p>
         </div>
     <?php else: ?>
 
     <!-- Stats -->
-    <?php if ($audienceStats && $audienceStats['success']): ?>
     <div class="stats-row">
         <div class="stat-box">
-            <div class="num"><?php echo $audienceStats['member_count']; ?></div>
-            <div class="label">Subscribers</div>
+            <div class="num"><?php echo $recipientCounts['active']; ?></div>
+            <div class="label">Active Clients</div>
         </div>
         <div class="stat-box">
-            <div class="num"><?php echo $audienceStats['campaign_count']; ?></div>
+            <div class="num"><?php echo $recipientCounts['prospect']; ?></div>
+            <div class="label">Prospects</div>
+        </div>
+        <div class="stat-box">
+            <div class="num"><?php echo $recipientCounts['all']; ?></div>
+            <div class="label">Total Recipients</div>
+        </div>
+        <div class="stat-box">
+            <div class="num"><?php echo count($campaigns); ?></div>
             <div class="label">Campaigns Sent</div>
         </div>
-        <div class="stat-box">
-            <div class="num"><?php echo number_format($audienceStats['open_rate'] * 100, 1); ?>%</div>
-            <div class="label">Avg Open Rate</div>
-        </div>
-        <div class="stat-box">
-            <div class="num"><?php echo number_format($audienceStats['click_rate'] * 100, 1); ?>%</div>
-            <div class="label">Avg Click Rate</div>
-        </div>
     </div>
-    <?php endif; ?>
 
     <!-- Tabs -->
     <div class="tabs">
         <button class="tab-btn <?php echo $activeTab === 'compose' ? 'active' : ''; ?>" onclick="switchTab('compose')">Compose</button>
         <button class="tab-btn <?php echo $activeTab === 'templates' ? 'active' : ''; ?>" onclick="switchTab('templates')">Templates</button>
-        <button class="tab-btn <?php echo $activeTab === 'history' ? 'active' : ''; ?>" onclick="switchTab('history')">History & Reports</button>
+        <button class="tab-btn <?php echo $activeTab === 'history' ? 'active' : ''; ?>" onclick="switchTab('history')">History</button>
     </div>
 
     <!-- Compose Tab -->
@@ -526,6 +626,15 @@ define('MAILCHIMP_AUDIENCE_ID', 'your-audience-id');</pre>
                         <label>Reply-To Email</label>
                         <input type="email" name="reply_to" value="<?php echo htmlspecialchars($_POST['reply_to'] ?? 'info@ignyteconsulting.com'); ?>">
                     </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Send To</label>
+                    <select name="recipients">
+                        <option value="active">Active Clients (<?php echo $recipientCounts['active']; ?>)</option>
+                        <option value="prospect">Prospects Only (<?php echo $recipientCounts['prospect']; ?>)</option>
+                        <option value="all">All Contacts (<?php echo $recipientCounts['all']; ?>)</option>
+                    </select>
                 </div>
 
                 <div class="form-group" style="margin-top: 8px;">
@@ -577,12 +686,12 @@ Tips:
                 </div>
 
                 <div class="form-group">
-                    <label>Test Email <span class="hint">(for sending a preview to yourself)</span></label>
+                    <label>Test Email <span class="hint">(send a preview to yourself first)</span></label>
                     <input type="email" name="test_email" placeholder="asam@ignyteconsulting.com" value="<?php echo htmlspecialchars($_POST['test_email'] ?? ''); ?>">
                 </div>
 
                 <div class="form-actions">
-                    <button type="submit" name="campaign_action" value="create_and_send" class="btn btn-send" onclick="return confirm('Send this newsletter to your ENTIRE audience? This cannot be undone.');">Send to All Subscribers</button>
+                    <button type="submit" name="campaign_action" value="create_and_send" class="btn btn-send" onclick="return confirm('Send this newsletter to the selected recipients? This cannot be undone.');">Send Newsletter</button>
                     <button type="submit" name="campaign_action" value="send_test" class="btn btn-test">Send Test Email</button>
                     <button type="submit" name="campaign_action" value="create_draft" class="btn btn-draft">Save as Draft</button>
                 </div>
@@ -635,44 +744,39 @@ Tips:
                         <tr>
                             <th>Subject</th>
                             <th>Status</th>
+                            <th>Recipients</th>
                             <th>Sent</th>
-                            <th>Opens</th>
-                            <th>Clicks</th>
+                            <th>Date</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($campaigns as $camp): ?>
                             <?php
-                            $status = $camp['status'] ?? 'unknown';
+                            $status = $camp['status'] ?? 'draft';
                             $badgeClass = 'badge-draft';
                             if ($status === 'sent') $badgeClass = 'badge-sent';
-                            elseif ($status === 'schedule') $badgeClass = 'badge-scheduled';
-
-                            $openRate = isset($camp['report_summary']['open_rate']) ? number_format($camp['report_summary']['open_rate'] * 100, 1) . '%' : '-';
-                            $clickRate = isset($camp['report_summary']['click_rate']) ? number_format($camp['report_summary']['click_rate'] * 100, 1) . '%' : '-';
-                            $sentTime = !empty($camp['send_time']) ? date('M j, Y g:ia', strtotime($camp['send_time'])) : '-';
+                            elseif ($status === 'partial') $badgeClass = 'badge-partial';
+                            $sentTime = !empty($camp['sent_at']) ? date('M j, Y g:ia', strtotime($camp['sent_at'])) : '-';
                             ?>
                             <tr>
-                                <td style="font-weight:600;"><?php echo htmlspecialchars($camp['settings']['subject_line'] ?? 'Untitled'); ?></td>
+                                <td style="font-weight:600;"><?php echo htmlspecialchars($camp['subject']); ?></td>
                                 <td><span class="badge <?php echo $badgeClass; ?>"><?php echo ucfirst($status); ?></span></td>
+                                <td><?php echo $camp['recipients_count'] ?: '-'; ?></td>
+                                <td><?php echo $camp['sent_count'] ?: '-'; ?></td>
                                 <td><?php echo $sentTime; ?></td>
-                                <td><?php echo $openRate; ?></td>
-                                <td><?php echo $clickRate; ?></td>
                                 <td>
-                                    <?php if ($status === 'save' || $status === 'paused'): ?>
+                                    <?php if ($status === 'draft'): ?>
                                         <form method="POST" style="display:inline;">
-                                            <input type="hidden" name="campaign_action" value="send_existing">
+                                            <input type="hidden" name="campaign_action" value="send_draft">
                                             <input type="hidden" name="campaign_id" value="<?php echo $camp['id']; ?>">
-                                            <button type="submit" class="btn btn-send btn-small" onclick="return confirm('Send this draft campaign now?');">Send Now</button>
+                                            <button type="submit" class="btn btn-send btn-small" onclick="return confirm('Send this draft now?');">Send</button>
                                         </form>
                                         <form method="POST" style="display:inline;">
                                             <input type="hidden" name="campaign_action" value="delete_campaign">
                                             <input type="hidden" name="campaign_id" value="<?php echo $camp['id']; ?>">
                                             <button type="submit" class="btn-delete" onclick="return confirm('Delete this draft?');">Delete</button>
                                         </form>
-                                    <?php elseif ($status === 'sent'): ?>
-                                        <a href="<?php echo htmlspecialchars($camp['archive_url'] ?? '#'); ?>" target="_blank" class="btn btn-test btn-small">View</a>
                                     <?php endif; ?>
                                 </td>
                             </tr>
