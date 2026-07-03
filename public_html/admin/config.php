@@ -20,9 +20,9 @@ define('MAILCHIMP_AUDIENCE_ID', '');  // Set on Hostinger if using Mailchimp CRM
 
 // Resend API integration (newsletter sending)
 // Get your API key at: https://resend.com/api-keys
-// Verify ignyteconsulting.com in Resend domains first
+// Sends from your verified Resend domain (faezsports.com)
 define('RESEND_API_KEY', '');  // Set on Hostinger: your Resend API key (e.g. 're_xxxxxxxxxxxx')
-define('RESEND_FROM_EMAIL', 'newsletter@ignyteconsulting.com');  // Must be from a verified domain
+define('RESEND_FROM_EMAIL', 'newsletter@faezsports.com');  // Must be from a verified Resend domain
 define('RESEND_FROM_NAME', 'IGNYTE Consulting');
 
 define('SITE_URL', 'https://www.ignyteconsulting.com');

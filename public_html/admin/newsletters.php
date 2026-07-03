@@ -568,11 +568,11 @@ HTML;
             <h3>Resend Not Connected</h3>
             <p>To send newsletters, add your Resend API Key to <code>config.php</code> on Hostinger.</p>
             <pre style="background:var(--light-grey);padding:14px;border-radius:8px;font-size:0.82rem;text-align:left;max-width:500px;margin:0 auto;overflow-x:auto;">define('RESEND_API_KEY', 're_xxxxxxxxxxxx');
-define('RESEND_FROM_EMAIL', 'newsletter@ignyteconsulting.com');
+define('RESEND_FROM_EMAIL', 'newsletter@faezsports.com');
 define('RESEND_FROM_NAME', 'IGNYTE Consulting');</pre>
             <p style="margin-top:16px;font-size:0.85rem;">
                 Get your API key at <a href="https://resend.com/api-keys" target="_blank">resend.com/api-keys</a><br>
-                Make sure <code>ignyteconsulting.com</code> is verified in your Resend domains.
+                Sends from your verified Resend domain (faezsports.com).
             </p>
         </div>
     <?php else: ?>
