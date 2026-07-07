@@ -20,7 +20,7 @@
                 <a href="#about">About</a>
                 <a href="#services">Services</a>
                 <a href="#ai-msp">AI Solutions</a>
-                <a href="#it-assessment">IT Assessment</a>
+                <a href="quote.php">Get a Quote</a>
                 <a href="blog.php">Blog</a>
                 <a href="client/login.php">Client Login</a>
                 <a href="#consultation" class="btn-nav">Free Consultation</a>
@@ -484,198 +484,36 @@
     </div>
 </section>
 
-<!-- ===== IT NEEDS ASSESSMENT ===== -->
+<!-- ===== GET A QUOTE ===== -->
 <section id="it-assessment" style="padding: 100px 0; background: white;">
     <div class="container">
         <div class="section-header">
-            <div class="section-label">Free Tool</div>
-            <h2>IT Needs Assessment</h2>
-            <p>Answer a few questions about your organization and get a personalized IT readiness report with recommendations.</p>
+            <div class="section-label">Transparent Pricing</div>
+            <h2>Get Your IT Services Quote</h2>
+            <p>Answer a few questions about your business and IT needs. Get a transparent, itemized quote in minutes &mdash; no hidden fees, no surprises. Sign and confirm your SOW online.</p>
         </div>
-        <div style="max-width: 720px; margin: 0 auto;">
-            <div id="assessment-form">
-                <div class="assessment-step" id="step-1" style="display:block;">
-                    <div style="background: var(--light-grey); padding: 32px; border-radius: 16px; margin-bottom: 20px;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-                            <span style="font-size:0.85rem;color:var(--slate);font-weight:600;">Question 1 of 6</span>
-                            <span style="font-size:0.85rem;color:var(--flame-orange);font-weight:700;">17%</span>
-                        </div>
-                        <div style="height:4px;background:rgba(0,0,0,0.08);border-radius:4px;margin-bottom:24px;"><div style="height:4px;background:var(--flame-orange);border-radius:4px;width:17%;"></div></div>
-                        <h3 style="font-size:1.15rem;color:var(--navy);margin-bottom:16px;">How many employees does your organization have?</h3>
-                        <div style="display:grid;gap:10px;">
-                            <label style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:white;border:1.5px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;transition:0.2s;" onmouseover="this.style.borderColor='var(--flame-orange)'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)'">
-                                <input type="radio" name="q1" value="1-10" style="accent-color:var(--flame-orange);"> <span>1 &ndash; 10</span>
-                            </label>
-                            <label style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:white;border:1.5px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;transition:0.2s;" onmouseover="this.style.borderColor='var(--flame-orange)'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)'">
-                                <input type="radio" name="q1" value="11-50" style="accent-color:var(--flame-orange);"> <span>11 &ndash; 50</span>
-                            </label>
-                            <label style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:white;border:1.5px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;transition:0.2s;" onmouseover="this.style.borderColor='var(--flame-orange)'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)'">
-                                <input type="radio" name="q1" value="51-200" style="accent-color:var(--flame-orange);"> <span>51 &ndash; 200</span>
-                            </label>
-                            <label style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:white;border:1.5px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;transition:0.2s;" onmouseover="this.style.borderColor='var(--flame-orange)'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)'">
-                                <input type="radio" name="q1" value="200+" style="accent-color:var(--flame-orange);"> <span>200+</span>
-                            </label>
-                        </div>
+        <div style="max-width: 720px; margin: 0 auto; text-align: center;">
+            <div style="background: var(--light-grey); padding: 48px 32px; border-radius: 20px; margin-bottom: 24px;">
+                <div style="font-size: 3rem; margin-bottom: 16px;">&#128196;</div>
+                <h3 style="font-size: 1.3rem; color: var(--navy); margin-bottom: 12px; font-family: 'Inter', sans-serif;">One-Stop IT Services Quote</h3>
+                <p style="color: var(--slate); font-size: 0.95rem; line-height: 1.7; margin-bottom: 24px; max-width: 500px; margin-left: auto; margin-right: auto;">Tell us about your business, select the services you need, and get an instant transparent quote with line-item pricing. Ready to sign? Confirm your contract digitally.</p>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 28px; max-width: 480px; margin-left: auto; margin-right: auto;">
+                    <div style="padding: 16px; background: white; border-radius: 12px;">
+                        <div style="font-size: 1.5rem; margin-bottom: 6px;">&#128221;</div>
+                        <div style="font-size: 0.78rem; font-weight: 600; color: var(--navy);">Answer Questions</div>
                     </div>
-                    <button onclick="nextStep(1)" class="btn-primary" style="width:100%;border:none;font-family:'DM Sans',sans-serif;cursor:pointer;">Next &rarr;</button>
-                </div>
-
-                <div class="assessment-step" id="step-2" style="display:none;">
-                    <div style="background: var(--light-grey); padding: 32px; border-radius: 16px; margin-bottom: 20px;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-                            <span style="font-size:0.85rem;color:var(--slate);font-weight:600;">Question 2 of 6</span>
-                            <span style="font-size:0.85rem;color:var(--flame-orange);font-weight:700;">33%</span>
-                        </div>
-                        <div style="height:4px;background:rgba(0,0,0,0.08);border-radius:4px;margin-bottom:24px;"><div style="height:4px;background:var(--flame-orange);border-radius:4px;width:33%;"></div></div>
-                        <h3 style="font-size:1.15rem;color:var(--navy);margin-bottom:16px;">What is your current IT setup?</h3>
-                        <div style="display:grid;gap:10px;">
-                            <label style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:white;border:1.5px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;transition:0.2s;" onmouseover="this.style.borderColor='var(--flame-orange)'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)'">
-                                <input type="radio" name="q2" value="no-it" style="accent-color:var(--flame-orange);"> <span>No dedicated IT staff or systems</span>
-                            </label>
-                            <label style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:white;border:1.5px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;transition:0.2s;" onmouseover="this.style.borderColor='var(--flame-orange)'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)'">
-                                <input type="radio" name="q2" value="basic" style="accent-color:var(--flame-orange);"> <span>Basic setup (email, shared files, antivirus)</span>
-                            </label>
-                            <label style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:white;border:1.5px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;transition:0.2s;" onmouseover="this.style.borderColor='var(--flame-orange)'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)'">
-                                <input type="radio" name="q2" value="managed" style="accent-color:var(--flame-orange);"> <span>Managed by an IT person or MSP</span>
-                            </label>
-                            <label style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:white;border:1.5px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;transition:0.2s;" onmouseover="this.style.borderColor='var(--flame-orange)'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)'">
-                                <input type="radio" name="q2" value="advanced" style="accent-color:var(--flame-orange);"> <span>Full IT department with servers &amp; cloud</span>
-                            </label>
-                        </div>
+                    <div style="padding: 16px; background: white; border-radius: 12px;">
+                        <div style="font-size: 1.5rem; margin-bottom: 6px;">&#128176;</div>
+                        <div style="font-size: 0.78rem; font-weight: 600; color: var(--navy);">Get Your Quote</div>
                     </div>
-                    <div style="display:flex;gap:12px;">
-                        <button onclick="prevStep(2)" class="btn-secondary" style="flex:1;border:none;font-family:'DM Sans',sans-serif;cursor:pointer;">&larr; Back</button>
-                        <button onclick="nextStep(2)" class="btn-primary" style="flex:2;border:none;font-family:'DM Sans',sans-serif;cursor:pointer;">Next &rarr;</button>
+                    <div style="padding: 16px; background: white; border-radius: 12px;">
+                        <div style="font-size: 1.5rem; margin-bottom: 6px;">&#9997;</div>
+                        <div style="font-size: 0.78rem; font-weight: 600; color: var(--navy);">Sign & Confirm</div>
                     </div>
                 </div>
-
-                <div class="assessment-step" id="step-3" style="display:none;">
-                    <div style="background: var(--light-grey); padding: 32px; border-radius: 16px; margin-bottom: 20px;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-                            <span style="font-size:0.85rem;color:var(--slate);font-weight:600;">Question 3 of 6</span>
-                            <span style="font-size:0.85rem;color:var(--flame-orange);font-weight:700;">50%</span>
-                        </div>
-                        <div style="height:4px;background:rgba(0,0,0,0.08);border-radius:4px;margin-bottom:24px;"><div style="height:4px;background:var(--flame-orange);border-radius:4px;width:50%;"></div></div>
-                        <h3 style="font-size:1.15rem;color:var(--navy);margin-bottom:16px;">What are your biggest IT challenges? (Select all that apply)</h3>
-                        <div style="display:grid;gap:10px;">
-                            <label style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:white;border:1.5px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;transition:0.2s;" onmouseover="this.style.borderColor='var(--flame-orange)'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)'">
-                                <input type="checkbox" name="q3" value="security" style="accent-color:var(--flame-orange);"> <span>Cybersecurity &amp; data protection</span>
-                            </label>
-                            <label style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:white;border:1.5px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;transition:0.2s;" onmouseover="this.style.borderColor='var(--flame-orange)'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)'">
-                                <input type="checkbox" name="q3" value="cloud" style="accent-color:var(--flame-orange);"> <span>Cloud migration or management</span>
-                            </label>
-                            <label style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:white;border:1.5px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;transition:0.2s;" onmouseover="this.style.borderColor='var(--flame-orange)'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)'">
-                                <input type="checkbox" name="q3" value="network" style="accent-color:var(--flame-orange);"> <span>Network reliability &amp; WiFi issues</span>
-                            </label>
-                            <label style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:white;border:1.5px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;transition:0.2s;" onmouseover="this.style.borderColor='var(--flame-orange)'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)'">
-                                <input type="checkbox" name="q3" value="apps" style="accent-color:var(--flame-orange);"> <span>Software &amp; application management</span>
-                            </label>
-                            <label style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:white;border:1.5px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;transition:0.2s;" onmouseover="this.style.borderColor='var(--flame-orange)'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)'">
-                                <input type="checkbox" name="q3" value="backup" style="accent-color:var(--flame-orange);"> <span>Data backup &amp; disaster recovery</span>
-                            </label>
-                            <label style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:white;border:1.5px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;transition:0.2s;" onmouseover="this.style.borderColor='var(--flame-orange)'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)'">
-                                <input type="checkbox" name="q3" value="website" style="accent-color:var(--flame-orange);"> <span>Website &amp; web application needs</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div style="display:flex;gap:12px;">
-                        <button onclick="prevStep(3)" class="btn-secondary" style="flex:1;border:none;font-family:'DM Sans',sans-serif;cursor:pointer;">&larr; Back</button>
-                        <button onclick="nextStep(3)" class="btn-primary" style="flex:2;border:none;font-family:'DM Sans',sans-serif;cursor:pointer;">Next &rarr;</button>
-                    </div>
-                </div>
-
-                <div class="assessment-step" id="step-4" style="display:none;">
-                    <div style="background: var(--light-grey); padding: 32px; border-radius: 16px; margin-bottom: 20px;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-                            <span style="font-size:0.85rem;color:var(--slate);font-weight:600;">Question 4 of 6</span>
-                            <span style="font-size:0.85rem;color:var(--flame-orange);font-weight:700;">67%</span>
-                        </div>
-                        <div style="height:4px;background:rgba(0,0,0,0.08);border-radius:4px;margin-bottom:24px;"><div style="height:4px;background:var(--flame-orange);border-radius:4px;width:67%;"></div></div>
-                        <h3 style="font-size:1.15rem;color:var(--navy);margin-bottom:16px;">Do you currently use any cloud services?</h3>
-                        <div style="display:grid;gap:10px;">
-                            <label style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:white;border:1.5px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;transition:0.2s;" onmouseover="this.style.borderColor='var(--flame-orange)'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)'">
-                                <input type="radio" name="q4" value="none" style="accent-color:var(--flame-orange);"> <span>No cloud services</span>
-                            </label>
-                            <label style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:white;border:1.5px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;transition:0.2s;" onmouseover="this.style.borderColor='var(--flame-orange)'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)'">
-                                <input type="radio" name="q4" value="basic-cloud" style="accent-color:var(--flame-orange);"> <span>Basic (Google Workspace, Microsoft 365)</span>
-                            </label>
-                            <label style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:white;border:1.5px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;transition:0.2s;" onmouseover="this.style.borderColor='var(--flame-orange)'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)'">
-                                <input type="radio" name="q4" value="partial" style="accent-color:var(--flame-orange);"> <span>Some cloud, some on-premise</span>
-                            </label>
-                            <label style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:white;border:1.5px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;transition:0.2s;" onmouseover="this.style.borderColor='var(--flame-orange)'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)'">
-                                <input type="radio" name="q4" value="full-cloud" style="accent-color:var(--flame-orange);"> <span>Fully cloud-based</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div style="display:flex;gap:12px;">
-                        <button onclick="prevStep(4)" class="btn-secondary" style="flex:1;border:none;font-family:'DM Sans',sans-serif;cursor:pointer;">&larr; Back</button>
-                        <button onclick="nextStep(4)" class="btn-primary" style="flex:2;border:none;font-family:'DM Sans',sans-serif;cursor:pointer;">Next &rarr;</button>
-                    </div>
-                </div>
-
-                <div class="assessment-step" id="step-5" style="display:none;">
-                    <div style="background: var(--light-grey); padding: 32px; border-radius: 16px; margin-bottom: 20px;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-                            <span style="font-size:0.85rem;color:var(--slate);font-weight:600;">Question 5 of 6</span>
-                            <span style="font-size:0.85rem;color:var(--flame-orange);font-weight:700;">83%</span>
-                        </div>
-                        <div style="height:4px;background:rgba(0,0,0,0.08);border-radius:4px;margin-bottom:24px;"><div style="height:4px;background:var(--flame-orange);border-radius:4px;width:83%;"></div></div>
-                        <h3 style="font-size:1.15rem;color:var(--navy);margin-bottom:16px;">What industry is your organization in?</h3>
-                        <div style="display:grid;gap:10px;">
-                            <label style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:white;border:1.5px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;transition:0.2s;" onmouseover="this.style.borderColor='var(--flame-orange)'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)'">
-                                <input type="radio" name="q5" value="healthcare" style="accent-color:var(--flame-orange);"> <span>Healthcare / Medical</span>
-                            </label>
-                            <label style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:white;border:1.5px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;transition:0.2s;" onmouseover="this.style.borderColor='var(--flame-orange)'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)'">
-                                <input type="radio" name="q5" value="legal" style="accent-color:var(--flame-orange);"> <span>Legal / Law Firm</span>
-                            </label>
-                            <label style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:white;border:1.5px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;transition:0.2s;" onmouseover="this.style.borderColor='var(--flame-orange)'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)'">
-                                <input type="radio" name="q5" value="nonprofit" style="accent-color:var(--flame-orange);"> <span>Non-Profit / NGO</span>
-                            </label>
-                            <label style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:white;border:1.5px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;transition:0.2s;" onmouseover="this.style.borderColor='var(--flame-orange)'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)'">
-                                <input type="radio" name="q5" value="retail" style="accent-color:var(--flame-orange);"> <span>Retail / E-Commerce</span>
-                            </label>
-                            <label style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:white;border:1.5px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;transition:0.2s;" onmouseover="this.style.borderColor='var(--flame-orange)'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)'">
-                                <input type="radio" name="q5" value="other" style="accent-color:var(--flame-orange);"> <span>Other</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div style="display:flex;gap:12px;">
-                        <button onclick="prevStep(5)" class="btn-secondary" style="flex:1;border:none;font-family:'DM Sans',sans-serif;cursor:pointer;">&larr; Back</button>
-                        <button onclick="nextStep(5)" class="btn-primary" style="flex:2;border:none;font-family:'DM Sans',sans-serif;cursor:pointer;">Next &rarr;</button>
-                    </div>
-                </div>
-
-                <div class="assessment-step" id="step-6" style="display:none;">
-                    <div style="background: var(--light-grey); padding: 32px; border-radius: 16px; margin-bottom: 20px;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-                            <span style="font-size:0.85rem;color:var(--slate);font-weight:600;">Question 6 of 6</span>
-                            <span style="font-size:0.85rem;color:var(--flame-orange);font-weight:700;">100%</span>
-                        </div>
-                        <div style="height:4px;background:rgba(0,0,0,0.08);border-radius:4px;margin-bottom:24px;"><div style="height:4px;background:var(--flame-orange);border-radius:4px;width:100%;"></div></div>
-                        <h3 style="font-size:1.15rem;color:var(--navy);margin-bottom:16px;">How would you rate your organization's IT readiness for growth?</h3>
-                        <div style="display:grid;gap:10px;">
-                            <label style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:white;border:1.5px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;transition:0.2s;" onmouseover="this.style.borderColor='var(--flame-orange)'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)'">
-                                <input type="radio" name="q6" value="not-ready" style="accent-color:var(--flame-orange);"> <span>Not ready &mdash; we need to start from scratch</span>
-                            </label>
-                            <label style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:white;border:1.5px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;transition:0.2s;" onmouseover="this.style.borderColor='var(--flame-orange)'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)'">
-                                <input type="radio" name="q6" value="somewhat" style="accent-color:var(--flame-orange);"> <span>Somewhat ready &mdash; we have basics but need help</span>
-                            </label>
-                            <label style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:white;border:1.5px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;transition:0.2s;" onmouseover="this.style.borderColor='var(--flame-orange)'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)'">
-                                <input type="radio" name="q6" value="good" style="accent-color:var(--flame-orange);"> <span>Good shape &mdash; looking to optimize &amp; modernize</span>
-                            </label>
-                            <label style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:white;border:1.5px solid rgba(0,0,0,0.08);border-radius:10px;cursor:pointer;transition:0.2s;" onmouseover="this.style.borderColor='var(--flame-orange)'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)'">
-                                <input type="radio" name="q6" value="advanced" style="accent-color:var(--flame-orange);"> <span>Advanced &mdash; we want cutting-edge AI &amp; automation</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div style="display:flex;gap:12px;">
-                        <button onclick="prevStep(6)" class="btn-secondary" style="flex:1;border:none;font-family:'DM Sans',sans-serif;cursor:pointer;">&larr; Back</button>
-                        <button onclick="generateReport()" class="btn-primary" style="flex:2;border:none;font-family:'DM Sans',sans-serif;cursor:pointer;">Get My Report &rarr;</button>
-                    </div>
-                </div>
+                <a href="quote.php" class="btn-primary" style="display: inline-block; text-decoration: none; padding: 18px 40px; font-size: 1.05rem; border-radius: 12px;">Get Your Free Quote &rarr;</a>
             </div>
-
-            <div id="assessment-result" style="display:none;"></div>
+            <p style="color: var(--slate); font-size: 0.85rem;">No commitment required. Takes less than 5 minutes.</p>
         </div>
     </div>
 </section>
@@ -701,7 +539,7 @@
                     <li><a href="#about">About Us</a></li>
                     <li><a href="#services">Services</a></li>
                     <li><a href="#ai-msp">AI Solutions</a></li>
-                    <li><a href="#it-assessment">IT Assessment</a></li>
+                    <li><a href="quote.php">Get a Quote</a></li>
                     <li><a href="#consultation">Free Consultation</a></li>
                     <li><a href="blog.php">Blog</a></li>
                     <li><a href="client/login.php">Client Login</a></li>
@@ -747,7 +585,7 @@
                 <div class="chat-quick-replies">
                     <button class="quick-reply" onclick="sendQuickReply('I need a consultation')">Consultation</button>
                     <button class="quick-reply" onclick="sendQuickReply('Tell me about your services')">Services</button>
-                    <button class="quick-reply" onclick="sendQuickReply('Tell me about your IT assessment')">IT Assessment</button>
+                    <button class="quick-reply" onclick="sendQuickReply('I want a quote for IT services')">Get a Quote</button>
                 </div>
             </div>
             <div class="msg-time">Just now</div>
@@ -782,139 +620,7 @@
         });
     });
 
-    // ===== IT NEEDS ASSESSMENT =====
-    function nextStep(current) {
-        var step = document.getElementById('step-' + current);
-        var next = document.getElementById('step-' + (current + 1));
-        if (current <= 5) {
-            var radios = step.querySelectorAll('input[type=radio]');
-            var checks = step.querySelectorAll('input[type=checkbox]');
-            if (radios.length > 0) {
-                var selected = step.querySelector('input[type=radio]:checked');
-                if (!selected) { alert('Please select an option.'); return; }
-            }
-            if (checks.length > 0 && radios.length === 0) {
-                var checked = step.querySelectorAll('input[type=checkbox]:checked');
-                if (checked.length === 0) { alert('Please select at least one option.'); return; }
-            }
-        }
-        step.style.display = 'none';
-        if (next) next.style.display = 'block';
-    }
 
-    function prevStep(current) {
-        document.getElementById('step-' + current).style.display = 'none';
-        document.getElementById('step-' + (current - 1)).style.display = 'block';
-    }
-
-    function getVal(name) {
-        var el = document.querySelector('input[name="' + name + '"]:checked');
-        return el ? el.value : '';
-    }
-
-    function getVals(name) {
-        var els = document.querySelectorAll('input[name="' + name + '"]:checked');
-        var vals = [];
-        els.forEach(function(el) { vals.push(el.value); });
-        return vals;
-    }
-
-    function generateReport() {
-        var q6 = getVal('q6');
-        if (!q6) { alert('Please select an option.'); return; }
-
-        var size = getVal('q1');
-        var setup = getVal('q2');
-        var challenges = getVals('q3');
-        var cloud = getVal('q4');
-        var industry = getVal('q5');
-        var readiness = q6;
-
-        var score = 0;
-        var maxScore = 100;
-        var recs = [];
-
-        // Score based on setup maturity
-        if (setup === 'advanced') score += 30;
-        else if (setup === 'managed') score += 20;
-        else if (setup === 'basic') score += 10;
-        else score += 0;
-
-        // Score based on cloud adoption
-        if (cloud === 'full-cloud') score += 25;
-        else if (cloud === 'partial') score += 15;
-        else if (cloud === 'basic-cloud') score += 10;
-        else score += 0;
-
-        // Score based on readiness
-        if (readiness === 'advanced') score += 25;
-        else if (readiness === 'good') score += 20;
-        else if (readiness === 'somewhat') score += 10;
-        else score += 0;
-
-        // Bonus for smaller challenge list (fewer problems = better shape)
-        if (challenges.length <= 1) score += 20;
-        else if (challenges.length <= 3) score += 10;
-        else score += 5;
-
-        score = Math.min(score, maxScore);
-
-        // Grade
-        var grade, gradeColor, gradeLabel;
-        if (score >= 80) { grade = 'A'; gradeColor = '#22c55e'; gradeLabel = 'Excellent'; }
-        else if (score >= 60) { grade = 'B'; gradeColor = '#3b82f6'; gradeLabel = 'Good'; }
-        else if (score >= 40) { grade = 'C'; gradeColor = '#f59e0b'; gradeLabel = 'Needs Improvement'; }
-        else { grade = 'D'; gradeColor = '#ef4444'; gradeLabel = 'Critical Attention Needed'; }
-
-        // Generate recommendations
-        if (challenges.indexOf('security') !== -1) recs.push({icon:'&#128737;',title:'Cybersecurity Audit',desc:'Your organization needs a comprehensive security assessment. We recommend endpoint protection, employee training, and a data protection policy.'});
-        if (challenges.indexOf('cloud') !== -1) recs.push({icon:'&#9729;',title:'Cloud Strategy',desc:'A structured cloud migration plan will reduce costs and improve scalability. We can help you evaluate Azure, AWS, or Google Cloud options.'});
-        if (challenges.indexOf('network') !== -1) recs.push({icon:'&#128246;',title:'Network & WiFi Optimization',desc:'A WiFi site survey and network architecture review will identify dead zones and bottlenecks affecting your team\'s productivity.'});
-        if (challenges.indexOf('apps') !== -1) recs.push({icon:'&#128187;',title:'Application Management',desc:'Centralizing your software stack with M365, Intune, and proper license management will reduce costs and improve security.'});
-        if (challenges.indexOf('backup') !== -1) recs.push({icon:'&#128451;',title:'Backup & Disaster Recovery',desc:'Implementing automated backups with tested recovery procedures will protect your business from data loss and downtime.'});
-        if (challenges.indexOf('website') !== -1) recs.push({icon:'&#127760;',title:'Web Presence Upgrade',desc:'A modern, responsive website or web application will improve customer engagement and support your business growth.'});
-
-        if (setup === 'no-it' || setup === 'basic') recs.push({icon:'&#128295;',title:'Managed IT Services',desc:'Your organization would benefit from a dedicated managed IT partner to handle day-to-day operations, monitoring, and strategic planning.'});
-        if (cloud === 'none') recs.push({icon:'&#9729;',title:'Cloud Adoption',desc:'Moving to cloud services will improve collaboration, reduce hardware costs, and provide better disaster recovery capabilities.'});
-
-        // Industry-specific recs
-        if (industry === 'healthcare') recs.push({icon:'&#127973;',title:'Healthcare Compliance',desc:'PHIPA/HIPAA compliance, encrypted communications, and secure patient data management are critical for your industry.'});
-        if (industry === 'legal') recs.push({icon:'&#9878;',title:'Legal Tech Security',desc:'Client privilege protection, document management systems, and encrypted file sharing are essential for law practices.'});
-
-        // Size-based
-        if (size === '200+' && setup !== 'advanced') recs.push({icon:'&#127981;',title:'Enterprise IT Infrastructure',desc:'Organizations your size need robust server infrastructure, centralized management, and dedicated IT governance.'});
-
-        // Build result HTML
-        var html = '<div style="text-align:center;margin-bottom:40px;">';
-        html += '<div style="display:inline-flex;align-items:center;justify-content:center;width:120px;height:120px;border-radius:50%;background:' + gradeColor + ';margin-bottom:16px;"><span style="font-size:3rem;font-weight:800;color:white;">' + grade + '</span></div>';
-        html += '<h3 style="font-size:1.5rem;color:var(--navy);margin-bottom:8px;">Your IT Readiness Score: ' + score + '/100</h3>';
-        html += '<p style="color:' + gradeColor + ';font-weight:700;font-size:1.1rem;margin-bottom:8px;">' + gradeLabel + '</p>';
-        html += '<p style="color:var(--slate);font-size:0.95rem;">Based on your responses, here are our tailored recommendations:</p>';
-        html += '</div>';
-
-        if (recs.length > 0) {
-            html += '<div style="display:grid;gap:16px;margin-bottom:32px;">';
-            for (var i = 0; i < recs.length; i++) {
-                html += '<div style="background:var(--light-grey);padding:24px;border-radius:14px;display:flex;gap:16px;align-items:start;">';
-                html += '<div style="font-size:1.8rem;flex-shrink:0;margin-top:2px;">' + recs[i].icon + '</div>';
-                html += '<div><strong style="color:var(--navy);font-size:1.05rem;display:block;margin-bottom:6px;">' + recs[i].title + '</strong>';
-                html += '<p style="color:var(--slate);font-size:0.92rem;line-height:1.7;margin:0;">' + recs[i].desc + '</p></div></div>';
-            }
-            html += '</div>';
-        }
-
-        html += '<div style="background:linear-gradient(135deg,var(--navy),#001a4d);padding:32px;border-radius:16px;text-align:center;color:white;">';
-        html += '<h3 style="color:white;font-size:1.2rem;margin-bottom:12px;">Ready to Improve Your IT?</h3>';
-        html += '<p style="color:rgba(255,255,255,0.7);font-size:0.95rem;margin-bottom:20px;">Let our experts build a customized IT roadmap for your organization. Book a free consultation today.</p>';
-        html += '<a href="#consultation" class="btn-primary" style="display:inline-block;text-decoration:none;box-shadow:0 4px 18px rgba(238,90,36,0.5);">Book Free Consultation &rarr;</a>';
-        html += '</div>';
-
-        document.getElementById('assessment-form').style.display = 'none';
-        var result = document.getElementById('assessment-result');
-        result.style.display = 'block';
-        result.innerHTML = html;
-        result.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
 
     // ===== CHAT =====
     function toggleChat() {
@@ -962,8 +668,8 @@
         var lower = msg.toLowerCase();
         if (lower.indexOf('consult') !== -1) return 'We\'d love to discuss your needs! Please email us at <a href="mailto:contact@ignyteconsulting.com">contact@ignyteconsulting.com</a> or describe your project here.';
         if (lower.indexOf('service') !== -1) return 'We offer Cloud Services, Network Architecture, Application Support, App Development, Web Design, Data Management, WiFi Analysis, Physical Server Support, Datacenter Management, and Cybersecurity Advisory. Which interests you?';
-        if (lower.indexOf('assess') !== -1 || lower.indexOf('it needs') !== -1) return 'You can take our free <a href="#it-assessment">IT Needs Assessment</a> to get a personalized readiness report with recommendations for your organization.';
-        if (lower.indexOf('price') !== -1 || lower.indexOf('cost') !== -1) return 'Our pricing depends on the scope of work. Please reach out at <a href="mailto:contact@ignyteconsulting.com">contact@ignyteconsulting.com</a> for a custom quote.';
+        if (lower.indexOf('assess') !== -1 || lower.indexOf('it needs') !== -1) return 'You can get a free <a href="quote.php">IT Services Quote</a> with transparent pricing based on your specific needs.';
+        if (lower.indexOf('price') !== -1 || lower.indexOf('cost') !== -1 || lower.indexOf('quote') !== -1) return 'Get instant transparent pricing with our <a href="quote.php">IT Services Quote tool</a>. Answer a few questions and see line-item pricing with no hidden fees.';
         return 'Thanks for your message! Our team will get back to you soon. You can also reach us at <a href="mailto:contact@ignyteconsulting.com">contact@ignyteconsulting.com</a>.';
     }
 </script>

@@ -80,6 +80,46 @@ if ($crmClientId) {
     } catch (PDOException $e) {}
 }
 
+// Site Manager embed token
+$siteManagerEmbedUrl = '';
+if (defined('SITE_MANAGER_URL') && SITE_MANAGER_URL && defined('SITE_MANAGER_API_SECRET') && SITE_MANAGER_API_SECRET) {
+    // Look up site ID for this client from CRM or use a configured mapping
+    $siteManagerSiteId = '';
+    if ($crmClient) {
+        // Check if there's a site_manager_site_id field on the CRM client
+        $siteManagerSiteId = $crmClient['site_manager_site_id'] ?? '';
+    }
+
+    if ($siteManagerSiteId && $client['email']) {
+        $tokenPayload = json_encode([
+            'email' => $client['email'],
+            'siteId' => $siteManagerSiteId,
+        ]);
+
+        $ch = curl_init(SITE_MANAGER_URL . '/api/embed/token');
+        curl_setopt_array($ch, [
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $tokenPayload,
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . SITE_MANAGER_API_SECRET,
+            ],
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 10,
+        ]);
+        $tokenResponse = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode === 200 && $tokenResponse) {
+            $tokenData = json_decode($tokenResponse, true);
+            if (isset($tokenData['token'])) {
+                $siteManagerEmbedUrl = SITE_MANAGER_URL . '/embed/' . urlencode($siteManagerSiteId) . '?token=' . urlencode($tokenData['token']);
+            }
+        }
+    }
+}
+
 // Stats
 $activeProjects = 0;
 $totalInvoiced = 0;
@@ -316,6 +356,11 @@ $activePlatforms = count(array_filter($platforms, function($p) { return $p['stat
         <button class="dash-tab" onclick="showPanel('platforms')">Platforms (<?php echo count($platforms); ?>)</button>
         <button class="dash-tab" onclick="showPanel('projects')">Projects</button>
         <button class="dash-tab" onclick="showPanel('billing')">Billing &amp; Docs</button>
+        <?php if ($siteManagerEmbedUrl): ?>
+            <button class="dash-tab" onclick="showPanel('website')" style="display:flex;align-items:center;gap:6px;">
+                <span style="font-size:1.1em;">&#127760;</span> Website Updates
+            </button>
+        <?php endif; ?>
     </div>
 
     <!-- ========== OVERVIEW PANEL ========== -->
@@ -658,6 +703,27 @@ $activePlatforms = count(array_filter($platforms, function($p) { return $p['stat
             </div>
         </div>
     </div>
+
+    <!-- ========== WEBSITE UPDATES PANEL ========== -->
+    <?php if ($siteManagerEmbedUrl): ?>
+    <div class="tab-panel" id="panel-website">
+        <div class="section-card" style="overflow:hidden;">
+            <div class="section-card-header">
+                <h2>Website Updates</h2>
+                <span style="font-size:0.82rem;color:var(--slate);">Powered by IGNYTE Site Manager</span>
+            </div>
+            <div style="padding:0;">
+                <iframe
+                    id="site-manager-embed"
+                    src="<?php echo htmlspecialchars($siteManagerEmbedUrl); ?>"
+                    style="width:100%;min-height:600px;border:none;"
+                    allow="clipboard-write"
+                    loading="lazy"
+                ></iframe>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
 
 </div>
 
