@@ -1,1 +1,4 @@
 bot/.env
+
+# Production config with DB credentials and API keys — never overwrite on deploy
+public_html/admin/config.php
