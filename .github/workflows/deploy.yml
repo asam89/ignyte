@@ -16,3 +16,10 @@ jobs:
           local-dir: ./public_html/
           server-dir: /public_html/
           timeout: 60000
+          # Never upload or delete these on the server. config.php holds
+          # production DB credentials and API keys and lives only on Hostinger.
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/config.php
