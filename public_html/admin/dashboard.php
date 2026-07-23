@@ -300,6 +300,7 @@ if (isset($_GET['edit'])) {
         <a href="quotes.php">Quotes</a>
         <a href="newsletters.php">Newsletters</a>
         <a href="tools.php">Tools</a>
+        <a href="atlassian.php">Atlassian</a>
         <a href="#clients-section">Portal Users</a>
         <a href="../index.html">View Site</a>
         <a href="change-password.php">Password</a>
