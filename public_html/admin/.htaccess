@@ -1,11 +1,10 @@
-# Protect config.php from direct access
+# Protect config.php from direct access (Apache 2.4 + 2.2 compatible)
 <Files "config.php">
-    Order Allow,Deny
-    Deny from all
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order Allow,Deny
+        Deny from all
+    </IfModule>
 </Files>
-
-# Protect setup.php after initial setup (uncomment after running setup)
-# <Files "setup.php">
-#     Order Allow,Deny
-#     Deny from all
-# </Files>
