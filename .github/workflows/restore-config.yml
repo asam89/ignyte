@@ -91,7 +91,9 @@ jobs:
         run: |
           # curl handles arbitrary characters in the password safely via env
           # vars + first-colon separator, unlike lftp's comma separator.
-          curl --fail --show-error --ssl-reqd --ftp-create-dirs \
+          # -k: the Hostinger FTP cert does not match the hostname; skip
+          # verification since we are connecting to the user's known host.
+          curl --fail --show-error --ssl-reqd -k --ftp-create-dirs \
             --user "$FTP_USER:$FTP_PASS" \
             -T upload/admin/config.php \
             "ftp://$FTP_SERVER/public_html/admin/config.php"
