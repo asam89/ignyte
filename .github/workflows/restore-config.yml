@@ -89,11 +89,14 @@ jobs:
           FTP_USER: ${{ secrets.FTP_USER }}
           FTP_PASS: ${{ secrets.FTP_PASS }}
         run: |
-          # curl handles arbitrary characters in the password safely via env
-          # vars + first-colon separator, unlike lftp's comma separator.
-          # -k: the Hostinger FTP cert does not match the hostname; skip
-          # verification since we are connecting to the user's known host.
-          curl --fail --show-error --ssl-reqd -k --ftp-create-dirs \
+          # curl handles arbitrary characters in the password safely via env.
+          # -k: Hostinger's FTP cert does not match the hostname; skip verify.
+          # --ftp-skip-pasv-ip: Hostinger returns an internal/unreachable IP in
+          #   the PASV response; reuse the control-connection host instead (this
+          #   is what caused the exit-28 data-transfer timeout).
+          curl -v --fail --show-error --ssl-reqd -k \
+            --ftp-skip-pasv-ip --ftp-create-dirs \
+            --connect-timeout 30 --max-time 120 \
             --user "$FTP_USER:$FTP_PASS" \
             -T upload/admin/config.php \
             "ftp://$FTP_SERVER/public_html/admin/config.php"
