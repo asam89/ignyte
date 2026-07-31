@@ -37,7 +37,10 @@ jobs:
       - name: Generate config.php
         run: |
           mkdir -p upload/admin
-          cat > upload/admin/config.php <<PHP
+          # Quoted delimiter: bash does NOT expand $ inside, so a password
+          # like $Ignyte2818 is written literally instead of as an (empty)
+          # shell variable. GitHub still substitutes the ${{ inputs }} first.
+          cat > upload/admin/config.php <<'PHP'
           <?php
           define('DB_HOST', '${{ github.event.inputs.db_host }}');
           define('DB_NAME', '${{ github.event.inputs.db_name }}');
@@ -61,10 +64,10 @@ jobs:
           ini_set('session.use_strict_mode', 1);
 
           function getDB() {
-              static \$pdo = null;
-              if (\$pdo === null) {
+              static $pdo = null;
+              if ($pdo === null) {
                   try {
-                      \$pdo = new PDO(
+                      $pdo = new PDO(
                           'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4',
                           DB_USER,
                           DB_PASS,
@@ -74,11 +77,11 @@ jobs:
                               PDO::ATTR_EMULATE_PREPARES => false,
                           ]
                       );
-                  } catch (PDOException \$e) {
+                  } catch (PDOException $e) {
                       throw new Exception('Database connection failed. Please check your config.php credentials.');
                   }
               }
-              return \$pdo;
+              return $pdo;
           }
           PHP
           echo "Generated config.php ($(wc -l < upload/admin/config.php) lines)"
