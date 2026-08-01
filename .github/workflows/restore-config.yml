@@ -97,10 +97,20 @@ jobs:
           # --ftp-skip-pasv-ip: Hostinger returns an internal/unreachable IP in
           #   the PASV response; reuse the control-connection host instead (this
           #   is what caused the exit-28 data-transfer timeout).
+          # The FTP login lands directly in the site's public_html, so the path
+          # is "admin/config.php" (NOT "public_html/admin/..." which would nest
+          # a second public_html and put the file where PHP never looks).
           curl -v --fail --show-error --ssl-reqd -k \
             --ftp-skip-pasv-ip --ftp-create-dirs \
             --connect-timeout 30 --max-time 120 \
             --user "$FTP_USER:$FTP_PASS" \
             -T upload/admin/config.php \
-            "ftp://$FTP_SERVER/public_html/admin/config.php"
+            "ftp://$FTP_SERVER/admin/config.php"
+
+          # Remove the previously mis-uploaded nested copy, if present.
+          curl -sS --ssl-reqd -k --ftp-skip-pasv-ip \
+            --connect-timeout 30 --max-time 60 \
+            --user "$FTP_USER:$FTP_PASS" \
+            "ftp://$FTP_SERVER/" -Q "DELE public_html/admin/config.php" || \
+            echo "no nested copy to remove (ok)"
           echo "Upload complete"
